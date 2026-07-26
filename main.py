@@ -7,6 +7,7 @@ from fpdf import FPDF
 import sqlite3
 import re
 import json
+import os
 from datetime import datetime
 
 app = FastAPI()
@@ -24,7 +25,7 @@ app.add_middleware(
 # ==========================================
 client = OpenAI(
     base_url='https://api.mistral.ai/v1',
-    api_key='qgbITcEL06jxoUJ4dpJlR8GI8M2tFut7',
+    api_key=os.environ.get("MISTRAL_API_KEY"),
 )
 
 DB_NAME = "artisan_v4.db"
