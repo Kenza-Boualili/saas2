@@ -18,5 +18,8 @@ export default defineConfig({
       usePolling: true,
       interval: 300
     }
+  },
+  build: {
+    cssMinify: false // Désactive la minification CSS pour éviter le plantage Rolldown/Vite sur Vercel
   }
 })
