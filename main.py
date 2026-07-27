@@ -76,7 +76,8 @@ def init_db():
         ("ai_style", "TEXT DEFAULT 'professionnel'"),
         ("ai_consignes", "TEXT DEFAULT 'Demander d’abord le problème, puis le nom, le téléphone et l’adresse.'"),
         ("en_vacances", "INTEGER DEFAULT 0"),
-        ("date_retour_vacances", "TEXT DEFAULT ''")
+        ("date_retour_vacances", "TEXT DEFAULT ''"),
+        ("twilio_numero", "TEXT DEFAULT ''")
     ]
     for col_nom, col_type in nouvelles_colonnes:
         try:
@@ -151,13 +152,14 @@ class ProfilArtisan(BaseModel):
     ai_consignes: str
     en_vacances: int
     date_retour_vacances: str
+    twilio_numero: str = ""
 
 @app.get("/api/artisans/{artisan_id}/profil")
 def recuperer_profil(artisan_id: int):
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT nom_entreprise, metier, logo, telephone, adresse, horaires, zone_intervention, tarif_deplacement, tarif_horaire, ai_ton, ai_style, ai_consignes, en_vacances, date_retour_vacances FROM artisans WHERE id = ?", (artisan_id,))
+    cursor.execute("SELECT nom_entreprise, metier, logo, telephone, adresse, horaires, zone_intervention, tarif_deplacement, tarif_horaire, ai_ton, ai_style, ai_consignes, en_vacances, date_retour_vacances, twilio_numero FROM artisans WHERE id = ?", (artisan_id,))
     profil = cursor.fetchone()
     conn.close()
     if profil:
@@ -170,9 +172,9 @@ def mettre_a_jour_profil(artisan_id: int, profil: ProfilArtisan):
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE artisans 
-        SET nom_entreprise=?, metier=?, logo=?, telephone=?, adresse=?, horaires=?, zone_intervention=?, tarif_deplacement=?, tarif_horaire=?, ai_ton=?, ai_style=?, ai_consignes=?, en_vacances=?, date_retour_vacances=?
+        SET nom_entreprise=?, metier=?, logo=?, telephone=?, adresse=?, horaires=?, zone_intervention=?, tarif_deplacement=?, tarif_horaire=?, ai_ton=?, ai_style=?, ai_consignes=?, en_vacances=?, date_retour_vacances=?, twilio_numero=?
         WHERE id=?
-    """, (profil.nom_entreprise, profil.metier, profil.logo, profil.telephone, profil.adresse, profil.horaires, profil.zone_intervention, profil.tarif_deplacement, profil.tarif_horaire, profil.ai_ton, profil.ai_style, profil.ai_consignes, profil.en_vacances, profil.date_retour_vacances, artisan_id))
+    """, (profil.nom_entreprise, profil.metier, profil.logo, profil.telephone, profil.adresse, profil.horaires, profil.zone_intervention, profil.tarif_deplacement, profil.tarif_horaire, profil.ai_ton, profil.ai_style, profil.ai_consignes, profil.en_vacances, profil.date_retour_vacances, profil.twilio_numero, artisan_id))
     conn.commit()
     conn.close()
     return {"success": True}
@@ -355,25 +357,33 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
 def envoyer_email_alerte(email_artisan, nom_client, telephone, probleme):
     print("\n" + "="*60)
     print(f"[SIMULATION D'ENVOI D'EMAIL] DESTINATAIRE : {email_artisan}")
-    print(f"SUJET : ArtisanAI - Nouvelle demande d'intervention")
+    print(f"SUJET : ArtisanPro - Nouvelle demande d'intervention")
     print(f"Nom du client : {nom_client}")
     print(f"Téléphone     : {telephone}")
     print(f"Problème      : {probleme}")
     print("="*60 + "\n")
 
 # ==========================================
-# 📱 WEBHOOK WHATSAPP
+# 📱 WEBHOOK WHATSAPP (MULTI-TENANT DYNAMIQUE)
 # ==========================================
 @app.post("/api/webhook/twilio")
-async def webhook_twilio(From: str = Form(...), Body: str = Form(...)):
-    telephone_client_defaut = From.replace("whatsapp:", "")
+async def webhook_twilio(From: str = Form(...), To: str = Form(...), Body: str = Form(...)):
+    telephone_client_defaut = From.replace("whatsapp:", "").strip()
+    numero_artisan_destinataire = To.replace("whatsapp:", "").strip()
     message_client = Body
 
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM artisans LIMIT 1")
+    
+    # 🔍 Recherche de l'artisan par son numéro Twilio enregistré dans ses réglages
+    cursor.execute("SELECT * FROM artisans WHERE twilio_numero = ?", (numero_artisan_destinataire,))
     artisan = cursor.fetchone()
+    
+    # Filet de sécurité si aucun numéro ne correspond exactement (prend le premier)
+    if not artisan:
+        cursor.execute("SELECT * FROM artisans LIMIT 1")
+        artisan = cursor.fetchone()
     
     if not artisan:
         conn.close()
@@ -382,7 +392,7 @@ async def webhook_twilio(From: str = Form(...), Body: str = Form(...)):
 
     artisan_id = artisan["id"]
 
-    cursor.execute("SELECT id, statut FROM prospects WHERE telephone = ? AND statut NOT IN ('termine', 'archive') ORDER BY id DESC LIMIT 1", (telephone_client_defaut,))
+    cursor.execute("SELECT id, statut FROM prospects WHERE telephone = ? AND artisan_id = ? AND statut NOT IN ('termine', 'archive') ORDER BY id DESC LIMIT 1", (telephone_client_defaut, artisan_id))
     prospect_actif = cursor.fetchone()
 
     cursor.execute("SELECT historique FROM whatsapp_conversations WHERE telephone = ?", (telephone_client_defaut,))
