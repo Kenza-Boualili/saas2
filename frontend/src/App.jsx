@@ -191,8 +191,13 @@ function App() {
     try { await fetch(`${API_URL}/api/prospects/${id}/rendezvous`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date_intervention: dateStr }) }) } catch (erreur) {}
   }
 
-  // Téléchargement direct et robuste du PDF via Blob
+  // Téléchargement direct et robuste du PDF via Blob sécurisé
   const telechargerDocumentPdf = async (prospectId, typeDoc) => {
+    if (!prospectId) {
+      alert("Veuillez sélectionner un client valide.");
+      return;
+    }
+    
     setMessageSauvegarde('Génération...');
     try {
       await fetch(`${API_URL}/api/prospects/${prospectId}/facturation`, {
@@ -205,8 +210,13 @@ function App() {
         })
       });
 
-      const response = await fetch(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`);
-      if (!response.ok) throw new Error("Erreur génération PDF");
+      const response = await fetch(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur serveur (${response.status})`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -221,6 +231,7 @@ function App() {
       setMessageSauvegarde('Téléchargé !');
       setTimeout(() => setMessageSauvegarde(''), 2000);
     } catch (err) {
+      console.error("Erreur PDF:", err);
       alert("Erreur lors du téléchargement du document PDF.");
       setMessageSauvegarde('');
     }
