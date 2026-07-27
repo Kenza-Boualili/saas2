@@ -487,7 +487,10 @@ function App() {
       {/* 🧭 MENU LATÉRAL */}
       <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex z-10 relative">
         <div className="p-6">
-          <div className="flex items-center gap-3 mb-8 text-blue-500"><Wrench className="w-8 h-8" /><h1 className="text-2xl font-extrabold tracking-tight text-white">ArtisanAI</h1></div>
+          <div className="flex items-center gap-3 mb-8 text-blue-500">
+            <Wrench className="w-8 h-8" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-white truncate max-w-[160px]">{artisanConnecte.nom_entreprise}</h1>
+          </div>
           <nav className="flex flex-col gap-2">
             <button onClick={() => setVueActuelle('dashboard')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${vueActuelle === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-50'}`}><LayoutDashboard className="w-5 h-5" /> Tableau de bord</button>
             <button onClick={() => setVueActuelle('clients')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${vueActuelle === 'clients' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-50'}`}><Users className="w-5 h-5" /> Répertoire Clients</button>
