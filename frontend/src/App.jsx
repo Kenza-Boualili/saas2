@@ -313,7 +313,7 @@ function App() {
         <Card className="w-full max-w-[500px] bg-slate-900 border-slate-800 shadow-2xl relative z-10 p-4 sm:p-8">
           <CardHeader className="space-y-3 text-center pb-10">
             <div className="flex justify-center mb-2"><div className="bg-blue-600 p-4 rounded-2xl shadow-lg shadow-blue-900/50"><Wrench className="w-10 h-10 text-white" /></div></div>
-            <CardTitle className="text-4xl font-extrabold tracking-tight text-white">ArtisanAI</CardTitle>
+            <CardTitle className="text-4xl font-extrabold tracking-tight text-white">ArtisanPro</CardTitle>
             <CardDescription className="text-slate-400 text-base">{vueAuth === 'connexion' ? 'Connectez-vous à votre espace' : 'Créez votre espace professionnel'}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -489,7 +489,7 @@ function App() {
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8 text-blue-500">
             <Wrench className="w-8 h-8" />
-            <h1 className="text-2xl font-extrabold tracking-tight text-white truncate max-w-[160px]">{artisanConnecte.nom_entreprise}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-white">ArtisanPro</h1>
           </div>
           <nav className="flex flex-col gap-2">
             <button onClick={() => setVueActuelle('dashboard')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${vueActuelle === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-50'}`}><LayoutDashboard className="w-5 h-5" /> Tableau de bord</button>
