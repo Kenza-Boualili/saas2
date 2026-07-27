@@ -282,7 +282,7 @@ def archiver_prospect(prospect_id: int):
     return {"success": True}
 
 # ==========================================
-# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF (CORRIGÉ)
+# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF
 # ==========================================
 @app.get("/api/prospects/{prospect_id}/document")
 def generer_document(prospect_id: int, type_doc: str = "facture"):
@@ -389,7 +389,6 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     pdf.set_text_color(150, 150, 150)
     pdf.cell(0, 10, texte_bas_page, new_x="LMARGIN", new_y="NEXT", align="C")
 
-    # CORRECTION ICI : Conversion propre du PDF en octets pour FastAPI
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename={prefixe_fichier}_{donnees['id']}_{donnees['nom'].replace(' ', '_')}.pdf"})
 
@@ -400,14 +399,103 @@ def envoyer_email_alerte(email_artisan, nom_client, telephone, probleme):
     print(f"[EMAIL] Alerte envoyée à {email_artisan} pour {nom_client}")
 
 # ==========================================
-# 📱 WEBHOOK WHATSAPP & CHATBOT
+# 🤖 LE CHATBOT (WEB) & TWILIO WHATSAPP
 # ==========================================
-@app.post("/api/webhook/twilio")
-async def webhook_twilio(From: str = Form(...), To: str = Form(...), Body: str = Form(...)):
-    # ... (le reste de ton code webhook reste identique)
-    pass
+class RequeteChat(BaseModel):
+    artisan_id: int
+    nouveau_message: str
+    historique: list
 
 @app.post("/api/chat")
 async def discuter_avec_ia(donnees: RequeteChat):
-    # ... (le reste de ton code chat reste identique)
-    pass
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM artisans WHERE id = ?", (donnees.artisan_id,))
+    artisan = cursor.fetchone()
+    conn.close()
+    
+    if not artisan: return {"reponse": "Erreur : Artisan introuvable."}
+
+    contexte_vacances = ""
+    if artisan["en_vacances"] == 1:
+        date_retour_exacte = artisan['date_retour_vacances'] or 'prochainement'
+        contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}."
+
+    prompt_contexte = f"""Tu es l'assistant d'accueil virtuel de l'entreprise '{artisan['nom_entreprise']}' spécialisée en {artisan['metier']}.
+{contexte_vacances}
+
+DIRECTIVES DE L'ARTISAN :
+- Ton : {artisan['ai_ton']}
+- Style : {artisan['ai_style']}
+- Consignes : {artisan['ai_consignes']}
+
+OBJECTIF : Collecter le problème, le nom, le téléphone et l'adresse complète avant de clôturer l'échange. Ne dis jamais au revoir avant d'avoir ces 4 infos.
+RÈGLE ABSOLUE : Ne parle jamais d'e-mail.
+"""
+
+    messages_pour_ia = [{"role": "system", "content": prompt_contexte}]
+    for msg in donnees.historique: 
+        messages_pour_ia.append({"role": msg["role"], "content": msg["content"]})
+    messages_pour_ia.append({"role": "user", "content": donnees.nouveau_message})
+
+    try:
+        reponse_ia = client.chat.completions.create(model="mistral-small-latest", messages=messages_pour_ia)
+        texte_reponse = reponse_ia.choices[0].message.content
+    except Exception as e:
+        return {"reponse": f"Erreur : {str(e)}"}
+
+    historique_complet = donnees.historique + [
+        {"role": "user", "content": donnees.nouveau_message},
+        {"role": "assistant", "content": texte_reponse}
+    ]
+    conversation_complete = "\n".join([f"{m['role']}: {m['content']}" for m in historique_complet])
+
+    prompt_extraction = [{
+        "role": "system", 
+        "content": f"""Analyse cette conversation avec un client pour un {artisan['metier']}.
+Renvoie UNIQUEMENT un objet JSON valide avec ces clés :
+- "complet": true si tu as le problème, le nom, l'adresse et le téléphone, sinon false.
+- "nom": nom du client ou "Client".
+- "probleme": problème technique.
+- "adresse": adresse postale ou "".
+- "telephone": téléphone ou "".
+- "urgent": "oui" ou "non".
+Renvoie uniquement le JSON pur sans markdown."""
+    }, {
+        "role": "user", 
+        "content": conversation_complete
+    }]
+
+    try:
+        reponse_extraction = client.chat.completions.create(model="mistral-small-latest", messages=prompt_extraction)
+        texte_nettoye = reponse_extraction.choices[0].message.content.replace('```json', '').replace('```', '').strip()
+        donnees_propres = json.loads(texte_nettoye)
+        
+        if donnees_propres.get("complet") == True and donnees_propres.get("telephone"):
+            nom_final = donnees_propres.get("nom", "Client")
+            probleme_final = donnees_propres.get("probleme", "Demande")
+            adresse_final = donnees_propres.get("adresse", "À préciser")
+            telephone_final = donnees_propres.get("telephone", "")
+            urgent_final = str(donnees_propres.get("urgent", "non")).lower()
+            
+            historique_json = json.dumps(historique_complet)
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            date_actuelle = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            cursor.execute("SELECT id FROM prospects WHERE telephone = ? AND artisan_id = ? AND statut NOT IN ('termine', 'archive')", (telephone_final, donnees.artisan_id))
+            existe = cursor.fetchone()
+            
+            if not existe:
+                cursor.execute(
+                    "INSERT INTO prospects (artisan_id, nom, probleme, telephone, adresse, urgent, date_creation, statut, historique_chat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                    (donnees.artisan_id, nom_final, probleme_final, telephone_final, adresse_final, urgent_final, date_actuelle, "nouveau", historique_json)
+                )
+                conn.commit()
+                envoyer_email_alerte(artisan['email'], nom_final, telephone_final, probleme_final)
+            conn.close()
+    except Exception as ex:
+        print("Erreur d'extraction automatique :", ex)
+
+    return {"reponse": texte_reponse}
