@@ -282,8 +282,13 @@ def archiver_prospect(prospect_id: int):
     return {"success": True}
 
 # ==========================================
-# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF
+# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF (SÉCURISÉ)
 # ==========================================
+def nettoyer_texte(texte):
+    if not texte:
+        return ""
+    return str(texte).encode('latin-1', 'replace').decode('latin-1')
+
 @app.get("/api/prospects/{prospect_id}/document")
 def generer_document(prospect_id: int, type_doc: str = "facture"):
     conn = sqlite3.connect(DB_NAME)
@@ -322,16 +327,16 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     
     pdf.set_font("helvetica", "B", 18)
     pdf.set_text_color(37, 99, 235)
-    pdf.cell(0, 8, donnees["nom_entreprise"], new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(0, 8, nettoyer_texte(donnees["nom_entreprise"]), new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.set_font("helvetica", "I", 12)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, donnees["metier"], new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(0, 6, nettoyer_texte(donnees["metier"]), new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.set_font("helvetica", "", 10)
-    pdf.cell(0, 5, f"Email Pro: {donnees['email']}", new_x="LMARGIN", new_y="NEXT", align="L")
-    if donnees['tel_artisan']: pdf.cell(0, 5, f"Tél: {donnees['tel_artisan']}", new_x="LMARGIN", new_y="NEXT", align="L")
-    if donnees['adresse_artisan']: pdf.cell(0, 5, f"{donnees['adresse_artisan']}", new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(0, 5, nettoyer_texte(f"Email Pro: {donnees['email']}"), new_x="LMARGIN", new_y="NEXT", align="L")
+    if donnees['tel_artisan']: pdf.cell(0, 5, nettoyer_texte(f"Tél: {donnees['tel_artisan']}"), new_x="LMARGIN", new_y="NEXT", align="L")
+    if donnees['adresse_artisan']: pdf.cell(0, 5, nettoyer_texte(donnees['adresse_artisan']), new_x="LMARGIN", new_y="NEXT", align="L")
     
-    pdf.cell(0, 8, f"Date d'édition : {datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(0, 8, f"Date d'edition : {datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.ln(10)
     
     pdf.set_font("helvetica", "B", 24)
@@ -340,16 +345,22 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     pdf.ln(10)
     
     pdf.set_font("helvetica", "B", 12)
-    pdf.cell(0, 8, "ADRESSÉ À :", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, "ADRESSE A :", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("helvetica", "", 12)
-    pdf.cell(0, 6, f"Nom : {donnees['nom']}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 6, f"Adresse : {donnees['adresse']}", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 6, f"Téléphone : {donnees['telephone']}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, nettoyer_texte(f"Nom : {donnees['nom']}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, nettoyer_texte(f"Adresse : {donnees['adresse']}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, nettoyer_texte(f"Telephone : {donnees['telephone']}"), new_x="LMARGIN", new_y="NEXT")
     
     if type_doc == "devis" and donnees["date_intervention"]:
-        date_rdv = datetime.strptime(donnees["date_intervention"], "%Y-%m-%dT%H:%M").strftime('%d/%m/%Y à %H:%M')
+        date_rdv_brute = donnees["date_intervention"]
+        try:
+            dt_str = date_rdv_brute.replace('T', ' ')
+            date_rdv = datetime.strptime(dt_str.split('.')[0], "%Y-%m-%d %H:%M:%S").strftime('%d/%m/%Y a %H:%M')
+        except Exception:
+            date_rdv = date_rdv_brute
+        
         pdf.set_text_color(37, 99, 235)
-        pdf.cell(0, 6, f"Intervention prévue le : {date_rdv}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 6, nettoyer_texte(f"Intervention prevue le : {date_rdv}"), new_x="LMARGIN", new_y="NEXT")
         pdf.set_text_color(0, 0, 0)
 
     pdf.ln(10)
@@ -357,40 +368,40 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     pdf.set_font("helvetica", "B", 12)
     pdf.set_fill_color(240, 240, 240)
     pdf.cell(120, 10, "Description", border=1, fill=True)
-    pdf.cell(30, 10, "Qté", border=1, align="C", fill=True)
+    pdf.cell(30, 10, "Qte", border=1, align="C", fill=True)
     pdf.cell(40, 10, "Montant", border=1, align="R", fill=True, new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("helvetica", "", 12)
 
     if mode_fact == 'forfait':
-        pdf.cell(120, 10, f"Prestation Forfaitaire : {donnees['probleme']}", border=1)
+        pdf.cell(120, 10, nettoyer_texte(f"Prestation Forfaitaire : {donnees['probleme']}"), border=1)
         pdf.cell(30, 10, "1", border=1, align="C")
         pdf.cell(40, 10, f"{montant_forfait:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
     else:
-        pdf.cell(120, 10, "Frais de déplacement", border=1)
+        pdf.cell(120, 10, "Frais de deplacement", border=1)
         pdf.cell(30, 10, "1", border=1, align="C")
         pdf.cell(40, 10, f"{prix_dep:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
         
-        pdf.cell(120, 10, f"Main d'oeuvre : {donnees['probleme']}", border=1)
+        pdf.cell(120, 10, nettoyer_texte(f"Main d'oeuvre : {donnees['probleme']}"), border=1)
         pdf.cell(30, 10, "1h", border=1, align="C")
         pdf.cell(40, 10, f"{prix_horaire:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
 
     if montant_materiel > 0:
-        pdf.cell(120, 10, "Fournitures / Matériel", border=1)
+        pdf.cell(120, 10, "Fournitures / Materiel", border=1)
         pdf.cell(30, 10, "1", border=1, align="C")
         pdf.cell(40, 10, f"{montant_materiel:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("helvetica", "B", 14)
-    pdf.cell(150, 12, "TOTAL ESTIMÉ TTC" if type_doc == "devis" else "TOTAL TTC À PAYER", border=1, align="R")
+    pdf.cell(150, 12, "TOTAL ESTIMBE TTC" if type_doc == "devis" else "TOTAL TTC A PAYER", border=1, align="R")
     pdf.cell(40, 12, f"{total_prix:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
     
     pdf.ln(20)
     pdf.set_font("helvetica", "I", 10)
     pdf.set_text_color(150, 150, 150)
-    pdf.cell(0, 10, texte_bas_page, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(0, 10, nettoyer_texte(texte_bas_page), new_x="LMARGIN", new_y="NEXT", align="C")
 
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
-    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename={prefixe_fichier}_{donnees['id']}_{donnees['nom'].replace(' ', '_')}.pdf"})
+    pdf_bytes = bytes(pdf.output())
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename={prefixe_fichier}_{donnees['id']}.pdf"})
 
 # ==========================================
 # 📧 SYSTÈME D'ALERTE EMAIL
