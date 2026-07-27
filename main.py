@@ -500,70 +500,90 @@ async def discuter_avec_ia(donnees: RequeteChat):
     
     if not artisan: return {"reponse": "Erreur : Artisan introuvable."}
 
-    if re.search(r'0[1-9]([-. ]?[0-9]{2}){4}', donnees.nouveau_message):
-        conversation_complete = "\n".join([f"{m['role']}: {m['content']}" for m in donnees.historique])
-        conversation_complete += f"\nuser: {donnees.nouveau_message}"
-        
-        prompt_extraction = [{
-            "role": "system", 
-            "content": f"""Tu es un robot d'extraction de données pour un {artisan['metier']}. Lis la conversation et renvoie UNIQUEMENT un objet JSON avec ces 5 clés : "nom", "probleme", "adresse", "telephone", "urgent"."""
-        }, {
-            "role": "user", 
-            "content": conversation_complete
-        }]
-        
-        try:
-            reponse_extraction = client.chat.completions.create(model="mistral-small-latest", messages=prompt_extraction)
-            texte_nettoye = reponse_extraction.choices[0].message.content.replace('```json', '').replace('```', '').strip()
-            donnees_propres = json.loads(texte_nettoye)
-            nom_final = donnees_propres.get("nom", "Inconnu")
-            probleme_final = donnees_propres.get("probleme", "Demande")
-            adresse_final = donnees_propres.get("adresse", "Inconnue")
-            telephone_final = donnees_propres.get("telephone", donnees.nouveau_message)
-            urgent_final = str(donnees_propres.get("urgent", "non")).lower()
-            if urgent_final not in ["oui", "non"]: urgent_final = "non"
-        except:
-            nom_final = "Nouveau Client"; probleme_final = "Erreur IA"; adresse_final = "Voir conversation"; telephone_final = donnees.nouveau_message; urgent_final = "non"
-
-        historique_complet = donnees.historique + [{"role": "user", "content": donnees.nouveau_message}]
-        historique_json = json.dumps(historique_complet)
-
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        date_actuelle = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        cursor.execute(
-            "INSERT INTO prospects (artisan_id, nom, probleme, telephone, adresse, urgent, date_creation, statut, historique_chat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-            (donnees.artisan_id, nom_final, probleme_final, telephone_final, adresse_final, urgent_final, date_actuelle, "nouveau", historique_json)
-        )
-        conn.commit()
-        conn.close()
-
-        envoyer_email_alerte(artisan['email'], nom_final, telephone_final, probleme_final)
-
-        return {"reponse": f"C'est noté. L'équipe de {artisan['nom_entreprise']} a reçu votre demande et vous contactera rapidement sur ce numéro !"}
-
+    # 1. Construction du contexte avec tes consignes personnalisées
     contexte_vacances = ""
     if artisan["en_vacances"] == 1:
         date_retour_exacte = artisan['date_retour_vacances'] or 'prochainement'
         contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}. Indique au client la date exacte du {date_retour_exacte} sans la changer !"
 
-    prompt_contexte = f"""Tu es l'assistant d'accueil de l'entreprise '{artisan['nom_entreprise']}'.
-Ton domaine d'expertise : {artisan['metier']}.
+    prompt_contexte = f"""Tu es l'assistant d'accueil virtuel de l'entreprise '{artisan['nom_entreprise']}' spécialisée en {artisan['metier']}.
 {contexte_vacances}
 
-DIRECTIVES :
-- Style : {artisan['ai_ton']} / {artisan['ai_style']}
-- Consignes : {artisan['ai_consignes']}
-- RÈGLE CRITIQUE : Tu dois impérativement demander le numéro de téléphone du client avant de valider la demande.
+DIRECTIVES DE L'ARTISAN (À RESPECTER IMPÉRATIVEMENT) :
+- Ton : {artisan['ai_ton']}
+- Style : {artisan['ai_style']}
+- Consignes et ordre des questions : {artisan['ai_consignes']}
+
+OBJECTIF CRITIQUE : Tu dois collecter tour à tour : le problème, le nom du client, son numéro de téléphone ET son adresse complète avant de clôturer l'échange. Ne dis jamais au revoir tant que tu n'as pas obtenu ces 4 informations.
 """
 
     messages_pour_ia = [{"role": "system", "content": prompt_contexte}]
-    for msg in donnees.historique: messages_pour_ia.append({"role": msg["role"], "content": msg["content"]})
+    for msg in donnees.historique: 
+        messages_pour_ia.append({"role": msg["role"], "content": msg["content"]})
     messages_pour_ia.append({"role": "user", "content": donnees.nouveau_message})
 
+    # 2. Appel à Mistral pour obtenir la réponse du chatbot
     try:
-        reponse = client.chat.completions.create(model="mistral-small-latest", messages=messages_pour_ia)
-        return {"reponse": reponse.choices[0].message.content}
+        reponse_ia = client.chat.completions.create(model="mistral-small-latest", messages=messages_pour_ia)
+        texte_reponse = reponse_ia.choices[0].message.content
     except Exception as e:
         return {"reponse": f"Erreur : {str(e)}"}
+
+    # 3. On met à jour l'historique complet de la conversation
+    historique_complet = donnees.historique + [
+        {"role": "user", "content": donnees.nouveau_message},
+        {"role": "assistant", "content": texte_reponse}
+    ]
+    conversation_complete = "\n".join([f"{m['role']}: {m['content']}" for m in historique_complet])
+
+    # 4. Analyse intelligente par Mistral pour voir si la conversation est terminée et si on a toutes les infos
+    prompt_extraction = [{
+        "role": "system", 
+        "content": f"""Analyse cette conversation avec un client pour un {artisan['metier']}.
+Renvoie UNIQUEMENT un objet JSON valide avec ces 5 clés :
+- "complet": true si tu as réussi à obtenir le problème, le nom, l'adresse et le téléphone, sinon false.
+- "nom": le nom du client s'il a été donné, sinon "Client Anonyme".
+- "probleme": le problème technique mentionné.
+- "adresse": l'adresse postale si elle a été donnée, sinon "".
+- "telephone": le numéro de téléphone s'il a été donné, sinon "".
+- "urgent": "oui" ou "non".
+Renvoie uniquement le JSON pur sans markdown."""
+    }, {
+        "role": "user", 
+        "content": conversation_complete
+    }]
+
+    try:
+        reponse_extraction = client.chat.completions.create(model="mistral-small-latest", messages=prompt_extraction)
+        texte_nettoye = reponse_extraction.choices[0].message.content.replace('```json', '').replace('```', '').strip()
+        donnees_propres = json.loads(texte_nettoye)
+        
+        # Si la conversation est complète (qu'on a récupéré l'adresse et le tel), on enregistre dans la base de données
+        if donnees_propres.get("complet") == True and donnees_propres.get("telephone"):
+            nom_final = donnees_propres.get("nom", "Client")
+            probleme_final = donnees_propres.get("probleme", "Demande")
+            adresse_final = donnees_propres.get("adresse", "À préciser")
+            telephone_final = donnees_propres.get("telephone", "")
+            urgent_final = str(donnees_propres.get("urgent", "non")).lower()
+            
+            historique_json = json.dumps(historique_complet)
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            date_actuelle = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Vérifie si le prospect existe déjà pour éviter les doublons lors de la même session
+            cursor.execute("SELECT id FROM prospects WHERE telephone = ? AND artisan_id = ? AND statut NOT IN ('termine', 'archive')", (telephone_final, donnees.artisan_id))
+            existe = cursor.fetchone()
+            
+            if not existe:
+                cursor.execute(
+                    "INSERT INTO prospects (artisan_id, nom, probleme, telephone, adresse, urgent, date_creation, statut, historique_chat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                    (donnees.artisan_id, nom_final, probleme_final, telephone_final, adresse_final, urgent_final, date_actuelle, "nouveau", historique_json)
+                )
+                conn.commit()
+                envoyer_email_alerte(artisan['email'], nom_final, telephone_final, probleme_final)
+            conn.close()
+    except Exception as ex:
+        print("Erreur d'extraction automatique :", ex)
+
+    return {"reponse": texte_reponse}
