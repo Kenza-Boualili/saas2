@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, CheckCircle2, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, CalendarDays, Download, ArchiveX, Archive, FileText, Settings, Save, Euro, Map, Image as ImageIcon, Users, Search, PhoneCall, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus } from "lucide-react"
 
+const API_URL = "https://artisan-ai-zirt.onrender.com";
+
 const STATUTS_TOUS = [
   { valeur: 'nouveau', label: 'Nouveau', couleur: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
   { valeur: 'contacte', label: 'À relancer', couleur: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
@@ -53,7 +55,7 @@ function App() {
   const gererInscription = async (e) => {
     e.preventDefault(); setErreurAuth('')
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/inscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse, nom_entreprise: nomEntreprise }) })
+      const res = await fetch(`${API_URL}/api/inscription`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse, nom_entreprise: nomEntreprise }) })
       const data = await res.json()
       if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
       else setErreurAuth(data.erreur)
@@ -63,7 +65,7 @@ function App() {
   const gererConnexion = async (e) => {
     e.preventDefault(); setErreurAuth('')
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/connexion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse }) })
+      const res = await fetch(`${API_URL}/api/connexion`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse }) })
       const data = await res.json()
       if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
       else setErreurAuth(data.erreur)
@@ -97,7 +99,7 @@ function App() {
   const chargerProspects = (silencieux = false) => {
     if (!artisanConnecte) return
     if (!silencieux) setChargement(true)
-    fetch(`http://127.0.0.1:8000/api/prospects?artisan_id=${artisanConnecte.id}`, { cache: 'no-store' })
+    fetch(`${API_URL}/api/prospects?artisan_id=${artisanConnecte.id}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => { 
         const liste = data.prospects || [];
@@ -118,7 +120,7 @@ function App() {
   const chargerProfil = async () => {
     if (!artisanConnecte) return
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/artisans/${artisanConnecte.id}/profil`)
+      const res = await fetch(`${API_URL}/api/artisans/${artisanConnecte.id}/profil`)
       const data = await res.json()
       if (data.nom_entreprise) setProfil(data)
     } catch (err) {}
@@ -127,7 +129,7 @@ function App() {
   const sauvegarderProfil = async (e) => {
     e.preventDefault(); setMessageSauvegarde('Sauvegarde en cours...')
     try {
-      await fetch(`http://127.0.0.1:8000/api/artisans/${artisanConnecte.id}/profil`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profil) })
+      await fetch(`${API_URL}/api/artisans/${artisanConnecte.id}/profil`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profil) })
       setMessageSauvegarde('Profil mis à jour avec succès.')
       setArtisanConnecte(prev => ({ ...prev, nom_entreprise: profil.nom_entreprise }))
       setTimeout(() => setMessageSauvegarde(''), 3000)
@@ -141,7 +143,7 @@ function App() {
     e.preventDefault();
     if (!artisanConnecte) return;
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/prospects', {
+      const res = await fetch(`${API_URL}/api/prospects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formManuel, artisan_id: artisanConnecte.id })
@@ -169,7 +171,7 @@ function App() {
       }
     }
     try { 
-      await fetch(`http://127.0.0.1:8000/api/prospects/${id}/statut`, { 
+      await fetch(`${API_URL}/api/prospects/${id}/statut`, { 
         method: 'PUT', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ statut: statutFinal }) 
@@ -180,14 +182,14 @@ function App() {
   const fixerRendezVous = async (id, dateStr) => {
     setProspects(prospectsActuels => prospectsActuels.map(p => p.id === id ? { ...p, date_intervention: dateStr } : p))
     if (prospectSelectionne && prospectSelectionne.id === id) setProspectSelectionne(prev => ({...prev, date_intervention: dateStr}))
-    try { await fetch(`http://127.0.0.1:8000/api/prospects/${id}/rendezvous`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date_intervention: dateStr }) }) } catch (erreur) {}
+    try { await fetch(`${API_URL}/api/prospects/${id}/rendezvous`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date_intervention: dateStr }) }) } catch (erreur) {}
   }
 
   const archiverProspect = async (id) => {
     if (!window.confirm("Archiver ce client ?")) return;
     setProspects(prospectsActuels => prospectsActuels.map(p => p.id === id ? { ...p, statut: 'archive' } : p))
     if (prospectSelectionne && prospectSelectionne.id === id) setProspectSelectionne(null);
-    try { await fetch(`http://127.0.0.1:8000/api/prospects/${id}`, { method: 'DELETE' }) } catch (erreur) {}
+    try { await fetch(`${API_URL}/api/prospects/${id}`, { method: 'DELETE' }) } catch (erreur) {}
   }
 
   useEffect(() => {
@@ -209,7 +211,7 @@ function App() {
     setMessages(nouvelHistorique); setNouveauMessage(''); setIaReflechit(true);
 
     try {
-      const reponse = await fetch('http://127.0.0.1:8000/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artisan_id: artisanConnecte.id, nouveau_message: texteMessage, historique: historiqueActuel }) })
+      const reponse = await fetch(`${API_URL}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artisan_id: artisanConnecte.id, nouveau_message: texteMessage, historique: historiqueActuel }) })
       const data = await reponse.json()
       setMessages([...nouvelHistorique, { role: 'assistant', content: data.reponse }])
       chargerProspects(true) 
@@ -454,7 +456,7 @@ function App() {
                  {prospectSelectionne.statut === 'planifie' && (
                    <div>
                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2"><FileText className="w-4 h-4"/> Documents</h4>
-                     <a href={`http://127.0.0.1:8000/api/prospects/${prospectSelectionne.id}/document?type_doc=devis`} target="_blank" rel="noreferrer">
+                     <a href={`${API_URL}/api/prospects/${prospectSelectionne.id}/document?type_doc=devis`} target="_blank" rel="noreferrer">
                         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 h-12 rounded-lg"><Download className="w-4 h-4" /> Éditer le Devis</Button>
                      </a>
                    </div>
@@ -583,7 +585,7 @@ function App() {
                                         <option value="termine" className="bg-slate-900 text-emerald-400">Terminé (Archiver)</option>
                                       </select>
                                       <input type="datetime-local" value={p.date_intervention} onChange={(e) => fixerRendezVous(p.id, e.target.value)} className="bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 px-2 py-1 outline-none focus:border-purple-400" />
-                                      <a href={`http://127.0.0.1:8000/api/prospects/${p.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="mt-1"><Button className="w-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 border border-blue-500/30 h-8 text-xs flex items-center gap-1"><FileText className="w-3 h-3" /> Devis</Button></a>
+                                      <a href={`${API_URL}/api/prospects/${p.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="mt-1"><Button className="w-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 border border-blue-500/30 h-8 text-xs flex items-center gap-1"><FileText className="w-3 h-3" /> Devis</Button></a>
                                     </div>
                                   </div>
                                 </div>
@@ -623,7 +625,7 @@ function App() {
                             </div>
                             {estPlanifie && (
                               <div className="mt-4 pt-4 border-t border-slate-800/50 flex gap-3">
-                                <a href={`http://127.0.0.1:8000/api/prospects/${prospect.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 flex items-center gap-2"><FileText className="w-4 h-4" /> Générer le Devis</Button></a>
+                                <a href={`${API_URL}/api/prospects/${prospect.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 flex items-center gap-2"><FileText className="w-4 h-4" /> Générer le Devis</Button></a>
                               </div>
                             )}
                           </CardContent>
@@ -787,7 +789,7 @@ function App() {
                         <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-slate-600" /><p><span className="text-slate-600">Contact:</span> {prospect.telephone}</p></div>
                       </div>
                       <div className="mt-8 pt-4 border-t border-slate-800/30 flex gap-3">
-                        <a href={`http://127.0.0.1:8000/api/prospects/${prospect.id}/document?type_doc=facture`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button></a>
+                        <a href={`${API_URL}/api/prospects/${prospect.id}/document?type_doc=facture`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button></a>
                         <Button onClick={() => setProspectSelectionne(prospect)} variant="outline" className="bg-transparent border-slate-700 text-slate-400 hover:bg-slate-800"><Eye className="w-4 h-4" /></Button>
                       </div>
                     </CardContent>
