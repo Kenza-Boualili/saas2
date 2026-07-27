@@ -405,6 +405,7 @@ Ton ton : {artisan['ai_ton']}. Style : {artisan['ai_style']}.
 {contexte_vacances}
 OBJECTIF : Obtenir impérativement le problème, le nom, l'adresse ET le numéro de téléphone du client.
 RÈGLE CRITIQUE : Ne valide JAMAIS la fin de la conversation tant que tu n'as pas le numéro de téléphone. Si le client donne son nom et son adresse mais pas son numéro, demande son numéro de téléphone.
+RÈGLE ABSOLUE : Ne parle JAMAIS d'e-mail, ne propose jamais d'e-mail de confirmation.
 Sois concis (2 phrases max)."""
 
     messages_pour_ia = [{"role": "system", "content": prompt_contexte}] + historique
@@ -515,6 +516,7 @@ DIRECTIVES DE L'ARTISAN (À RESPECTER IMPÉRATIVEMENT) :
 - Consignes et ordre des questions : {artisan['ai_consignes']}
 
 OBJECTIF CRITIQUE : Tu dois collecter tour à tour : le problème, le nom du client, son numéro de téléphone ET son adresse complète avant de clôturer l'échange. Ne dis jamais au revoir tant que tu n'as pas obtenu ces 4 informations.
+RÈGLE ABSOLUE : Ne parle JAMAIS d'e-mail, ne propose jamais d'e-mail de confirmation. Lorsque tu as toutes les informations, conclus simplement en disant que l'équipe va le recontacter rapidement.
 """
 
     messages_pour_ia = [{"role": "system", "content": prompt_contexte}]
