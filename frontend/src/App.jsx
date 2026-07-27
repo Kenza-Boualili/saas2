@@ -191,9 +191,9 @@ function App() {
     try { await fetch(`${API_URL}/api/prospects/${id}/rendezvous`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date_intervention: dateStr }) }) } catch (erreur) {}
   }
 
-  // Sauvegarde des réglages de facturation modulaire avant l'édition du PDF
-  const sauvegarderFacturationEtTelecharger = async (prospectId, typeDoc) => {
-    setMessageSauvegarde('Mise à jour...');
+  // Téléchargement direct et robuste du PDF via Blob
+  const telechargerDocumentPdf = async (prospectId, typeDoc) => {
+    setMessageSauvegarde('Génération...');
     try {
       await fetch(`${API_URL}/api/prospects/${prospectId}/facturation`, {
         method: 'PUT',
@@ -204,13 +204,25 @@ function App() {
           montant_materiel: parseFloat(montantMateriel) || 0.0
         })
       });
-      setMessageSauvegarde('Enregistré !');
+
+      const response = await fetch(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`);
+      if (!response.ok) throw new Error("Erreur génération PDF");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${typeDoc}_${prospectId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setMessageSauvegarde('Téléchargé !');
       setTimeout(() => setMessageSauvegarde(''), 2000);
-      
-      // Ouverture du document PDF dans un nouvel onglet
-      window.open(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`, '_blank');
     } catch (err) {
-      alert("Erreur lors de la configuration de la facturation.");
+      alert("Erreur lors du téléchargement du document PDF.");
+      setMessageSauvegarde('');
     }
   };
 
@@ -530,13 +542,13 @@ function App() {
 
                    <div className="pt-2 flex flex-col gap-2">
                      <Button 
-                       onClick={() => sauvegarderFacturationEtTelecharger(prospectSelectionne.id, 'devis')} 
+                       onClick={() => telechargerDocumentPdf(prospectSelectionne.id, 'devis')} 
                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-9 flex items-center gap-2"
                      >
                        <Download className="w-3.5 h-3.5" /> Télécharger le Devis PDF
                      </Button>
                      <Button 
-                       onClick={() => sauvegarderFacturationEtTelecharger(prospectSelectionne.id, 'facture')} 
+                       onClick={() => telechargerDocumentPdf(prospectSelectionne.id, 'facture')} 
                        className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs h-9 flex items-center gap-2 border border-slate-700"
                      >
                        <Download className="w-3.5 h-3.5" /> Télécharger la Facture PDF
@@ -876,7 +888,7 @@ function App() {
                         <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-slate-600" /><p><span className="text-slate-600">Contact:</span> {prospect.telephone}</p></div>
                       </div>
                       <div className="mt-8 pt-4 border-t border-slate-800/30 flex gap-3">
-                        <Button onClick={() => window.open(`${API_URL}/api/prospects/${prospect.id}/document?type_doc=facture`, '_blank')} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button>
+                        <Button onClick={() => telechargerDocumentPdf(prospect.id, 'facture')} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button>
                         <Button onClick={() => setProspectSelectionne(prospect)} variant="outline" className="bg-transparent border-slate-700 text-slate-400 hover:bg-slate-800"><Eye className="w-4 h-4" /></Button>
                       </div>
                     </CardContent>
@@ -1054,4 +1066,3 @@ function App() {
 }
 
 export default App
-
