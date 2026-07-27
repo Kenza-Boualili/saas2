@@ -31,6 +31,12 @@ function App() {
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
+  // États pour les options de facturation modulaires (Devis / Facture)
+  const [modeFacturation, setModeFacturation] = useState('horaire')
+  const [montantForfait, setMontantForfait] = useState('')
+  const [montantMateriel, setMontantMateriel] = useState('')
+  const [messageFacturation, setMessageFacturation] = useState('')
+
   // État pour la modale d'ajout manuel
   const [modalAjoutOuvert, setModalAjoutOuvert] = useState(false)
   const [formManuel, setFormManuel] = useState({
@@ -185,12 +191,28 @@ function App() {
     try { await fetch(`${API_URL}/api/prospects/${id}/rendezvous`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date_intervention: dateStr }) }) } catch (erreur) {}
   }
 
-  const archiverProspect = async (id) => {
-    if (!window.confirm("Archiver ce client ?")) return;
-    setProspects(prospectsActuels => prospectsActuels.map(p => p.id === id ? { ...p, statut: 'archive' } : p))
-    if (prospectSelectionne && prospectSelectionne.id === id) setProspectSelectionne(null);
-    try { await fetch(`${API_URL}/api/prospects/${id}`, { method: 'DELETE' }) } catch (erreur) {}
-  }
+  // Sauvegarde des réglages de facturation modulaire avant l'édition du PDF
+  const sauvegarderFacturationEtTelecharger = async (prospectId, typeDoc) => {
+    setMessageSauvegarde('Mise à jour...');
+    try {
+      await fetch(`${API_URL}/api/prospects/${prospectId}/facturation`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode_facturation: modeFacturation,
+          montant_forfait: parseFloat(montantForfait) || 0.0,
+          montant_materiel: parseFloat(montantMateriel) || 0.0
+        })
+      });
+      setMessageSauvegarde('Enregistré !');
+      setTimeout(() => setMessageSauvegarde(''), 2000);
+      
+      // Ouverture du document PDF dans un nouvel onglet
+      window.open(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`, '_blank');
+    } catch (err) {
+      alert("Erreur lors de la configuration de la facturation.");
+    }
+  };
 
   useEffect(() => {
     if (artisanConnecte) {
@@ -200,6 +222,16 @@ function App() {
       return () => clearInterval(minuteur)
     }
   }, [artisanConnecte])
+
+  // Synchronisation des états de facturation à l'ouverture d'un prospect
+  useEffect(() => {
+    if (prospectSelectionne) {
+      setModeFacturation(prospectSelectionne.mode_facturation || 'horaire');
+      setMontantForfait(prospectSelectionne.montant_forfait || '');
+      setMontantMateriel(prospectSelectionne.montant_materiel || '');
+      setMessageFacturation('');
+    }
+  }, [prospectSelectionne]);
 
   const envoyerMessage = async (e) => {
     e.preventDefault()
@@ -422,7 +454,7 @@ function App() {
         </div>
       )}
 
-      {/* 🗂️ FENÊTRE MODAL (FICHE CLIENT) */}
+      {/* 🗂️ FENÊTRE MODAL (FICHE CLIENT + FACTURATION MODULAIRE) */}
       {prospectSelectionne && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200">
           <Card className="w-full max-w-5xl h-[90vh] bg-slate-900 border-slate-700 shadow-2xl flex flex-col overflow-hidden relative">
@@ -437,30 +469,82 @@ function App() {
               <Button variant="ghost" onClick={() => setProspectSelectionne(null)} className="text-slate-400 hover:text-white hover:bg-slate-800 rounded-full h-10 w-10 p-0"><X className="w-6 h-6" /></Button>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden p-0 flex flex-col md:flex-row h-full">
-              <div className="w-full md:w-1/3 border-r border-slate-800 p-6 space-y-8 overflow-y-auto bg-slate-900/50">
+              <div className="w-full md:w-1/3 border-r border-slate-800 p-6 space-y-6 overflow-y-auto bg-slate-900/50">
                  <div>
-                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2"><LayoutDashboard className="w-4 h-4"/> État du dossier</h4>
+                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2"><LayoutDashboard className="w-4 h-4"/> État du dossier</h4>
                    <select value={prospectSelectionne.statut} onChange={(e) => changerStatut(prospectSelectionne.id, e.target.value)} className={`w-full text-sm font-medium rounded-lg px-4 py-3 border outline-none ${STATUTS_TOUS.find(s => s.valeur === prospectSelectionne.statut)?.couleur}`}>
                       {STATUTS_TOUS.filter(s=>s.valeur!=='archive' && s.valeur!=='termine').map(s => <option key={s.valeur} value={s.valeur} className="bg-slate-900 text-slate-200">{s.label}</option>)}
                       <option value="termine" className="bg-slate-900 text-emerald-400">Terminé (Archiver)</option>
                    </select>
                  </div>
                  <div>
-                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2"><Wrench className="w-4 h-4"/> Informations Client</h4>
-                   <div className="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                     <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Problème déclaré</span><span className="text-sm font-medium text-white">{prospectSelectionne.probleme}</span></div>
-                     <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Téléphone</span><span className="text-sm font-medium text-white">{prospectSelectionne.telephone}</span></div>
-                     <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Adresse complète</span><span className="text-sm font-medium text-white">{prospectSelectionne.adresse}</span></div>
+                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2"><Wrench className="w-4 h-4"/> Informations Client</h4>
+                   <div className="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm">
+                      <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Problème déclaré</span><span className="font-medium text-white">{prospectSelectionne.probleme}</span></div>
+                      <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Téléphone</span><span className="font-medium text-white">{prospectSelectionne.telephone}</span></div>
+                      <div className="flex flex-col gap-1"><span className="text-xs text-slate-500">Adresse complète</span><span className="font-medium text-white">{prospectSelectionne.adresse}</span></div>
                    </div>
                  </div>
-                 {prospectSelectionne.statut === 'planifie' && (
-                   <div>
-                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2"><FileText className="w-4 h-4"/> Documents</h4>
-                     <a href={`${API_URL}/api/prospects/${prospectSelectionne.id}/document?type_doc=devis`} target="_blank" rel="noreferrer">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 h-12 rounded-lg"><Download className="w-4 h-4" /> Éditer le Devis</Button>
-                     </a>
+
+                 {/* PARAMÈTRES DE FACTURATION (HORAIRE / FORFAIT / MATÉRIEL) */}
+                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2"><FileText className="w-4 h-4 text-blue-500"/> Paramètres Devis / Facture</h4>
+                   
+                   <div className="space-y-1">
+                     <label className="text-xs text-slate-400">Mode de facturation</label>
+                     <select 
+                       value={modeFacturation} 
+                       onChange={(e) => setModeFacturation(e.target.value)} 
+                       className="w-full bg-slate-900 border border-slate-700 text-white rounded-md px-3 py-2 text-xs outline-none focus:border-blue-500"
+                     >
+                       <option value="horaire">Mode Horaire (Déplacement + Main d'œuvre)</option>
+                       <option value="forfait">Mode Forfait (Prix global fixe)</option>
+                     </select>
                    </div>
-                 )}
+
+                   {modeFacturation === 'forfait' && (
+                     <div className="space-y-1 animate-in fade-in duration-200">
+                       <label className="text-xs text-slate-400">Montant global du forfait (€)</label>
+                       <Input 
+                         type="number" 
+                         step="0.01" 
+                         value={montantForfait} 
+                         onChange={(e) => setMontantForfait(e.target.value)} 
+                         placeholder="ex: 150" 
+                         className="bg-slate-900 border-slate-700 text-white h-9 text-xs" 
+                       />
+                     </div>
+                   )}
+
+                   <div className="space-y-1">
+                     <label className="text-xs text-slate-400">Fournitures / Matériel (€ optionnel)</label>
+                     <Input 
+                       type="number" 
+                       step="0.01" 
+                       value={montantMateriel} 
+                       onChange={(e) => setMontantMateriel(e.target.value)} 
+                       placeholder="ex: 45" 
+                       className="bg-slate-900 border-slate-700 text-white h-9 text-xs" 
+                     />
+                   </div>
+
+                   <div className="pt-2 flex flex-col gap-2">
+                     <Button 
+                       onClick={() => sauvegarderFacturationEtTelecharger(prospectSelectionne.id, 'devis')} 
+                       className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-9 flex items-center gap-2"
+                     >
+                       <Download className="w-3.5 h-3.5" /> Télécharger le Devis PDF
+                     </Button>
+                     <Button 
+                       onClick={() => sauvegarderFacturationEtTelecharger(prospectSelectionne.id, 'facture')} 
+                       className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs h-9 flex items-center gap-2 border border-slate-700"
+                     >
+                       <Download className="w-3.5 h-3.5" /> Télécharger la Facture PDF
+                     </Button>
+                     {messageSauvegarde && <span className="text-center text-[10px] text-emerald-400 font-medium">{messageSauvegarde}</span>}
+                   </div>
+                 </div>
+
               </div>
               <div className="w-full md:w-2/3 flex flex-col h-full bg-slate-950/30">
                  <div className="p-4 border-b border-slate-800 bg-slate-900/80"><h4 className="text-sm font-bold text-slate-400 flex items-center gap-2"><MessageSquare className="w-4 h-4"/> Historique de la conversation IA</h4></div>
@@ -588,7 +672,7 @@ function App() {
                                         <option value="termine" className="bg-slate-900 text-emerald-400">Terminé (Archiver)</option>
                                       </select>
                                       <input type="datetime-local" value={p.date_intervention} onChange={(e) => fixerRendezVous(p.id, e.target.value)} className="bg-slate-950 border border-slate-700 rounded text-xs text-slate-300 px-2 py-1 outline-none focus:border-purple-400" />
-                                      <a href={`${API_URL}/api/prospects/${p.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="mt-1"><Button className="w-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 border border-blue-500/30 h-8 text-xs flex items-center gap-1"><FileText className="w-3 h-3" /> Devis</Button></a>
+                                      <Button onClick={() => setProspectSelectionne(p)} className="w-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 border border-blue-500/30 h-8 text-xs flex items-center gap-1"><FileText className="w-3 h-3" /> Devis</Button>
                                     </div>
                                   </div>
                                 </div>
@@ -628,7 +712,7 @@ function App() {
                             </div>
                             {estPlanifie && (
                               <div className="mt-4 pt-4 border-t border-slate-800/50 flex gap-3">
-                                <a href={`${API_URL}/api/prospects/${prospect.id}/document?type_doc=devis`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 flex items-center gap-2"><FileText className="w-4 h-4" /> Générer le Devis</Button></a>
+                                <Button onClick={() => setProspectSelectionne(prospect)} className="w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 flex items-center gap-2"><FileText className="w-4 h-4" /> Configurer & Générer le Devis</Button>
                               </div>
                             )}
                           </CardContent>
@@ -792,7 +876,7 @@ function App() {
                         <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-slate-600" /><p><span className="text-slate-600">Contact:</span> {prospect.telephone}</p></div>
                       </div>
                       <div className="mt-8 pt-4 border-t border-slate-800/30 flex gap-3">
-                        <a href={`${API_URL}/api/prospects/${prospect.id}/document?type_doc=facture`} target="_blank" rel="noreferrer" className="flex-1"><Button className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button></a>
+                        <Button onClick={() => window.open(`${API_URL}/api/prospects/${prospect.id}/document?type_doc=facture`, '_blank')} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2"><Download className="w-4 h-4" /> Ré-imprimer la Facture</Button>
                         <Button onClick={() => setProspectSelectionne(prospect)} variant="outline" className="bg-transparent border-slate-700 text-slate-400 hover:bg-slate-800"><Eye className="w-4 h-4" /></Button>
                       </div>
                     </CardContent>
@@ -970,3 +1054,4 @@ function App() {
 }
 
 export default App
+
