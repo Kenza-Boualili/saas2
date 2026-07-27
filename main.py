@@ -62,7 +62,7 @@ def init_db():
     )
     """)
     
-    nouvelles_colonnes = [
+    nouvelles_colonnes_artisans = [
         ("logo", "TEXT DEFAULT ''"),
         ("metier", "TEXT DEFAULT 'Artisan'"),
         ("telephone", "TEXT DEFAULT ''"),
@@ -71,7 +71,6 @@ def init_db():
         ("zone_intervention", "TEXT DEFAULT ''"),
         ("tarif_deplacement", "REAL DEFAULT 50.0"),
         ("tarif_horaire", "REAL DEFAULT 60.0"),
-        ("historique_chat", "TEXT DEFAULT '[]'"),
         ("ai_ton", "TEXT DEFAULT 'vouvoiement'"),
         ("ai_style", "TEXT DEFAULT 'professionnel'"),
         ("ai_consignes", "TEXT DEFAULT 'Demander d’abord le problème, puis le nom, le téléphone et l’adresse.'"),
@@ -79,14 +78,21 @@ def init_db():
         ("date_retour_vacances", "TEXT DEFAULT ''"),
         ("twilio_numero", "TEXT DEFAULT ''")
     ]
-    for col_nom, col_type in nouvelles_colonnes:
+    for col_nom, col_type in nouvelles_colonnes_artisans:
         try:
             cursor.execute(f"ALTER TABLE artisans ADD COLUMN {col_nom} {col_type}")
         except sqlite3.OperationalError:
             pass
+
+    nouvelles_colonnes_prospects = [
+        ("historique_chat", "TEXT DEFAULT '[]'"),
+        ("mode_facturation", "TEXT DEFAULT 'horaire'"),
+        ("montant_forfait", "REAL DEFAULT 0.0"),
+        ("montant_materiel", "REAL DEFAULT 0.0")
+    ]
+    for col_nom, col_type in nouvelles_colonnes_prospects:
         try:
-            if col_nom == "historique_chat":
-                cursor.execute(f"ALTER TABLE prospects ADD COLUMN {col_nom} {col_type}")
+            cursor.execute(f"ALTER TABLE prospects ADD COLUMN {col_nom} {col_type}")
         except sqlite3.OperationalError:
             pass
             
@@ -249,6 +255,23 @@ def fixer_rendezvous(prospect_id: int, donnees: RequeteRendezVous):
     conn.close()
     return {"success": True}
 
+class RequeteFacturation(BaseModel):
+    mode_facturation: str  # "horaire" ou "forfait"
+    montant_forfait: float = 0.0
+    montant_materiel: float = 0.0
+
+@app.put("/api/prospects/{prospect_id}/facturation")
+def configurer_facturation_prospect(prospect_id: int, donnees: RequeteFacturation):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE prospects SET mode_facturation = ?, montant_forfait = ?, montant_materiel = ? WHERE id = ?",
+        (donnees.mode_facturation, donnees.montant_forfait, donnees.montant_materiel, prospect_id)
+    )
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
 @app.delete("/api/prospects/{prospect_id}")
 def archiver_prospect(prospect_id: int):
     conn = sqlite3.connect(DB_NAME)
@@ -259,7 +282,7 @@ def archiver_prospect(prospect_id: int):
     return {"success": True}
 
 # ==========================================
-# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF
+# 📄 LE GÉNÉRATEUR INTELLIGENT DE PDF (MODULAIRE)
 # ==========================================
 @app.get("/api/prospects/{prospect_id}/document")
 def generer_document(prospect_id: int, type_doc: str = "facture"):
@@ -283,13 +306,22 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     texte_bas_page = "Devis valable 30 jours. Bon pour accord et signature :" if type_doc == "devis" else "Merci de votre confiance. Paiement attendu sous 15 jours."
     prefixe_fichier = "Devis" if type_doc == "devis" else "Facture"
 
-    prix_dep = float(donnees['tarif_deplacement'] or 0)
-    prix_horaire = float(donnees['tarif_horaire'] or 0)
-    total_prix = prix_dep + prix_horaire
+    mode_fact = donnees['mode_facturation'] or 'horaire'
+    montant_materiel = float(donnees['montant_materiel'] or 0)
+
+    # Calcul des totaux selon le mode choisi
+    if mode_fact == 'forfait':
+        montant_forfait = float(donnees['montant_forfait'] or 0)
+        total_prix = montant_forfait + montant_materiel
+    else:
+        prix_dep = float(donnees['tarif_deplacement'] or 0)
+        prix_horaire = float(donnees['tarif_horaire'] or 0)
+        total_prix = prix_dep + prix_horaire + montant_materiel
 
     pdf = FPDF()
     pdf.add_page()
     
+    # En-tête Artisan
     pdf.set_font("helvetica", "B", 18)
     pdf.set_text_color(37, 99, 235)
     pdf.cell(0, 8, donnees["nom_entreprise"], new_x="LMARGIN", new_y="NEXT", align="L")
@@ -304,11 +336,13 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     pdf.cell(0, 8, f"Date d'édition : {datetime.now().strftime('%d/%m/%Y')}", new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.ln(10)
     
+    # Titre du doc
     pdf.set_font("helvetica", "B", 24)
     pdf.set_text_color(0, 0, 0)
     pdf.cell(0, 15, titre_document, new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(10)
     
+    # Coordonnées client
     pdf.set_font("helvetica", "B", 12)
     pdf.cell(0, 8, "ADRESSÉ À :", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("helvetica", "", 12)
@@ -324,6 +358,7 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
 
     pdf.ln(10)
 
+    # Tableau des prestations
     pdf.set_font("helvetica", "B", 12)
     pdf.set_fill_color(240, 240, 240)
     pdf.cell(120, 10, "Description", border=1, fill=True)
@@ -331,14 +366,29 @@ def generer_document(prospect_id: int, type_doc: str = "facture"):
     pdf.cell(40, 10, "Montant", border=1, align="R", fill=True, new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("helvetica", "", 12)
-    pdf.cell(120, 10, "Frais de déplacement", border=1)
-    pdf.cell(30, 10, "1", border=1, align="C")
-    pdf.cell(40, 10, f"{prix_dep:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
+
+    if mode_fact == 'forfait':
+        # Mode Forfait
+        pdf.cell(120, 10, f"Prestation Forfaitaire : {donnees['probleme']}", border=1)
+        pdf.cell(30, 10, "1", border=1, align="C")
+        pdf.cell(40, 10, f"{montant_forfait:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
+    else:
+        # Mode Horaire (Déplacement + Main d'œuvre)
+        pdf.cell(120, 10, "Frais de déplacement", border=1)
+        pdf.cell(30, 10, "1", border=1, align="C")
+        pdf.cell(40, 10, f"{prix_dep:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.cell(120, 10, f"Main d'oeuvre : {donnees['probleme']}", border=1)
+        pdf.cell(30, 10, "1h", border=1, align="C")
+        pdf.cell(40, 10, f"{prix_horaire:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
+
+    # Ligne Matériel / Fournitures (si renseignée)
+    if montant_materiel > 0:
+        pdf.cell(120, 10, "Fournitures / Matériel", border=1)
+        pdf.cell(30, 10, "1", border=1, align="C")
+        pdf.cell(40, 10, f"{montant_materiel:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
     
-    pdf.cell(120, 10, f"Main d'oeuvre : {donnees['probleme']}", border=1)
-    pdf.cell(30, 10, "1h", border=1, align="C")
-    pdf.cell(40, 10, f"{prix_horaire:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
-    
+    # Total
     pdf.set_font("helvetica", "B", 14)
     pdf.cell(150, 12, "TOTAL ESTIMÉ TTC" if type_doc == "devis" else "TOTAL TTC À PAYER", border=1, align="R")
     pdf.cell(40, 12, f"{total_prix:.2f} EUR", border=1, align="R", new_x="LMARGIN", new_y="NEXT")
@@ -376,11 +426,9 @@ async def webhook_twilio(From: str = Form(...), To: str = Form(...), Body: str =
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
-    # 🔍 Recherche de l'artisan par son numéro Twilio enregistré dans ses réglages
     cursor.execute("SELECT * FROM artisans WHERE twilio_numero = ?", (numero_artisan_destinataire,))
     artisan = cursor.fetchone()
     
-    # Filet de sécurité si aucun numéro ne correspond exactement (prend le premier)
     if not artisan:
         cursor.execute("SELECT * FROM artisans LIMIT 1")
         artisan = cursor.fetchone()
@@ -408,13 +456,13 @@ async def webhook_twilio(From: str = Form(...), To: str = Form(...), Body: str =
     contexte_vacances = ""
     if artisan["en_vacances"] == 1:
         date_retour_exacte = artisan['date_retour_vacances'] or 'prochainement'
-        contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}. RÈGLE STRICTE : Tu DOIS obligatoirement indiquer au client la date exacte du {date_retour_exacte}. NE CALCULE PAS et N'INVENTE PAS d'autres dates !"
+        contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}. RÈGLE STRICTE : Tu DOIS obligatoirement indiquer au client la date exacte du {date_retour_exacte}."
 
     prompt_contexte = f"""Tu es l'assistant de '{artisan['nom_entreprise']}' ({artisan['metier']}). 
 Ton ton : {artisan['ai_ton']}. Style : {artisan['ai_style']}.
 {contexte_vacances}
 OBJECTIF : Obtenir impérativement le problème, le nom, l'adresse ET le numéro de téléphone du client.
-RÈGLE CRITIQUE : Ne valide JAMAIS la fin de la conversation tant que tu n'as pas le numéro de téléphone. Si le client donne son nom et son adresse mais pas son numéro, demande son numéro de téléphone.
+RÈGLE CRITIQUE : Ne valide JAMAIS la fin de la conversation tant que tu n'as pas le numéro de téléphone.
 RÈGLE ABSOLUE : Ne parle JAMAIS d'e-mail, ne propose jamais d'e-mail de confirmation.
 Sois concis (2 phrases max)."""
 
@@ -435,7 +483,6 @@ Sois concis (2 phrases max)."""
     conn.commit()
 
     est_une_annulation = any(mot in message_client.lower() for mot in ["annuler", "annulation", "annule"])
-
     conversation_complete = "\n".join([f"{m['role']}: {m['content']}" for m in historique])
     
     prompt_extraction = [{
@@ -511,22 +558,21 @@ async def discuter_avec_ia(donnees: RequeteChat):
     
     if not artisan: return {"reponse": "Erreur : Artisan introuvable."}
 
-    # 1. Construction du contexte avec tes consignes personnalisées
     contexte_vacances = ""
     if artisan["en_vacances"] == 1:
         date_retour_exacte = artisan['date_retour_vacances'] or 'prochainement'
-        contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}. Indique au client la date exacte du {date_retour_exacte} sans la changer !"
+        contexte_vacances = f"\n⚠️ ATTENTION VACANCES : L'artisan est actuellement EN VACANCES jusqu'au {date_retour_exacte}."
 
     prompt_contexte = f"""Tu es l'assistant d'accueil virtuel de l'entreprise '{artisan['nom_entreprise']}' spécialisée en {artisan['metier']}.
 {contexte_vacances}
 
-DIRECTIVES DE L'ARTISAN (À RESPECTER IMPÉRATIVEMENT) :
+DIRECTIVES DE L'ARTISAN :
 - Ton : {artisan['ai_ton']}
 - Style : {artisan['ai_style']}
-- Consignes et ordre des questions : {artisan['ai_consignes']}
+- Consignes : {artisan['ai_consignes']}
 
-OBJECTIF CRITIQUE : Tu dois collecter tour à tour : le problème, le nom du client, son numéro de téléphone ET son adresse complète avant de clôturer l'échange. Ne dis jamais au revoir tant que tu n'as pas obtenu ces 4 informations.
-RÈGLE ABSOLUE : Ne parle JAMAIS d'e-mail, ne propose jamais d'e-mail de confirmation. Lorsque tu as toutes les informations, conclus simplement en disant que l'équipe va le recontacter rapidement.
+OBJECTIF : Collecter le problème, le nom, le téléphone et l'adresse complète avant de clôturer l'échange. Ne dis jamais au revoir avant d'avoir ces 4 infos.
+RÈGLE ABSOLUE : Ne parle jamais d'e-mail.
 """
 
     messages_pour_ia = [{"role": "system", "content": prompt_contexte}]
@@ -534,30 +580,27 @@ RÈGLE ABSOLUE : Ne parle JAMAIS d'e-mail, ne propose jamais d'e-mail de confirm
         messages_pour_ia.append({"role": msg["role"], "content": msg["content"]})
     messages_pour_ia.append({"role": "user", "content": donnees.nouveau_message})
 
-    # 2. Appel à Mistral pour obtenir la réponse du chatbot
     try:
         reponse_ia = client.chat.completions.create(model="mistral-small-latest", messages=messages_pour_ia)
         texte_reponse = reponse_ia.choices[0].message.content
     except Exception as e:
         return {"reponse": f"Erreur : {str(e)}"}
 
-    # 3. On met à jour l'historique complet de la conversation
     historique_complet = donnees.historique + [
         {"role": "user", "content": donnees.nouveau_message},
         {"role": "assistant", "content": texte_reponse}
     ]
     conversation_complete = "\n".join([f"{m['role']}: {m['content']}" for m in historique_complet])
 
-    # 4. Analyse intelligente par Mistral pour voir si la conversation est terminée et si on a toutes les infos
     prompt_extraction = [{
         "role": "system", 
         "content": f"""Analyse cette conversation avec un client pour un {artisan['metier']}.
-Renvoie UNIQUEMENT un objet JSON valide avec ces 5 clés :
-- "complet": true si tu as réussi à obtenir le problème, le nom, l'adresse et le téléphone, sinon false.
-- "nom": le nom du client s'il a été donné, sinon "Client Anonyme".
-- "probleme": le problème technique mentionné.
-- "adresse": l'adresse postale si elle a été donnée, sinon "".
-- "telephone": le numéro de téléphone s'il a été donné, sinon "".
+Renvoie UNIQUEMENT un objet JSON valide avec ces clés :
+- "complet": true si tu as le problème, le nom, l'adresse et le téléphone, sinon false.
+- "nom": nom du client ou "Client".
+- "probleme": problème technique.
+- "adresse": adresse postale ou "".
+- "telephone": téléphone ou "".
 - "urgent": "oui" ou "non".
 Renvoie uniquement le JSON pur sans markdown."""
     }, {
@@ -570,7 +613,6 @@ Renvoie uniquement le JSON pur sans markdown."""
         texte_nettoye = reponse_extraction.choices[0].message.content.replace('```json', '').replace('```', '').strip()
         donnees_propres = json.loads(texte_nettoye)
         
-        # Si la conversation est complète (qu'on a récupéré l'adresse et le tel), on enregistre dans la base de données
         if donnees_propres.get("complet") == True and donnees_propres.get("telephone"):
             nom_final = donnees_propres.get("nom", "Client")
             probleme_final = donnees_propres.get("probleme", "Demande")
@@ -583,7 +625,6 @@ Renvoie uniquement le JSON pur sans markdown."""
             cursor = conn.cursor()
             date_actuelle = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
-            # Vérifie si le prospect existe déjà pour éviter les doublons lors de la même session
             cursor.execute("SELECT id FROM prospects WHERE telephone = ? AND artisan_id = ? AND statut NOT IN ('termine', 'archive')", (telephone_final, donnees.artisan_id))
             existe = cursor.fetchone()
             
