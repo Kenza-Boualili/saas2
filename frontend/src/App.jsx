@@ -7,11 +7,11 @@ import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Sen
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
 const STATUTS_TOUS = [
-  { valeur: 'nouveau', label: 'Lead', couleur: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+  { valeur: 'nouveau', label: 'Lead', couleur: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
   { valeur: 'contacte', label: 'Contacté', couleur: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
-  { valeur: 'planifie', label: 'Devis envoyé', couleur: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+  { valeur: 'planifie', label: 'Devis envoyé', couleur: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
   { valeur: 'termine', label: 'Gagné', couleur: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-  { valeur: 'annule', label: 'Perdu', couleur: 'bg-red-500/10 text-red-400 border-red-500/30' },
+  { valeur: 'annule', label: 'Perdu', couleur: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
 ]
 
 const MOIS_ANNEE = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -816,39 +816,39 @@ function App() {
           </div>
         )}
 
-        {/* NOUVEAU MODULE CRM PIPELINE (COULEURS DIFFÉRENTES DE LA TRÉSORERIE ET DU DASHBOARD) */}
+        {/* NOUVEAU MODULE CRM PIPELINE AVEC DESIGN INNOVANT ET COULEURS CYBER-INDIGO / VIOLET */}
         {vueActuelle === 'crm' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* EN-TÊTE CRM */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/30">
                   <Target className="w-6 h-6"/>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">CRM</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Pipeline total: <span className="text-amber-500 font-bold">{caEnAttente} €</span></p>
+                  <h2 className="text-2xl font-black tracking-tight">Tunnel CRM & Pipeline</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Pipeline total actif: <span className="text-violet-400 font-extrabold">{caEnAttente} €</span></p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Button onClick={() => chargerProspects(false)} variant="outline" className={`h-10 text-xs gap-2 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-700'} rounded-xl`}>
                   <RefreshCw className="w-3.5 h-3.5"/> Actualiser
                 </Button>
-                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-900/20 flex items-center gap-2">
+                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center gap-2">
                   <Plus className="w-4 h-4"/> Nouveau devis
                 </Button>
               </div>
             </div>
 
             {/* FILTRES DU CRM */}
-            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <Input 
                   value={rechercheCrm}
                   onChange={(e) => setRechercheCrm(e.target.value)}
-                  placeholder="Rechercher..." 
-                  className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-amber-500`} 
+                  placeholder="Rechercher dans les deals..." 
+                  className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-violet-500`} 
                 />
               </div>
 
@@ -856,7 +856,7 @@ function App() {
                 <select 
                   value={filtreStageCrm} 
                   onChange={(e) => setFiltreStageCrm(e.target.value)}
-                  className={`h-10 px-4 rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-amber-500 flex-1 md:w-48`}
+                  className={`h-10 px-4 rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-violet-500 flex-1 md:w-48`}
                 >
                   <option value="Tous les stages">Tous les stages</option>
                   <option value="Lead">Lead</option>
@@ -869,7 +869,7 @@ function App() {
                 <select 
                   value={filtrePeriodeCrm} 
                   onChange={(e) => setFiltrePeriodeCrm(e.target.value)}
-                  className={`h-10 px-4 rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-amber-500 flex-1 md:w-40`}
+                  className={`h-10 px-4 rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-violet-500 flex-1 md:w-40`}
                 >
                   <option value="Tout">Tout</option>
                   <option value="Ce mois">Ce mois</option>
@@ -879,189 +879,96 @@ function App() {
               </div>
             </div>
 
-            {/* COLONNES DU PIPELINE CRM (STYLE KANBAN ÉPURÉ) */}
+            {/* COLONNES DU PIPELINE CRM (DESIGN INNOVANT CYBER-VIOLET & GLOW) */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
               
               {/* Colonne 1 : Lead */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
-                <div className="p-4 bg-blue-500/10 border-b border-blue-500/20 flex items-center justify-between">
+              <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-indigo-500/50 transition-colors`}>
+                <div className="p-4 bg-gradient-to-r from-indigo-500/10 to-transparent border-b border-indigo-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></div>
-                    <span className="text-xs font-bold text-blue-400">Lead</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                    <span className="text-xs font-extrabold text-indigo-400">Lead</span>
                   </div>
-                  <span className="text-[10px] bg-blue-500/20 text-blue-300 font-extrabold px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
-                  <p className="text-xs text-slate-500">Aucun deal</p>
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
 
               {/* Colonne 2 : Contacté */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
-                <div className="p-4 bg-purple-500/10 border-b border-purple-500/20 flex items-center justify-between">
+              <div className={`${isDarkMode ? 'bg-[#111827] border-purple-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-purple-500/50 transition-colors`}>
+                <div className="p-4 bg-gradient-to-r from-purple-500/10 to-transparent border-b border-purple-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
-                    <span className="text-xs font-bold text-purple-400">Contacté</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                    <span className="text-xs font-extrabold text-purple-400">Contacté</span>
                   </div>
-                  <span className="text-[10px] bg-purple-500/20 text-purple-300 font-extrabold px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-purple-500/20 text-purple-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
-                  <p className="text-xs text-slate-500">Aucun deal</p>
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
 
               {/* Colonne 3 : Devis envoyé */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
-                <div className="p-4 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between">
+              <div className={`${isDarkMode ? 'bg-[#111827] border-cyan-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-cyan-500/50 transition-colors`}>
+                <div className="p-4 bg-gradient-to-r from-cyan-500/10 to-transparent border-b border-cyan-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                    <span className="text-xs font-bold text-amber-400">Devis envoyé</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+                    <span className="text-xs font-extrabold text-cyan-400">Devis envoyé</span>
                   </div>
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
-                  <p className="text-xs text-slate-500">Aucun deal</p>
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
 
               {/* Colonne 4 : Gagné */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
-                <div className="p-4 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between">
+              <div className={`${isDarkMode ? 'bg-[#111827] border-emerald-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-emerald-500/50 transition-colors`}>
+                <div className="p-4 bg-gradient-to-r from-emerald-500/10 to-transparent border-b border-emerald-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                    <span className="text-xs font-bold text-emerald-400">Gagné</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
+                    <span className="text-xs font-extrabold text-emerald-400">Gagné</span>
                   </div>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
-                  <p className="text-xs text-slate-500">Aucun deal</p>
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
 
               {/* Colonne 5 : Perdu */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
-                <div className="p-4 bg-red-500/10 border-b border-red-500/20 flex items-center justify-between">
+              <div className={`${isDarkMode ? 'bg-[#111827] border-rose-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-rose-500/50 transition-colors`}>
+                <div className="p-4 bg-gradient-to-r from-rose-500/10 to-transparent border-b border-rose-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                    <span className="text-xs font-bold text-red-400">Perdu</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                    <span className="text-xs font-extrabold text-rose-400">Perdu</span>
                   </div>
-                  <span className="text-[10px] bg-red-500/20 text-red-300 font-extrabold px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-rose-500/20 text-rose-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
-                  <p className="text-xs text-slate-500">Aucun deal</p>
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
 
             </div>
 
-            {/* ÉTAT VIDE IDENTIQUE À TON MODELE */}
-            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-xl text-center space-y-4`}>
-              <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+            {/* ÉTAT VIDE DESIGN HAUT DE GAMME */}
+            <div className={`${isDarkMode ? 'bg-gradient-to-b from-[#111827] to-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-2xl text-center space-y-4 relative overflow-hidden`}>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-indigo-500/5 blur-3xl pointer-events-none"></div>
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center text-violet-400 shadow-xl">
                 <Target className="w-8 h-8"/>
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold">Aucun deal</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez un devis pour générer automatiquement un deal dans votre pipeline.</p>
+                <h3 className="text-base font-extrabold">Aucun deal enregistré</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez votre premier devis pour alimenter automatiquement votre pipeline commercial.</p>
               </div>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-amber-900/20">
+              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-500/25">
                 <Plus className="w-4 h-4 mr-2"/> Créer un devis
               </Button>
             </div>
 
-          </div>
-        )}
-
-        {/* VUE TRÉSORERIE / FINANCES */}
-        {vueActuelle === 'finances' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div>
-              <h2 className="text-2xl font-black tracking-tight">Trésorerie & Finances</h2>
-              <p className="text-xs text-slate-400 mt-1">Suivi de vos encaissements réels et gestion des impayés sur le terrain.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Trésorerie Encaissée</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-emerald-500">{totalCA}€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Chantiers soldés</p>
-                  </div>
-                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500"><ArrowUpRight className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">En attente d'encaissement</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-blue-500">{caEnAttente}€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Factures en cours</p>
-                  </div>
-                  <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500"><Clock className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Factures en retard (Impayés)</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-red-500">0€</h3>
-                    <p className="text-[10px] text-red-500 mt-1">0 client à relancer</p>
-                  </div>
-                  <div className="bg-red-500/10 p-2.5 rounded-xl text-red-500"><ShieldAlert className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Charges Fournisseurs</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-amber-400">0€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Matériel & fournitures</p>
-                  </div>
-                  <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400"><ArrowDownRight className="w-5 h-5"/></div>
-                </div>
-              </Card>
-            </div>
-
-            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl p-6 shadow-xl space-y-4`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold">Suivi des encaissements & Relances</h3>
-                  <p className="text-xs text-slate-400">Cliquez pour envoyer une relance instantanée par message aux clients.</p>
-                </div>
-                <Button onClick={() => setVueActuelle('clients')} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl">Voir tous les clients</Button>
-              </div>
-
-              <div className="divide-y divide-slate-800/50">
-                {prospectsActifs.length === 0 ? (
-                  <div className="text-center py-12 text-xs text-slate-500">Aucun chantier ou facture en attente de paiement pour le moment. Tout est à jour !</div>
-                ) : (
-                  prospectsActifs.map(client => (
-                    <div key={client.id} className="py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">{client.nom.charAt(0)}</div>
-                        <div>
-                          <h4 className="text-xs font-bold">{client.nom}</h4>
-                          <p className="text-[11px] text-slate-400">{client.probleme} • Tél : {client.telephone}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-extrabold text-amber-400">{prixMoyenDemande}€ estimés</span>
-                        <Button 
-                          onClick={() => window.open(`https://wa.me/${client.telephone.replace(/\s+/g, '')}?text=Bonjour%20${encodeURIComponent(client.nom)},%20sauf%20erreur%20de%20ma%20part,%20le%20règlement%20pour%20notre%20intervention%20est%20en%20attente.%20Merci%20de%20votre%20retour!`)} 
-                          size="sm" 
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-semibold flex items-center gap-1.5"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5"/> Relancer WhatsApp
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
           </div>
         )}
 
