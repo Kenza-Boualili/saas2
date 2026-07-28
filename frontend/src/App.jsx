@@ -1671,6 +1671,77 @@ function App() {
             )}
           </div>
         )}
+
+      {/* MODULE NOTES DE CRÉDIT & REMBOURSSEMENTS (AVOIRS REVISITÉ) */}
+        {vueActuelle === 'avoirs' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                  <FileText className="w-7 h-7 text-indigo-400"/> Notes de Crédit & Remboursements
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Suivi et pilotage de vos avoirs émis auprès de vos clients</p>
+              </div>
+              <Button onClick={() => alert("Redirection vers la sélection des factures pour créer un avoir")} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-indigo-900/30 flex items-center gap-2">
+                <Plus className="w-4 h-4"/> Émettre un avoir
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="space-y-4">
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-indigo-500`}>
+                  <p className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Total émis</p>
+                  <h3 className="text-2xl font-black mt-1 text-indigo-400">0</h3>
+                  <p className="text-[10px] text-slate-500 mt-1">Notes de crédit créées</p>
+                </Card>
+
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-amber-500`}>
+                  <p className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">En attente / Brouillons</p>
+                  <h3 className="text-2xl font-black mt-1 text-amber-400">0</h3>
+                  <p className="text-[10px] text-slate-500 mt-1">Non finalisés</p>
+                </Card>
+
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-emerald-500`}>
+                  <p className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Volume Financier</p>
+                  <h3 className="text-2xl font-black mt-1 text-emerald-400">0,00 €</h3>
+                  <p className="text-[10px] text-slate-500 mt-1">Montant global déduit</p>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-3 space-y-4">
+                <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3.5 top-3 w-4 h-4 text-indigo-400" />
+                    <Input placeholder="Filtrer par référence, client ou facture d'origine..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-indigo-500`} />
+                  </div>
+                  <div className="w-full md:w-52">
+                    <select className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer focus:border-indigo-500 font-semibold text-indigo-400`}>
+                      <option value="Tous">⚡ Filtrer l'état</option>
+                      <option value="Brouillon">📝 Brouillons</option>
+                      <option value="Transmis">📤 Transmis</option>
+                      <option value="Déduit">✅ Déduit / Appliqué</option>
+                      <option value="Annulé">❌ Annulés</option>
+                    </select>
+                  </div>
+                </div>
+
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-5 relative overflow-hidden`}>
+                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none"></div>
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-inner">
+                    <FileText className="w-8 h-8"/>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-base font-bold text-white">Aucune note de crédit enregistrée</h3>
+                    <p className="text-xs text-slate-400 max-w-md mx-auto">Les notes de crédit et remboursements sont générés directement depuis vos factures réglées ou en cours.</p>
+                  </div>
+                  <Button onClick={() => setVueActuelle('factures')} className="bg-indigo-500 hover:bg-indigo-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-900/20">
+                    Consulter les factures
+                  </Button>
+                </CardCard>
+              </div>
+            </div>
+          </div>
+        )}
 {/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
         {vueActuelle === 'factures' && (
           <div className="space-y-6 animate-in fade-in duration-300">
