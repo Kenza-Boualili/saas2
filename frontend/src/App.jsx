@@ -32,8 +32,13 @@ function App() {
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
-  // État pour le filtre de l'année sélectionnée (par défaut 2026)
-  const [anneeSelectionnee, setAnneeSelectionnee] = useState(2026);
+  // Génération dynamique des années (de 2026 jusqu'à l'année actuelle réelle)
+  const anneeActuelleReelle = new Date().getFullYear();
+  const anneesDisponibles = [];
+  for (let y = 2026; y <= anneeActuelleReelle; y++) {
+    anneesDisponibles.push(y);
+  }
+  const [anneeSelectionnee, setAnneeSelectionnee] = useState(anneeActuelleReelle);
 
   // États facturation & modale
   const [modeFacturation, setModeFacturation] = useState('horaire')
@@ -425,18 +430,16 @@ function App() {
                 <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité professionnelle.</p>
               </div>
               
-              {/* SÉLECTEUR D'ANNÉE DEMANDÉ */}
+              {/* SÉLECTEUR D'ANNÉE DYNAMIQUE */}
               <div className="flex items-center">
                 <select 
                   value={anneeSelectionnee} 
                   onChange={(e) => setAnneeSelectionnee(e.target.value)}
                   className="bg-[#111827] border border-slate-700 text-white text-xs font-semibold rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 shadow-lg cursor-pointer"
                 >
-                  <option value="2026">2026</option>
-                  <option value="2027">2027</option>
-                  <option value="2028">2028</option>
-                  <option value="2029">2029</option>
-                  <option value="2030">2030</option>
+                  {anneesDisponibles.map((an) => (
+                    <option key={an} value={an}>{an}</option>
+                  ))}
                 </select>
               </div>
             </div>
