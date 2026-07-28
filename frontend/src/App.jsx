@@ -1419,7 +1419,8 @@ function App() {
               </div>
             </div>
 
-            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl overflow-hidden shadow-xl`}>
+            {/* Conteneur du tableau (overflow-hidden retiré pour que le menu ne soit pas coupé) */}
+            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl`}>
               <table className="w-full text-left text-xs text-slate-400">
                 <thead className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-slate-50 border-slate-200'} uppercase font-semibold border-b`}>
                   <tr>
@@ -1470,23 +1471,25 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
-                            {/* BOUTON AVEC 3 PETITS POINTS VERTICAUX (CORRIGÉ) */}
-                            <Button 
-                              variant="ghost" 
+                            {/* BOUTON HTML NATIF AVEC 3 PETITS POINTS VERTICAUX */}
+                            <button 
+                              type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setMenuActionClientId(menuActionClientId === p.id ? null : p.id);
                               }} 
-                              className={`h-8 w-8 p-0 rounded-full ${isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-800/60' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
+                              className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all outline-none ${
+                                isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-800/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/60'
+                              }`}
                             >
-                              <MoreVertical className="w-5 h-5 pointer-events-none"/>
-                            </Button>
+                              <MoreVertical className="w-4 h-4 pointer-events-none"/>
+                            </button>
 
                             {/* MENU DÉROULANT DES ACTIONS */}
                             {menuActionClientId === p.id && (
                               <div 
                                 onClick={(e) => e.stopPropagation()}
-                                className={`absolute right-10 top-12 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-xl shadow-2xl z-[999] overflow-hidden text-xs py-1 text-left animate-in fade-in zoom-in-95 duration-150`}
+                                className={`absolute right-8 top-10 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-xl shadow-2xl z-[9999] overflow-hidden text-xs py-1 text-left animate-in fade-in zoom-in-95 duration-150`}
                               >
                                 <button 
                                   onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
