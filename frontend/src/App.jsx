@@ -190,6 +190,7 @@ function App() {
       const data = await res.json();
       if (data.success) {
         setModalNouveauClientOuvert(false);
+        setModalAjoutOuvert(false);
         setFormNouveauClient({ nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '75001', ville: 'Paris', siret: '', statut: 'Actif', notes: '' });
         chargerProspects(true);
       }
@@ -330,10 +331,6 @@ function App() {
     } finally { setIaReflechit(false) }
   }
 
-  const getHistoriqueChat = (prospect) => {
-    try { return prospect?.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
-  };
-
   const prospectsAnnee = (prospects || []).filter(p => {
     if (!p.date_creation) return false;
     const anneeP = new Date(p.date_creation.replace(' ', 'T')).getFullYear();
@@ -410,13 +407,13 @@ function App() {
             </CardHeader>
             <CardContent className="p-6">
               <form onSubmit={soumettreClientManuel} className="space-y-4">
-                <div><label className="text-xs text-slate-400 font-medium">Nom du client</label><Input value={formManuel.nom} onChange={e => setFormManuel({...formManuel, nom: e.target.value})} placeholder="ex: Jean Dupont" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
-                <div><label className="text-xs text-slate-400 font-medium">Prestation / Problème</label><Input value={formManuel.probleme} onChange={e => setFormManuel({...formManuel, probleme: e.target.value})} placeholder="ex: Fuite d'eau" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
+                <div><label className="text-xs text-slate-400 font-medium">Nom du client</label><Input value={formNouveauClient.nom} onChange={e => setFormNouveauClient({...formNouveauClient, nom: e.target.value})} placeholder="ex: Jean Dupont" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
+                <div><label className="text-xs text-slate-400 font-medium">Prestation / Problème</label><Input value={formNouveauClient.notes} onChange={e => setFormNouveauClient({...formNouveauClient, notes: e.target.value})} placeholder="ex: Fuite d'eau" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-xs text-slate-400 font-medium">Téléphone</label><Input value={formManuel.telephone} onChange={e => setFormManuel({...formManuel, telephone: e.target.value})} placeholder="06 12 34 56 78" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
-                  <div><label className="text-xs text-slate-400 font-medium">Statut</label><select value={formManuel.statut} onChange={e => setFormManuel({...formManuel, statut: e.target.value})} className={`w-full ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded-md px-3 h-10 text-xs mt-1 outline-none`}><option value="nouveau">Nouveau</option><option value="contacte">À relancer</option><option value="planifie">Planifié</option><option value="termine">Terminé</option></select></div>
+                  <div><label className="text-xs text-slate-400 font-medium">Téléphone</label><Input value={formNouveauClient.telephone} onChange={e => setFormNouveauClient({...formNouveauClient, telephone: e.target.value})} placeholder="06 12 34 56 78" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
+                  <div><label className="text-xs text-slate-400 font-medium">Statut</label><select value={formNouveauClient.statut} onChange={e => setFormNouveauClient({...formNouveauClient, statut: e.target.value})} className={`w-full ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded-md px-3 h-10 text-xs mt-1 outline-none`}><option value="Actif">Actif</option><option value="Inactif">Inactif</option></select></div>
                 </div>
-                <div><label className="text-xs text-slate-400 font-medium">Adresse complète</label><Input value={formManuel.adresse} onChange={e => setFormManuel({...formManuel, adresse: e.target.value})} placeholder="12 rue de Paris, 75001 Paris" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
+                <div><label className="text-xs text-slate-400 font-medium">Adresse complète</label><Input value={formNouveauClient.adresse} onChange={e => setFormNouveauClient({...formNouveauClient, adresse: e.target.value})} placeholder="12 rue de Paris, 75001 Paris" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-sm mt-1`} required /></div>
                 <div className="pt-3 flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setModalAjoutOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button><Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 text-xs">Enregistrer</Button></div>
               </form>
             </CardContent>
@@ -622,12 +619,12 @@ function App() {
                 setFormModifClient({
                   id: prospectSelectionne.id,
                   nom: prospectSelectionne.nom,
-                  email: prospectSelectionne.email || 'kenza.boualili2006@gmail.com',
+                  email: prospectSelectionne.email || '',
                   telephone: prospectSelectionne.telephone,
                   entreprise: prospectSelectionne.entreprise || '',
                   adresse: prospectSelectionne.adresse || '',
-                  code_postal: '78300',
-                  ville: 'Poissy',
+                  code_postal: '',
+                  ville: '',
                   siret: ''
                 });
                 setModalModifierClientOuvert(true);
@@ -643,22 +640,22 @@ function App() {
               <p className="text-xs text-slate-400">CA Total</p>
               <h3 className="text-2xl font-black text-white mt-1">0,00 €</h3>
               <p className="text-[10px] text-emerald-400 mt-1">Factures payées</p>
-            </Card>
+            </CardCard>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Devis</p>
               <h3 className="text-2xl font-black text-white mt-1">0</h3>
               <p className="text-[10px] text-slate-400 mt-1">Total envoyés</p>
-            </Card>
+            </CardCard>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Factures</p>
               <h3 className="text-2xl font-black text-white mt-1">0</h3>
               <p className="text-[10px] text-slate-400 mt-1">0,00 € impayées</p>
-            </Card>
+            </CardCard>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Dernière intervention</p>
               <h3 className="text-2xl font-black text-white mt-1">-</h3>
               <p className="text-[10px] text-slate-400 mt-1">Date</p>
-            </Card>
+            </CardCard>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -666,7 +663,7 @@ function App() {
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Informations</h3>
                 <div className="space-y-3 text-xs">
-                  <div className="flex items-center gap-3 text-slate-300"><Mail className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.email || 'kenza.boualili2006@gmail.com'}</span></div>
+                  <div className="flex items-center gap-3 text-slate-300"><Mail className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.email || 'N/A'}</span></div>
                   <div className="flex items-center gap-3 text-slate-300"><Phone className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.telephone}</span></div>
                   <div className="flex items-center gap-3 text-slate-300"><MapPin className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.adresse}</span></div>
                 </div>
@@ -748,15 +745,15 @@ function App() {
             <nav className="space-y-1">
               <button onClick={() => setVueActuelle('crm')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'crm' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><BarChart3 className="w-4 h-4" /> Tunnel CRM</button>
               <button onClick={() => { setProspectSelectionne(null); setVueActuelle('clients'); }} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'clients' ? 'bg-emerald-500 text-slate-950 font-bold shadow-lg shadow-emerald-900/20' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Users className="w-4 h-4" /> Répertoire Clients</button>
-              <button onClick={() => setVueActuelle('devis')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><FileText className="w-4 h-4" /> Propositions Devis</button>
-              <button onClick={() => setVueActuelle('factures')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Receipt className="w-4 h-4" /> Facturation</button>
+              <button onClick={() => setVueActuelle('devis')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'devis' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><FileText className="w-4 h-4" /> Propositions Devis</button>
+              <button onClick={() => setVueActuelle('factures')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'factures' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Receipt className="w-4 h-4" /> Facturation</button>
             </nav>
           </div>
 
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold px-3 mb-2">Paramétrage</p>
             <nav className="space-y-1">
-              <button onClick={() => setVueActuelle('chat')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><MessageSquare className="w-4 h-4" /> Simulateur Assistant IA</button>
+              <button onClick={() => setVueActuelle('chat')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'chat' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><MessageSquare className="w-4 h-4" /> Simulateur Assistant IA</button>
               <button onClick={() => setVueActuelle('reglages')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'reglages' ? 'bg-emerald-500 text-slate-950 font-bold shadow-lg shadow-emerald-900/20' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Settings className="w-4 h-4" /> Configuration</button>
             </nav>
           </div>
@@ -798,7 +795,7 @@ function App() {
                 {resultatsRechercheGlobale.map(client => (
                   <div 
                     key={client.id}
-                    onClick={() => { setProspectSelectionne(client); setRechercheGlobale(''); }}
+                    onClick={() => { setProspectSelectionne(client); setVueActuelle('clients'); setRechercheGlobale(''); }}
                     className={`p-3 text-xs cursor-pointer ${isDarkMode ? 'hover:bg-slate-800/60 border-slate-800/50' : 'hover:bg-slate-100 border-slate-100'} border-b flex items-center justify-between`}
                   >
                     <div>
@@ -1044,7 +1041,7 @@ function App() {
                     <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
                     <span>Nouvelle facture</span>
                   </Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
+                  <Button onClick={() => setModalNouveauClientOuvert(true)} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
                     <span>Ajouter client</span>
                   </Button>
@@ -1054,112 +1051,6 @@ function App() {
                   </Button>
                 </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold">Évolution du CA ({anneeSelectionnee})</h3>
-                  <span className="text-xs font-bold text-emerald-500">Total {totalCA}€</span>
-                </div>
-                <div className={`h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-400 pr-2">
-                    <span>10k€</span>
-                    <span>5k€</span>
-                    <span>0k€</span>
-                  </div>
-                  {MOIS_ANNEE.map((mois, idx) => (
-                    <div 
-                      key={idx} 
-                      className="flex-1 h-full flex flex-col items-center justify-end relative group cursor-pointer pl-6"
-                      onMouseEnter={() => setHoverIndexCa(idx)}
-                      onMouseLeave={() => setHoverIndexCa(null)}
-                    >
-                      {hoverIndexCa === idx && (
-                        <div className="absolute bottom-0 w-[1px] h-full bg-emerald-500/80 z-0"></div>
-                      )}
-                      <div className={`w-2.5 h-2.5 rounded-full z-10 transition-all ${hoverIndexCa === idx ? 'bg-emerald-500 scale-125 ring-4 ring-emerald-500/20' : 'bg-transparent'}`}></div>
-                      
-                      {hoverIndexCa === idx && (
-                        <div className={`absolute bottom-12 z-30 ${isDarkMode ? 'bg-[#162032] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900 shadow-xl'} border p-3 rounded-xl text-xs w-28 text-center animate-in fade-in duration-150`}>
-                          <p className="font-bold capitalize">{mois}</p>
-                          <p className="text-emerald-500 font-extrabold mt-1">CA : 0€</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  <div className="absolute bottom-2 left-6 right-0 h-[2px] bg-emerald-500"></div>
-                </div>
-                <div className="flex justify-between text-[10px] text-slate-400 pt-3 pl-6">
-                  {MOIS_ANNEE.map((m, i) => <span key={i}>{m}</span>)}
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold">Activité mensuelle ({anneeSelectionnee})</h3>
-                  <div className="flex items-center gap-4 text-[11px]">
-                    <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Factures</span>
-                    <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Devis</span>
-                  </div>
-                </div>
-                <div className={`h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-400 pr-2">
-                    <span>4</span>
-                    <span>2</span>
-                    <span>0</span>
-                  </div>
-                  {MOIS_ANNEE.map((mois, idx) => (
-                    <div 
-                      key={idx} 
-                      className="flex-1 h-full flex flex-col items-center justify-end relative group cursor-pointer pl-6"
-                      onMouseEnter={() => setHoverIndexAct(idx)}
-                      onMouseLeave={() => setHoverIndexAct(null)}
-                    >
-                      {hoverIndexAct === idx && (
-                        <div className={`absolute bottom-0 w-6 h-full ${isDarkMode ? 'bg-slate-700/40' : 'bg-slate-200'} rounded-t z-0`}></div>
-                      )}
-                      
-                      {hoverIndexAct === idx && (
-                        <div className={`absolute bottom-12 z-30 ${isDarkMode ? 'bg-[#162032] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900 shadow-xl'} border p-3 rounded-xl text-xs w-32 text-left animate-in fade-in duration-150`}>
-                          <p className="font-bold capitalize mb-1">{mois}</p>
-                          <p className="text-blue-500 font-semibold">Devis : 0</p>
-                          <p className="text-emerald-500 font-semibold mt-0.5">Factures : 0</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-between text-[10px] text-slate-400 pt-3 pl-6">
-                  {MOIS_ANNEE.map((m, i) => <span key={i}>{m}</span>)}
-                </div>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-emerald-500/30`}>
-                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold">Top 5 clients ({anneeSelectionnee})</h3></div>
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
-              </Card>
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-emerald-500/30`}>
-                <div className="flex items-center gap-2"><PieChart className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold">Répartition des devis ({anneeSelectionnee})</h3></div>
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card onClick={() => setVueActuelle('factures')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer`}>
-                <p className="text-xs text-slate-400 font-medium">Facture moyenne</p>
-                <h4 className="text-3xl font-black text-emerald-500 mt-2">{factureMoyenne}€</h4>
-              </Card>
-              <Card onClick={() => setVueActuelle('crm')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer`}>
-                <p className="text-xs text-slate-400 font-medium">Taux de conversion</p>
-                <h4 className="text-3xl font-black text-emerald-500 mt-2">{tauxConversion}%</h4>
-              </Card>
-              <Card onClick={() => setVueActuelle('clients')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer`}>
-                <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
-                <h4 className="text-3xl font-black text-blue-500 mt-2">{prospectsActifs.length}</h4>
-              </Card>
             </div>
           </div>
         )}
@@ -1306,7 +1197,7 @@ function App() {
               </div>
             </div>
 
-            {/* DRAWER LATÉRAL COULISSANT DU CRM AVEC LE BOUTON "VOIR LA FICHE CLIENT" FONCTIONNEL */}
+            {/* DRAWER LATÉRAL COULISSANT DU CRM */}
             {dealSelectionneCrm && (
               <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex justify-end animate-in fade-in duration-200">
                 <div className={`w-full max-w-md ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} h-full border-l shadow-2xl flex flex-col justify-between overflow-y-auto p-6 animate-in slide-in-from-right duration-200`}>
@@ -1334,12 +1225,13 @@ function App() {
                       <div className="bg-[#0a0f1d] border border-slate-800 p-4 rounded-xl space-y-1 text-xs">
                         <p className="font-bold text-white">{dealSelectionneCrm.nom}</p>
                         <p className="text-slate-400">{dealSelectionneCrm.probleme}</p>
-                        <p className="text-slate-400">{dealSelectionneCrm.email || 'kenza.boualili2006@gmail.com'}</p>
+                        <p className="text-slate-400">{dealSelectionneCrm.email || 'N/A'}</p>
                         <p className="text-slate-400">{dealSelectionneCrm.telephone}</p>
                         <button 
                           onClick={() => { 
                             setProspectSelectionne(dealSelectionneCrm); 
-                            setDealSelectionneCrm(null); 
+                            setDealSelectionneCrm(null);
+                            setVueActuelle('clients');
                           }} 
                           className="text-xs text-amber-400 font-semibold hover:underline pt-2 block"
                         >
@@ -1347,27 +1239,6 @@ function App() {
                         </button>
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Notes</h4>
-                      <div className="space-y-2">
-                        <textarea placeholder="Ajouter une note..." className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl p-3 text-xs outline-none h-24 resize-none"></textarea>
-                        <div className="flex justify-end"><Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-8">Ajouter</Button></div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Emails</h4>
-                        <Button size="sm" variant="outline" className="h-7 text-xs bg-slate-800 border-slate-700 text-slate-200"><Send className="w-3 h-3 mr-1"/> Envoyer</Button>
-                      </div>
-                      <div className="bg-[#0a0f1d] border border-slate-800 p-6 rounded-xl text-center text-xs text-slate-500">Aucun email envoyé</div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-800">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Activités</h4>
-                    <p className="text-xs text-slate-500">Aucune activité récente</p>
                   </div>
                 </div>
               </div>
@@ -1375,7 +1246,7 @@ function App() {
           </div>
         )}
 
-        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS AVEC MENU D'ACTIONS PROPRE */}
+        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS */}
         {vueActuelle === 'clients' && !prospectSelectionne && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1419,7 +1290,6 @@ function App() {
               </div>
             </div>
 
-            {/* Conteneur du tableau (overflow-hidden retiré pour que le menu ne soit pas coupé) */}
             <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl`}>
               <table className="w-full text-left text-xs text-slate-400">
                 <thead className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-slate-50 border-slate-200'} uppercase font-semibold border-b`}>
@@ -1459,7 +1329,7 @@ function App() {
                         >
                           <td className="px-6 py-4 font-bold text-white text-sm">{p.nom}</td>
                           <td className="px-6 py-4 space-y-0.5">
-                            <div className="flex items-center gap-1.5 text-slate-300"><Mail className="w-3 h-3 text-amber-400"/> {p.email || 'kenza.boualili2006@gmail.com'}</div>
+                            <div className="flex items-center gap-1.5 text-slate-300"><Mail className="w-3 h-3 text-amber-400"/> {p.email || 'N/A'}</div>
                             <div className="flex items-center gap-1.5 text-slate-400"><Phone className="w-3 h-3"/> {p.telephone}</div>
                           </td>
                           <td className="px-6 py-4 text-slate-300"><MapPin className="w-3 h-3 inline mr-1 text-amber-400"/> {p.ville || 'Poissy'}</td>
@@ -1471,7 +1341,6 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
-                            {/* BOUTON HTML NATIF AVEC 3 PETITS POINTS VERTICAUX */}
                             <button 
                               type="button"
                               onClick={(e) => {
@@ -1485,7 +1354,6 @@ function App() {
                               <MoreVertical className="w-4 h-4 pointer-events-none"/>
                             </button>
 
-                            {/* MENU DÉROULANT DES ACTIONS */}
                             {menuActionClientId === p.id && (
                               <div 
                                 onClick={(e) => e.stopPropagation()}
@@ -1502,12 +1370,12 @@ function App() {
                                     setFormModifClient({
                                       id: p.id,
                                       nom: p.nom,
-                                      email: p.email || 'kenza.boualili2006@gmail.com',
+                                      email: p.email || '',
                                       telephone: p.telephone,
                                       entreprise: p.entreprise || '',
                                       adresse: p.adresse || '',
-                                      code_postal: '78300',
-                                      ville: 'Poissy',
+                                      code_postal: '',
+                                      ville: '',
                                       siret: ''
                                     });
                                     setModalModifierClientOuvert(true);
@@ -1539,6 +1407,92 @@ function App() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* MODULES SECONDAIRES (Trésorerie, Devis, Factures, Chat, Réglages) */}
+        {vueActuelle === 'finances' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <h2 className="text-2xl font-black tracking-tight">Trésorerie</h2>
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl`}>
+              <p className="text-xs text-slate-400">Module de gestion de trésorerie et suivi des encaissements.</p>
+            </Card>
+          </div>
+        )}
+
+        {vueActuelle === 'devis' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-black tracking-tight">Propositions Devis</h2>
+              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl"><Plus className="w-4 h-4 mr-2"/> Nouveau devis</Button>
+            </div>
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl text-center py-16`}>
+              <FileText className="w-10 h-10 mx-auto text-slate-500 mb-2"/>
+              <p className="text-xs text-slate-400">Aucun devis créé pour l'instant.</p>
+            </Card>
+          </div>
+        )}
+
+        {vueActuelle === 'factures' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-black tracking-tight">Facturation</h2>
+              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl"><Plus className="w-4 h-4 mr-2"/> Nouvelle facture</Button>
+            </div>
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl text-center py-16`}>
+              <Receipt className="w-10 h-10 mx-auto text-slate-500 mb-2"/>
+              <p className="text-xs text-slate-400">Aucune facture enregistrée.</p>
+            </Card>
+          </div>
+        )}
+
+        {vueActuelle === 'chat' && (
+          <div className="space-y-6 animate-in fade-in duration-300 max-w-3xl mx-auto">
+            <h2 className="text-2xl font-black tracking-tight">Simulateur Assistant IA</h2>
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl flex flex-col h-[500px]`}>
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`p-3 rounded-xl text-xs max-w-[80%] ${msg.role === 'user' ? 'bg-emerald-500 text-slate-950 font-medium' : isDarkMode ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-800'}`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+                {iaReflechit && <div className="text-xs text-slate-400 italic">L'assistant réfléchit...</div>}
+              </div>
+              <form onSubmit={envoyerMessage} className="flex gap-2">
+                <Input value={nouveauMessage} onChange={e => setNouveauMessage(e.target.value)} placeholder="Écrivez votre message à l'assistant..." className={`flex-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 text-xs`} />
+                <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-4 text-xs"><Send className="w-4 h-4"/></Button>
+              </form>
+            </Card>
+          </div>
+        )}
+
+        {vueActuelle === 'reglages' && (
+          <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl mx-auto">
+            <h2 className="text-2xl font-black tracking-tight">Configuration de l'entreprise</h2>
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl`}>
+              <form onSubmit={sauvegarderProfil} className="space-y-4 text-xs">
+                <div>
+                  <label className="text-slate-400 font-medium">Nom de l'entreprise</label>
+                  <Input value={profil.nom_entreprise} onChange={e => setProfil({...profil, nom_entreprise: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-slate-400 font-medium">Tarif horaire (€)</label>
+                    <Input type="number" value={profil.tarif_horaire} onChange={e => setProfil({...profil, tarif_horaire: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Tarif déplacement (€)</label>
+                    <Input type="number" value={profil.tarif_deplacement} onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                </div>
+                {messageSauvegarde && <p className="text-emerald-400 font-semibold">{messageSauvegarde}</p>}
+                <div className="pt-4 flex justify-end">
+                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs"><Save className="w-4 h-4 mr-2"/> Enregistrer</Button>
+                </div>
+              </form>
+            </Card>
           </div>
         )}
 
