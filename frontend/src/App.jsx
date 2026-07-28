@@ -676,7 +676,7 @@ function App() {
                 </div>
               </Card>
 
-              {/* SECTION CONTACTS DU CLIENT */}
+              {/* SECTION CONTACTS DU CLIENT AVEC BOUTON "AJOUTER" FONCTIONNEL */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
@@ -1225,7 +1225,6 @@ function App() {
               </div>
             </div>
 
-            {/* COLONNES DU PIPELINE CRM AVEC CLIC POUR OUVRIR LE DRAWER COULISSANT */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
               <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-indigo-500/10 to-transparent border-b border-indigo-500/20 flex items-center justify-between">
@@ -1307,7 +1306,7 @@ function App() {
               </div>
             </div>
 
-            {/* DRAWER LATÉRAL COULISSANT DU CRM (EXACTEMENT COMME SUR TON MODÈLE) */}
+            {/* DRAWER LATÉRAL COULISSANT DU CRM AVEC LE BOUTON "VOIR LA FICHE CLIENT" FONCTIONNEL */}
             {dealSelectionneCrm && (
               <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex justify-end animate-in fade-in duration-200">
                 <div className={`w-full max-w-md ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} h-full border-l shadow-2xl flex flex-col justify-between overflow-y-auto p-6 animate-in slide-in-from-right duration-200`}>
@@ -1335,9 +1334,17 @@ function App() {
                       <div className="bg-[#0a0f1d] border border-slate-800 p-4 rounded-xl space-y-1 text-xs">
                         <p className="font-bold text-white">{dealSelectionneCrm.nom}</p>
                         <p className="text-slate-400">{dealSelectionneCrm.probleme}</p>
-                        <p className="text-slate-400">{dealSelectionneCrm.email || 'kenza.bl l78@gmail.com'}</p>
+                        <p className="text-slate-400">{dealSelectionneCrm.email || 'kenza.boualili2006@gmail.com'}</p>
                         <p className="text-slate-400">{dealSelectionneCrm.telephone}</p>
-                        <button onClick={() => { setProspectSelectionne(dealSelectionneCrm); setDealSelectionneCrm(null); }} className="text-xs text-amber-400 font-semibold hover:underline pt-2 block">Voir la fiche client ↗</button>
+                        <button 
+                          onClick={() => { 
+                            setProspectSelectionne(dealSelectionneCrm); 
+                            setDealSelectionneCrm(null); 
+                          }} 
+                          className="text-xs text-amber-400 font-semibold hover:underline pt-2 block"
+                        >
+                          Voir la fiche client ↗
+                        </button>
                       </div>
                     </div>
 
@@ -1394,7 +1401,7 @@ function App() {
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <Input 
                   value={rechercheClientInput}
-                  onChange={(e) => setSearchClientInput(e.target.value)}
+                  onChange={(e) => setRechercheClientInput(e.target.value)}
                   placeholder="Rechercher un client..." 
                   className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-amber-500`} 
                 />
@@ -1463,7 +1470,7 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
-                            {/* BOUTON ROND AVEC 3 PETITS POINTS COMME SUR TON IMAGE */}
+                            {/* BOUTON ROND AVEC 3 PETITS POINTS CORRIGÉ */}
                             <Button 
                               variant="outline" 
                               onClick={() => setMenuActionClientId(menuActionClientId === p.id ? null : p.id)} 
@@ -1472,51 +1479,51 @@ function App() {
                               <MoreHorizontal className="w-4 h-4"/>
                             </Button>
 
-                            {/* MENU DÉROULANT DES ACTIONS EXACTEMENT COMME SUR TON MODÈLE */}
-                            {menuActionClientId === p.id && (
-                              <div className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
-                                <button 
-                                  onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
-                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
-                                >
-                                  <Eye className="w-3.5 h-3.5 text-slate-400"/> Voir détails
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    setFormModifClient({
-                                      id: p.id,
-                                      nom: p.nom,
-                                      email: p.email || 'kenza.boualili2006@gmail.com',
-                                      telephone: p.telephone,
-                                      entreprise: p.entreprise || '',
-                                      adresse: p.adresse || '',
-                                      code_postal: '78300',
-                                      ville: 'Poissy',
-                                      siret: ''
-                                    });
-                                    setModalModifierClientOuvert(true);
-                                    setMenuActionClientId(null);
-                                  }}
-                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
-                                >
-                                  <Edit3 className="w-3.5 h-3.5 text-slate-400"/> Modifier
-                                </button>
-                                <button 
-                                  onClick={() => basculerStatutClient(p.id)}
-                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
-                                >
-                                  <UserX className="w-3.5 h-3.5 text-slate-400"/> {estInactif ? 'Réactiver' : 'Désactiver'}
-                                </button>
-                                <button 
-                                  onClick={() => supprimerClient(p.id)}
-                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-red-500/10 text-red-500 transition-colors font-medium border-t border-slate-800/60"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5"/> Supprimer
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
+    {/* MENU DÉROULANT DES ACTIONS */}
+    {menuActionClientId === p.id && (
+      <div className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
+        <button 
+          onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+        >
+          <Eye className="w-3.5 h-3.5 text-slate-400"/> Voir détails
+        </button>
+        <button 
+          onClick={() => {
+            setFormModifClient({
+              id: p.id,
+              nom: p.nom,
+              email: p.email || 'kenza.boualili2006@gmail.com',
+              telephone: p.telephone,
+              entreprise: p.entreprise || '',
+              adresse: p.adresse || '',
+              code_postal: '78300',
+              ville: 'Poissy',
+              siret: ''
+            });
+            setModalModifierClientOuvert(true);
+            setMenuActionClientId(null);
+          }}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+        >
+          <Edit3 className="w-3.5 h-3.5 text-slate-400"/> Modifier
+        </button>
+        <button 
+          onClick={() => basculerStatutClient(p.id)}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+        >
+          <UserX className="w-3.5 h-3.5 text-slate-400"/> {estInactif ? 'Réactiver' : 'Désactiver'}
+        </button>
+        <button 
+          onClick={() => supprimerClient(p.id)}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-red-500/10 text-red-500 transition-colors font-medium border-t border-slate-800/60"
+        >
+          <Trash2 className="w-3.5 h-3.5"/> Supprimer
+        </button>
+      </div>
+    )}
+  </td>
+</tr>
                       );
                     })
                   )}
