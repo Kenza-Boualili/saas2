@@ -1413,10 +1413,39 @@ function App() {
         {/* MODULES SECONDAIRES (Trésorerie, Devis, Factures, Chat, Réglages) */}
         {vueActuelle === 'finances' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <h2 className="text-2xl font-black tracking-tight">Trésorerie</h2>
-            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl`}>
-              <p className="text-xs text-slate-400">Module de gestion de trésorerie et suivi des encaissements.</p>
-            </Card>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight">Dashboard Financier</h2>
+              <p className="text-xs text-slate-400 mt-1">Accédez à des analyses financières avancées : balance âgée, DSO, comparaison annuelle et suivi des créances clients.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl`}>
+                <p className="text-xs text-slate-400">DSO (Days Sales Outstanding)</p>
+                <h3 className="text-2xl font-extrabold mt-1">0 jours</h3>
+                <p className="text-[10px] text-emerald-500 mt-1">Délai moyen de paiement</p>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl`}>
+                <p className="text-xs text-slate-400">Créances clients</p>
+                <h3 className="text-2xl font-extrabold mt-1">0,00 €</h3>
+                <p className="text-[10px] text-blue-500 mt-1">Total à recouvrer</p>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl`}>
+                <p className="text-xs text-slate-400">Comparaison Annuelle</p>
+                <h3 className="text-2xl font-extrabold mt-1">+0%</h3>
+                <p className="text-[10px] text-emerald-500 mt-1">vs année précédente</p>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+                <h3 className="text-sm font-bold border-b border-slate-800 pb-3">Balance âgée</h3>
+                <div className="text-center py-12 text-xs text-slate-500">Aucune donnée de balance âgée disponible.</div>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+                <h3 className="text-sm font-bold border-b border-slate-800 pb-3">Suivi des créances clients</h3>
+                <div className="text-center py-12 text-xs text-slate-500">Aucune créance en cours.</div>
+              </Card>
+            </div>
           </div>
         )}
 
@@ -1502,4 +1531,3 @@ function App() {
 }
 
 export default App
-
