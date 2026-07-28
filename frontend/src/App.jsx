@@ -1743,6 +1743,67 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* MODULE FOURNISSEURS & APPROVISIONNEMENT */}
+        {vueActuelle === 'fournisseurs' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 text-white shadow-lg shadow-cyan-500/30">
+                    <Truck className="w-5 h-5"/>
+                  </div>
+                  Gestion des fournisseurs
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Centralisez vos fournisseurs et prestataires. Créez des bons de commande professionnels.</p>
+              </div>
+              <Button onClick={() => alert("Ouverture du formulaire d'ajout fournisseur")} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-cyan-500/30 flex items-center gap-2">
+                <Plus className="w-4 h-4"/> Nouveau fournisseur
+              </Button>
+            </div>
+
+            {/* Statistiques rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-cyan-500/20 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-cyan-500`}>
+                <p className="text-xs text-slate-400 font-medium">Fournisseurs enregistrés</p>
+                <h3 className="text-2xl font-black mt-1 text-cyan-400">0</h3>
+                <p className="text-[10px] text-slate-500 mt-1">Partenaires actifs</p>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-blue-500/20 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-blue-500`}>
+                <p className="text-xs text-slate-400 font-medium">Bons de commande</p>
+                <h3 className="text-2xl font-black mt-1 text-blue-400">0</h3>
+                <p className="text-[10px] text-slate-500 mt-1">Émis cette année</p>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-indigo-500`}>
+                <p className="text-xs text-slate-400 font-medium">Volume d'achats</p>
+                <h3 className="text-2xl font-black mt-1 text-indigo-400">0,00 €</h3>
+                <p className="text-[10px] text-slate-500 mt-1">Total approvisionnements</p>
+              </Card>
+            </div>
+
+            {/* Barre de recherche et tableau vide stylisé */}
+            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-cyan-400" />
+                <Input placeholder="Rechercher un fournisseur par nom, activité ou email..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-cyan-500`} />
+              </div>
+            </div>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4 relative overflow-hidden`}>
+              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-inner">
+                <ShoppingCart className="w-8 h-8"/>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-white">Aucun fournisseur répertorié</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">Commencez par ajouter vos fournisseurs de matériel pour éditer vos bons de commande.</p>
+              </div>
+              <Button onClick={() => alert("Formulaire d'ajout ouvert")} className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-cyan-500/30">
+                <Plus className="w-4 h-4 mr-2"/> Ajouter un fournisseur
+              </Button>
+            </Card>
+          </div>
+        )}
 {/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
         {vueActuelle === 'factures' && (
           <div className="space-y-6 animate-in fade-in duration-300">
