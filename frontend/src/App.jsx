@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, UserX, Upload, UserPlus, RefreshCcw } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, UserX, Upload, UserPlus, RefreshCcw, MoreHorizontal } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
@@ -35,6 +35,9 @@ function App() {
   const [modalModifierClientOuvert, setModalModifierClientOuvert] = useState(false)
   const [modalAjoutContactOuvert, setModalAjoutContactOuvert] = useState(false)
   const [menuActionClientId, setMenuActionClientId] = useState(null)
+
+  // État pour le Drawer coulissant du CRM
+  const [dealSelectionneCrm, setDealSelectionneCrm] = useState(null)
 
   const [filtreStatutClient, setFiltreStatutClient] = useState('Tous')
   const [rechercheClientInput, setRechercheClientInput] = useState('')
@@ -673,7 +676,7 @@ function App() {
                 </div>
               </Card>
 
-              {/* SECTION CONTACTS DU CLIENT EXACTEMENT COMME SUR TON MODÈLE */}
+              {/* SECTION CONTACTS DU CLIENT */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
@@ -1161,9 +1164,9 @@ function App() {
           </div>
         )}
 
-        {/* NOUVEAU MODULE CRM PIPELINE */}
+        {/* NOUVEAU MODULE CRM PIPELINE AVEC DRAWER COULISSANT */}
         {vueActuelle === 'crm' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/30">
@@ -1222,7 +1225,7 @@ function App() {
               </div>
             </div>
 
-            {/* COLONNES DU PIPELINE CRM COMME SUR TON MODÈLE */}
+            {/* COLONNES DU PIPELINE CRM AVEC CLIC POUR OUVRIR LE DRAWER COULISSANT */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
               <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-indigo-500/10 to-transparent border-b border-indigo-500/20 flex items-center justify-between">
@@ -1232,15 +1235,19 @@ function App() {
                   </div>
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-2.5 py-0.5 rounded-full">{prospectsActifs.length}</span>
                 </div>
-                <div className="p-3 flex-1 flex flex-col gap-3 min-h-[200px]">
+                <div className="p-3 flex-1 flex flex-col gap-3 min-h-[220px]">
                   {prospectsActifs.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center text-center"><p className="text-xs text-slate-500 font-medium">Aucun deal</p></div>
                   ) : (
                     prospectsActifs.map(client => (
-                      <div key={client.id} className="p-3 bg-[#0a0f1d] border border-indigo-500/30 rounded-xl space-y-1 shadow-md text-xs">
-                        <div className="flex items-center justify-between"><span className="font-bold text-white">Lead - {client.nom}</span><span className="text-[10px] text-amber-400">-{prixMoyenDemande}€</span></div>
+                      <div 
+                        key={client.id} 
+                        onClick={() => setDealSelectionneCrm(client)}
+                        className="p-3 bg-[#0a0f1d] border border-indigo-500/30 rounded-xl space-y-1.5 shadow-md text-xs cursor-pointer hover:border-indigo-400 transition-all"
+                      >
+                        <div className="flex items-center justify-between"><span className="font-bold text-white">Lead - {client.nom}</span><span className="text-[10px] text-amber-400 font-semibold">-{prixMoyenDemande}€</span></div>
                         <p className="text-[10px] text-slate-400"><Users className="w-3 h-3 inline mr-1"/>{client.nom}</p>
-                        <p className="text-[9px] text-slate-500">Créé récemment</p>
+                        <p className="text-[9px] text-slate-500">il y a quelques minutes</p>
                       </div>
                     ))
                   )}
@@ -1255,7 +1262,7 @@ function App() {
                   </div>
                   <span className="text-[10px] bg-purple-500/20 text-purple-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
                   <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
@@ -1268,7 +1275,7 @@ function App() {
                   </div>
                   <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
                   <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
@@ -1281,7 +1288,7 @@ function App() {
                   </div>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
                   <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
@@ -1294,30 +1301,74 @@ function App() {
                   </div>
                   <span className="text-[10px] bg-rose-500/20 text-rose-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[220px]">
                   <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
             </div>
 
-            {prospectsActifs.length === 0 && (
-              <div className={`${isDarkMode ? 'bg-gradient-to-b from-[#111827] to-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-2xl text-center space-y-4 relative overflow-hidden`}>
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center text-violet-400 shadow-xl">
-                  <Target className="w-8 h-8"/>
+            {/* DRAWER LATÉRAL COULISSANT DU CRM (EXACTEMENT COMME SUR TON MODÈLE) */}
+            {dealSelectionneCrm && (
+              <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex justify-end animate-in fade-in duration-200">
+                <div className={`w-full max-w-md ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} h-full border-l shadow-2xl flex flex-col justify-between overflow-y-auto p-6 animate-in slide-in-from-right duration-200`}>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                      <div>
+                        <h3 className="text-base font-extrabold">Lead - {dealSelectionneCrm.nom}</h3>
+                        <p className="text-xs text-amber-400 font-semibold mt-0.5">-{prixMoyenDemande}€</p>
+                      </div>
+                      <Button variant="ghost" onClick={() => setDealSelectionneCrm(null)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 inline-block">Lead</span>
+                      <div className="flex items-center gap-2 pt-2">
+                        <div className="w-6 h-1.5 rounded-full bg-indigo-500"></div>
+                        <div className="w-6 h-1.5 rounded-full bg-slate-800"></div>
+                        <div className="w-6 h-1.5 rounded-full bg-slate-800"></div>
+                        <div className="w-6 h-1.5 rounded-full bg-slate-800"></div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Client</h4>
+                      <div className="bg-[#0a0f1d] border border-slate-800 p-4 rounded-xl space-y-1 text-xs">
+                        <p className="font-bold text-white">{dealSelectionneCrm.nom}</p>
+                        <p className="text-slate-400">{dealSelectionneCrm.probleme}</p>
+                        <p className="text-slate-400">{dealSelectionneCrm.email || 'kenza.bl l78@gmail.com'}</p>
+                        <p className="text-slate-400">{dealSelectionneCrm.telephone}</p>
+                        <button onClick={() => { setProspectSelectionne(dealSelectionneCrm); setDealSelectionneCrm(null); }} className="text-xs text-amber-400 font-semibold hover:underline pt-2 block">Voir la fiche client ↗</button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Notes</h4>
+                      <div className="space-y-2">
+                        <textarea placeholder="Ajouter une note..." className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl p-3 text-xs outline-none h-24 resize-none"></textarea>
+                        <div className="flex justify-end"><Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-8">Ajouter</Button></div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Emails</h4>
+                        <Button size="sm" variant="outline" className="h-7 text-xs bg-slate-800 border-slate-700 text-slate-200"><Send className="w-3 h-3 mr-1"/> Envoyer</Button>
+                      </div>
+                      <div className="bg-[#0a0f1d] border border-slate-800 p-6 rounded-xl text-center text-xs text-slate-500">Aucun email envoyé</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-800">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Activités</h4>
+                    <p className="text-xs text-slate-500">Aucune activité récente</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-extrabold">Aucun deal</h3>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez un devis pour générer automatiquement un deal dans votre pipeline.</p>
-                </div>
-                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-500/25">
-                  <Plus className="w-4 h-4 mr-2"/> Créer un devis
-                </Button>
               </div>
             )}
           </div>
         )}
 
-        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS (INNOVANT AVEC TROIS PETITS POINTS ET MENU D'ACTIONS COMPLET) */}
+        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS AVEC MENU D'ACTIONS PROPRE */}
         {vueActuelle === 'clients' && !prospectSelectionne && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1343,7 +1394,7 @@ function App() {
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <Input 
                   value={rechercheClientInput}
-                  onChange={(e) => setRechercheClientInput(e.target.value)}
+                  onChange={(e) => setSearchClientInput(e.target.value)}
                   placeholder="Rechercher un client..." 
                   className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-amber-500`} 
                 />
@@ -1412,17 +1463,18 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
+                            {/* BOUTON ROND AVEC 3 PETITS POINTS COMME SUR TON IMAGE */}
                             <Button 
-                              variant="ghost" 
+                              variant="outline" 
                               onClick={() => setMenuActionClientId(menuActionClientId === p.id ? null : p.id)} 
-                              className="h-8 w-8 p-0 text-slate-400 hover:text-white rounded-full"
+                              className={`h-9 w-9 p-0 rounded-full ${isDarkMode ? 'bg-[#1a2333] border-slate-700 text-white hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-800'} shadow-md`}
                             >
-                              <MoreVertical className="w-4 h-4"/>
+                              <MoreHorizontal className="w-4 h-4"/>
                             </Button>
 
-                            {/* MENU DÉROULANT DES 3 PETITS POINTS EXACTEMENT COMME SUR TON MODÈLE */}
+                            {/* MENU DÉROULANT DES ACTIONS EXACTEMENT COMME SUR TON MODÈLE */}
                             {menuActionClientId === p.id && (
-                              <div className={`absolute right-6 top-12 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
+                              <div className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
                                 <button 
                                   onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
