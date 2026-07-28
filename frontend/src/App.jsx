@@ -1717,7 +1717,7 @@ function App() {
                   <Button onClick={() => window.modeCreationFacture = true} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-emerald-900/30">
                     <Plus className="w-4 h-4 mr-2"/> Créer ma première facture
                   </Button>
-                </CardCard>
+                </Card>
               </div>
             ) : (
               /* FORMULAIRE DE CRÉATION DE FACTURE COLORÉ ET ULTRA-DESIGN */
