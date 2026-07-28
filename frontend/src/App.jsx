@@ -1768,8 +1768,8 @@ function App() {
                         </div>
 
                         <div className="space-y-2">
-                          <label className="text-xs font-slate-400 font-medium">Sélectionner un devis accepté</label>
-                          <div className="p-3 bg-[#0a0f1d] border border-slate-800 rounded-xl text-xs text-slate-400">
+                          <label className="text-xs text-white font-bold">Sélectionner un devis accepté</label>
+                          <div className="p-3 bg-[#0a0f1d] border border-slate-800 rounded-xl text-xs text-slate-300">
                             Aucun devis accepté disponible. Créez d'abord un devis et faites-le accepter.
                           </div>
                         </div>
