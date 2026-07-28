@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, UserX, Upload, FileUp } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, UserX, Upload, UserPlus, RefreshCcw } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
@@ -30,17 +30,25 @@ function App() {
   const [chargement, setChargement] = useState(false)
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
-  // États spécifiques au Répertoire Clients innovant
+  // États spécifiques au Répertoire Clients
   const [modalNouveauClientOuvert, setModalNouveauClientOuvert] = useState(false)
   const [modalModifierClientOuvert, setModalModifierClientOuvert] = useState(false)
+  const [modalAjoutContactOuvert, setModalAjoutContactOuvert] = useState(false)
+  const [menuActionClientId, setMenuActionClientId] = useState(null)
+
   const [filtreStatutClient, setFiltreStatutClient] = useState('Tous')
   const [rechercheClientInput, setRechercheClientInput] = useState('')
+  
   const [formNouveauClient, setFormNouveauClient] = useState({
     nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '75001', ville: 'Paris', siret: '', statut: 'Actif', notes: ''
   })
   const [formModifClient, setFormModifClient] = useState({
-    id: null, nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '', ville: '', siret: '', statut: 'Actif'
+    id: null, nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '', ville: '', siret: '', statut: 'Actif', notes: ''
   })
+  const [formNouveauContact, setFormNouveauContact] = useState({
+    prenom: '', nom: '', email: '', telephone: '', role: 'Autre', fonction: '', notes: ''
+  })
+  const [contactsClient, setContactsClient] = useState([])
   const [ongletClientDetail, setOngletClientDetail] = useState('devis')
 
   // États CRM spécifiques
@@ -170,9 +178,9 @@ function App() {
         body: JSON.stringify({ 
           artisan_id: artisanConnecte.id, 
           nom: formNouveauClient.nom,
-          probleme: formNouveauClient.entreprise ? `Entreprise: ${formNouveauClient.entreprise}` : 'Intervention générale',
+          probleme: formNouveauClient.notes || (formNouveauClient.entreprise ? `Entreprise: ${formNouveauClient.entreprise}` : 'Intervention générale'),
           telephone: formNouveauClient.telephone || '0600000000',
-          adresse: `${formNouveauClient.adresse}, ${formNouveauClient.code_postal} ${formNouveauClient.ville}`,
+          adresse: `${formNouveauClient.adresse || ''}, ${formNouveauClient.code_postal} ${formNouveauClient.ville}`,
           statut: 'nouveau'
         })
       });
@@ -185,6 +193,56 @@ function App() {
     } catch (err) {
       alert("Erreur lors de l'enregistrement du client.");
     }
+  }
+
+  const sauvegarderModificationClient = async (e) => {
+    e.preventDefault();
+    if (!formModifClient.id) return;
+    setProspects(prospects.map(p => p.id === formModifClient.id ? {
+      ...p,
+      nom: formModifClient.nom,
+      telephone: formModifClient.telephone,
+      adresse: `${formModifClient.adresse}, ${formModifClient.code_postal} ${formModifClient.ville}`,
+      entreprise: formModifClient.entreprise
+    } : p));
+    if (prospectSelectionne && prospectSelectionne.id === formModifClient.id) {
+      setProspectSelectionne({
+        ...prospectSelectionne,
+        nom: formModifClient.nom,
+        telephone: formModifClient.telephone,
+        adresse: `${formModifClient.adresse}, ${formModifClient.code_postal} ${formModifClient.ville}`,
+        entreprise: formModifClient.entreprise
+      });
+    }
+    setModalModifierClientOuvert(false);
+    alert("Client modifié avec succès !");
+  }
+
+  const supprimerClient = async (id) => {
+    if (confirm("Voulez-vous vraiment supprimer ce client ?")) {
+      setProspects(prospects.filter(p => p.id !== id));
+      if (prospectSelectionne && prospectSelectionne.id === id) setProspectSelectionne(null);
+      setMenuActionClientId(null);
+    }
+  }
+
+  const basculerStatutClient = (id) => {
+    setProspects(prospects.map(p => {
+      if (p.id === id) {
+        const nouveauStatut = p.statut === 'archive' ? 'nouveau' : 'archive';
+        return { ...p, statut: nouveauStatut };
+      }
+      return p;
+    }));
+    setMenuActionClientId(null);
+  }
+
+  const ajouterContactClient = (e) => {
+    e.preventDefault();
+    if (!formNouveauContact.prenom || !formNouveauContact.nom) return;
+    setContactsClient([...contactsClient, { ...formNouveauContact, id: Date.now() }]);
+    setFormNouveauContact({ prenom: '', nom: '', email: '', telephone: '', role: 'Autre', fonction: '', notes: '' });
+    setModalAjoutContactOuvert(false);
   }
 
   const changerStatut = async (id, nouveauStatut) => {
@@ -419,7 +477,120 @@ function App() {
                 </div>
                 <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
                   <Button type="button" variant="outline" onClick={() => setModalNouveauClientOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
-                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg shadow-emerald-900/20">Créer le client</Button>
+                  <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg shadow-amber-900/20">Créer le client</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* MODALE MODIFIER CLIENT */}
+      {modalModifierClientOuvert && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <Card className={`w-full max-w-2xl ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+            <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800/60">
+              <div>
+                <CardTitle className="text-lg font-bold">Modifier le client</CardTitle>
+                <CardDescription className="text-xs text-slate-400">Modifiez les informations du client</CardDescription>
+              </div>
+              <Button variant="ghost" onClick={() => setModalModifierClientOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={sauvegarderModificationClient} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="text-slate-400 font-medium">Nom complet</label>
+                    <Input value={formModifClient.nom} onChange={e => setFormModifClient({...formModifClient, nom: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} required />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Entreprise</label>
+                    <Input value={formModifClient.entreprise} onChange={e => setFormModifClient({...formModifClient, entreprise: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Email</label>
+                    <Input value={formModifClient.email} onChange={e => setFormModifClient({...formModifClient, email: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Téléphone</label>
+                    <Input value={formModifClient.telephone} onChange={e => setFormModifClient({...formModifClient, telephone: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-slate-400 font-medium">Adresse</label>
+                    <Input value={formModifClient.adresse} onChange={e => setFormModifClient({...formModifClient, adresse: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Code postal</label>
+                    <Input value={formModifClient.code_postal} onChange={e => setFormModifClient({...formModifClient, code_postal: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Ville</label>
+                    <Input value={formModifClient.ville} onChange={e => setFormModifClient({...formModifClient, ville: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                </div>
+                <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                  <Button type="button" variant="outline" onClick={() => setModalModifierClientOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                  <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg shadow-amber-900/20">Modifier</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* MODALE AJOUTER UN CONTACT */}
+      {modalAjoutContactOuvert && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <Card className={`w-full max-w-lg ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+            <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800/60">
+              <div>
+                <CardTitle className="text-lg font-bold">Ajouter un contact</CardTitle>
+                <CardDescription className="text-xs text-slate-400">Ajoutez un nouveau contact pour ce client.</CardDescription>
+              </div>
+              <Button variant="ghost" onClick={() => setModalAjoutContactOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={ajouterContactClient} className="space-y-4 text-xs">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-400 font-medium">Prénom *</label>
+                    <Input value={formNouveauContact.prenom} onChange={e => setFormNouveauContact({...formNouveauContact, prenom: e.target.value})} placeholder="Prénom" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} required />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Nom *</label>
+                    <Input value={formNouveauContact.nom} onChange={e => setFormNouveauContact({...formNouveauContact, nom: e.target.value})} placeholder="Nom" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} required />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Email</label>
+                  <Input value={formNouveauContact.email} onChange={e => setFormNouveauContact({...formNouveauContact, email: e.target.value})} placeholder="email@exemple.com" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Téléphone</label>
+                  <Input value={formNouveauContact.telephone} onChange={e => setFormNouveauContact({...formNouveauContact, telephone: e.target.value})} placeholder="06 12 34 56 78" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-400 font-medium">Rôle</label>
+                    <select value={formNouveauContact.role} onChange={e => setFormNouveauContact({...formNouveauContact, role: e.target.value})} className={`w-full ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded-md px-3 h-10 mt-1 outline-none`}>
+                      <option value="Autre">Autre</option>
+                      <option value="Décideur">Décideur</option>
+                      <option value="Technique">Technique</option>
+                      <option value="Comptabilité">Comptabilité</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Fonction</label>
+                    <Input value={formNouveauContact.fonction} onChange={e => setFormNouveauContact({...formNouveauContact, fonction: e.target.value})} placeholder="Ex: Chef de chantier" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Notes</label>
+                  <textarea value={formNouveauContact.notes} onChange={e => setFormNouveauContact({...formNouveauContact, notes: e.target.value})} placeholder="Notes additionnelles..." className={`w-full ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded-md p-3 h-20 mt-1 outline-none resize-none`}></textarea>
+                </div>
+                <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                  <Button type="button" variant="outline" onClick={() => setModalAjoutContactOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                  <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg shadow-amber-900/20">Ajouter</Button>
                 </div>
               </form>
             </CardContent>
@@ -436,15 +607,31 @@ function App() {
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-black text-white">{prospectSelectionne.nom}</h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Actif</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${prospectSelectionne.statut === 'archive' ? 'bg-slate-800 text-slate-400 border border-slate-700' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}`}>
+                    {prospectSelectionne.statut === 'archive' ? 'Inactif' : 'Actif'}
+                  </span>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5">{prospectSelectionne.entreprise || 'Client Particulier'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button onClick={() => setModalModifierClientOuvert(true)} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Edit3 className="w-3.5 h-3.5 mr-1.5"/> Modifier</Button>
-              <Button onClick={() => alert("Ajouté au CRM avec succès !")} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Target className="w-3.5 h-3.5 mr-1.5 text-emerald-400"/> Ajouter au CRM</Button>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl"><FileText className="w-4 h-4 mr-1.5"/> Nouveau devis</Button>
+              <Button onClick={() => {
+                setFormModifClient({
+                  id: prospectSelectionne.id,
+                  nom: prospectSelectionne.nom,
+                  email: prospectSelectionne.email || 'kenza.boualili2006@gmail.com',
+                  telephone: prospectSelectionne.telephone,
+                  entreprise: prospectSelectionne.entreprise || '',
+                  adresse: prospectSelectionne.adresse || '',
+                  code_postal: '78300',
+                  ville: 'Poissy',
+                  siret: ''
+                });
+                setModalModifierClientOuvert(true);
+              }} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Edit3 className="w-3.5 h-3.5 mr-1.5"/> Modifier</Button>
+              
+              <Button onClick={() => { setVueActuelle('crm'); }} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Target className="w-3.5 h-3.5 mr-1.5 text-amber-400"/> Ajouter au CRM</Button>
+              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl"><FileText className="w-4 h-4 mr-1.5"/> Nouveau devis</Button>
             </div>
           </div>
 
@@ -472,31 +659,64 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-              <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Informations</h3>
-              <div className="space-y-3 text-xs">
-                <div className="flex items-center gap-3 text-slate-300"><Mail className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.email || 'kenza.boualili2006@gmail.com'}</span></div>
-                <div className="flex items-center gap-3 text-slate-300"><Phone className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.telephone}</span></div>
-                <div className="flex items-center gap-3 text-slate-300"><MapPin className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.adresse}</span></div>
-              </div>
-              <div className="pt-4 border-t border-slate-800">
-                <h4 className="text-xs font-bold text-slate-400 mb-1">Notes</h4>
-                <p className="text-xs text-slate-300 bg-[#0a0f1d] p-3 rounded-xl border border-slate-800">{prospectSelectionne.probleme || 'Aucune note particulière.'}</p>
-              </div>
-            </Card>
+            <div className="space-y-6">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Informations</h3>
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center gap-3 text-slate-300"><Mail className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.email || 'kenza.boualili2006@gmail.com'}</span></div>
+                  <div className="flex items-center gap-3 text-slate-300"><Phone className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.telephone}</span></div>
+                  <div className="flex items-center gap-3 text-slate-300"><MapPin className="w-4 h-4 text-amber-400 shrink-0"/> <span>{prospectSelectionne.adresse}</span></div>
+                </div>
+                <div className="pt-4 border-t border-slate-800">
+                  <h4 className="text-xs font-bold text-slate-400 mb-1">Notes</h4>
+                  <p className="text-xs text-slate-300 bg-[#0a0f1d] p-3 rounded-xl border border-slate-800">{prospectSelectionne.probleme || 'Aucune note particulière.'}</p>
+                </div>
+              </Card>
+
+              {/* SECTION CONTACTS DU CLIENT EXACTEMENT COMME SUR TON MODÈLE */}
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-amber-400"/>
+                    <h3 className="text-sm font-bold text-white">Contacts</h3>
+                    <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full text-[10px] font-bold">{contactsClient.length}</span>
+                  </div>
+                  <Button onClick={() => setModalAjoutContactOuvert(true)} size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-8 px-3">
+                    <Plus className="w-3.5 h-3.5 mr-1"/> Ajouter
+                  </Button>
+                </div>
+
+                {contactsClient.length === 0 ? (
+                  <div className="text-center py-8 space-y-2">
+                    <Users className="w-8 h-8 mx-auto text-slate-600"/>
+                    <p className="text-xs text-slate-400">Aucun contact</p>
+                    <button onClick={() => setModalAjoutContactOuvert(true)} className="text-xs text-amber-400 font-semibold hover:underline">Ajouter un contact</button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {contactsClient.map(c => (
+                      <div key={c.id} className="p-3 bg-[#0a0f1d] rounded-xl border border-slate-800 text-xs space-y-1">
+                        <p className="font-bold text-white">{c.prenom} {c.nom} <span className="text-[10px] text-amber-400 font-normal">({c.role})</span></p>
+                        <p className="text-slate-400">{c.telephone} • {c.email}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
 
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
-                <button onClick={() => setOngletClientDetail('devis')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'devis' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Devis (0)</button>
-                <button onClick={() => setOngletClientDetail('factures')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'factures' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Factures (0)</button>
-                <button onClick={() => setOngletClientDetail('planning')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'planning' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Planning</button>
+                <button onClick={() => setOngletClientDetail('devis')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'devis' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Devis (0)</button>
+                <button onClick={() => setOngletClientDetail('factures')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'factures' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Factures (0)</button>
+                <button onClick={() => setOngletClientDetail('planning')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'planning' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Planning</button>
               </div>
 
-              <Card className="bg-[#111827] border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-4 min-h-[250px] flex flex-col items-center justify-center">
+              <Card className="bg-[#111827] border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-4 min-h-[350px] flex flex-col items-center justify-center">
                 <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400"><FileText className="w-6 h-6"/></div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Historique des {ongletClientDetail}</h4>
-                  <p className="text-xs text-slate-400 mt-1">Aucun {ongletClientDetail} enregistré pour ce client.</p>
+                  <p className="text-xs text-slate-400 mt-1">Derniers {ongletClientDetail} pour ce client</p>
                 </div>
               </Card>
             </div>
@@ -524,7 +744,7 @@ function App() {
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold px-3 mb-2">Gestion Commerciale</p>
             <nav className="space-y-1">
               <button onClick={() => setVueActuelle('crm')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'crm' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><BarChart3 className="w-4 h-4" /> Tunnel CRM</button>
-              <button onClick={() => setVueActuelle('clients')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'clients' ? 'bg-emerald-500 text-slate-950 font-bold shadow-lg shadow-emerald-900/20' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Users className="w-4 h-4" /> Répertoire Clients</button>
+              <button onClick={() => { setProspectSelectionne(null); setVueActuelle('clients'); }} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'clients' ? 'bg-emerald-500 text-slate-950 font-bold shadow-lg shadow-emerald-900/20' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Users className="w-4 h-4" /> Répertoire Clients</button>
               <button onClick={() => setVueActuelle('devis')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><FileText className="w-4 h-4" /> Propositions Devis</button>
               <button onClick={() => setVueActuelle('factures')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}><Receipt className="w-4 h-4" /> Facturation</button>
             </nav>
@@ -1002,6 +1222,7 @@ function App() {
               </div>
             </div>
 
+            {/* COLONNES DU PIPELINE CRM COMME SUR TON MODÈLE */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
               <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-indigo-500/10 to-transparent border-b border-indigo-500/20 flex items-center justify-between">
@@ -1009,10 +1230,20 @@ function App() {
                     <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
                     <span className="text-xs font-extrabold text-indigo-400">Lead</span>
                   </div>
-                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-2.5 py-0.5 rounded-full">0</span>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-2.5 py-0.5 rounded-full">{prospectsActifs.length}</span>
                 </div>
-                <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
+                <div className="p-3 flex-1 flex flex-col gap-3 min-h-[200px]">
+                  {prospectsActifs.length === 0 ? (
+                    <div className="flex-1 flex items-center justify-center text-center"><p className="text-xs text-slate-500 font-medium">Aucun deal</p></div>
+                  ) : (
+                    prospectsActifs.map(client => (
+                      <div key={client.id} className="p-3 bg-[#0a0f1d] border border-indigo-500/30 rounded-xl space-y-1 shadow-md text-xs">
+                        <div className="flex items-center justify-between"><span className="font-bold text-white">Lead - {client.nom}</span><span className="text-[10px] text-amber-400">-{prixMoyenDemande}€</span></div>
+                        <p className="text-[10px] text-slate-400"><Users className="w-3 h-3 inline mr-1"/>{client.nom}</p>
+                        <p className="text-[9px] text-slate-500">Créé récemment</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -1025,7 +1256,7 @@ function App() {
                   <span className="text-[10px] bg-purple-500/20 text-purple-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
                 <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
 
@@ -1038,7 +1269,7 @@ function App() {
                   <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
                 <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
 
@@ -1051,7 +1282,7 @@ function App() {
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
                 <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
 
@@ -1064,33 +1295,35 @@ function App() {
                   <span className="text-[10px] bg-rose-500/20 text-rose-300 font-black px-2.5 py-0.5 rounded-full">0</span>
                 </div>
                 <div className="p-4 flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
+                  <p className="text-xs text-slate-500 font-medium">Aucun deal</p>
                 </div>
               </div>
             </div>
 
-            <div className={`${isDarkMode ? 'bg-gradient-to-b from-[#111827] to-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-2xl text-center space-y-4 relative overflow-hidden`}>
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center text-violet-400 shadow-xl">
-                <Target className="w-8 h-8"/>
+            {prospectsActifs.length === 0 && (
+              <div className={`${isDarkMode ? 'bg-gradient-to-b from-[#111827] to-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-2xl text-center space-y-4 relative overflow-hidden`}>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center text-violet-400 shadow-xl">
+                  <Target className="w-8 h-8"/>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold">Aucun deal</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez un devis pour générer automatiquement un deal dans votre pipeline.</p>
+                </div>
+                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-500/25">
+                  <Plus className="w-4 h-4 mr-2"/> Créer un devis
+                </Button>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-extrabold">Aucun deal enregistré</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez votre premier devis pour alimenter automatiquement votre pipeline commercial.</p>
-              </div>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-500/25">
-                <Plus className="w-4 h-4 mr-2"/> Créer un devis
-              </Button>
-            </div>
+            )}
           </div>
         )}
 
-        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS (INNOVANT AVEC TABLEAU MODERNE ET CLIC DE DÉTAIL) */}
+        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS (INNOVANT AVEC TROIS PETITS POINTS ET MENU D'ACTIONS COMPLET) */}
         {vueActuelle === 'clients' && !prospectSelectionne && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-black tracking-tight">Clients</h2>
-                <p className="text-xs text-slate-400 mt-1">Gérez vos clients et leurs informations.</p>
+                <p className="text-xs text-slate-400 mt-1">Gérez vos clients et leurs informations</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" onClick={() => alert("Export CSV réussi !")} className={`h-10 text-xs gap-2 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-700'} rounded-xl`}>
@@ -1099,13 +1332,12 @@ function App() {
                 <Button variant="outline" onClick={() => alert("Import CSV réussi !")} className={`h-10 text-xs gap-2 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-700'} rounded-xl`}>
                   <Upload className="w-3.5 h-3.5"/> Importer CSV
                 </Button>
-                <Button onClick={() => setModalNouveauClientOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                <Button onClick={() => setModalNouveauClientOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-900/20 flex items-center gap-2">
                   <Plus className="w-4 h-4"/> Nouveau client
                 </Button>
               </div>
             </div>
 
-            {/* BARRE DE RECHERCHE ET FILTRE CLIENTS */}
             <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
@@ -1113,14 +1345,14 @@ function App() {
                   value={rechercheClientInput}
                   onChange={(e) => setRechercheClientInput(e.target.value)}
                   placeholder="Rechercher un client..." 
-                  className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-emerald-500`} 
+                  className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-amber-500`} 
                 />
               </div>
               <div className="w-full md:w-48">
                 <select 
                   value={filtreStatutClient}
                   onChange={(e) => setFiltreStatutClient(e.target.value)}
-                  className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-emerald-500`}
+                  className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-amber-500`}
                 >
                   <option value="Tous">Tous</option>
                   <option value="Actifs">Actifs</option>
@@ -1129,7 +1361,6 @@ function App() {
               </div>
             </div>
 
-            {/* TABLEAU DES CLIENTS INNOVANT */}
             <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl overflow-hidden shadow-xl`}>
               <table className="w-full text-left text-xs text-slate-400">
                 <thead className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-slate-50 border-slate-200'} uppercase font-semibold border-b`}>
@@ -1156,181 +1387,90 @@ function App() {
                         const matchTel = p.telephone && p.telephone.toLowerCase().includes(term);
                         if (!matchNom && !matchTel) return false;
                       }
+                      if (filtreStatutClient === 'Actifs' && p.statut === 'archive') return false;
+                      if (filtreStatutClient === 'Inactifs' && p.statut !== 'archive') return false;
                       return true;
-                    }).map(p => (
-                      <tr 
-                        key={p.id} 
-                        onClick={() => setProspectSelectionne(p)}
-                        className={`${isDarkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'} transition-colors cursor-pointer`}
-                      >
-                        <td className="px-6 py-4 font-bold text-white text-sm">{p.nom}</td>
-                        <td className="px-6 py-4 space-y-0.5">
-                          <div className="flex items-center gap-1.5 text-slate-300"><Mail className="w-3 h-3 text-emerald-400"/> {p.email || 'kenza.boualili2006@gmail.com'}</div>
-                          <div className="flex items-center gap-1.5 text-slate-400"><Phone className="w-3 h-3"/> {p.telephone}</div>
-                        </td>
-                        <td className="px-6 py-4 text-slate-300"><MapPin className="w-3 h-3 inline mr-1 text-emerald-400"/> {p.ville || 'Poissy'}</td>
-                        <td className="px-6 py-4 text-slate-300 font-semibold"><FileText className="w-3.5 h-3.5 inline mr-1 text-blue-400"/> 0</td>
-                        <td className="px-6 py-4 text-slate-300 font-semibold"><Receipt className="w-3.5 h-3.5 inline mr-1 text-emerald-400"/> 0</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">Actif</span>
-                        </td>
-                        <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" onClick={() => setProspectSelectionne(p)} className="h-8 w-8 p-0 text-slate-400 hover:text-white rounded-full"><MoreVertical className="w-4 h-4"/></Button>
-                        </td>
-                      </tr>
-                    ))
+                    }).map(p => {
+                      const estInactif = p.statut === 'archive';
+                      return (
+                        <tr 
+                          key={p.id} 
+                          onClick={() => setProspectSelectionne(p)}
+                          className={`${isDarkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'} transition-colors cursor-pointer relative`}
+                        >
+                          <td className="px-6 py-4 font-bold text-white text-sm">{p.nom}</td>
+                          <td className="px-6 py-4 space-y-0.5">
+                            <div className="flex items-center gap-1.5 text-slate-300"><Mail className="w-3 h-3 text-amber-400"/> {p.email || 'kenza.boualili2006@gmail.com'}</div>
+                            <div className="flex items-center gap-1.5 text-slate-400"><Phone className="w-3 h-3"/> {p.telephone}</div>
+                          </td>
+                          <td className="px-6 py-4 text-slate-300"><MapPin className="w-3 h-3 inline mr-1 text-amber-400"/> {p.ville || 'Poissy'}</td>
+                          <td className="px-6 py-4 text-slate-300 font-semibold"><FileText className="w-3.5 h-3.5 inline mr-1 text-blue-400"/> 0</td>
+                          <td className="px-6 py-4 text-slate-300 font-semibold"><Receipt className="w-3.5 h-3.5 inline mr-1 text-emerald-400"/> 0</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${estInactif ? 'bg-slate-800 text-slate-400 border border-slate-700' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}`}>
+                              {estInactif ? 'Inactif' : 'Actif'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
+                            <Button 
+                              variant="ghost" 
+                              onClick={() => setMenuActionClientId(menuActionClientId === p.id ? null : p.id)} 
+                              className="h-8 w-8 p-0 text-slate-400 hover:text-white rounded-full"
+                            >
+                              <MoreVertical className="w-4 h-4"/>
+                            </Button>
+
+                            {/* MENU DÉROULANT DES 3 PETITS POINTS EXACTEMENT COMME SUR TON MODÈLE */}
+                            {menuActionClientId === p.id && (
+                              <div className={`absolute right-6 top-12 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
+                                <button 
+                                  onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
+                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-slate-400"/> Voir détails
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setFormModifClient({
+                                      id: p.id,
+                                      nom: p.nom,
+                                      email: p.email || 'kenza.boualili2006@gmail.com',
+                                      telephone: p.telephone,
+                                      entreprise: p.entreprise || '',
+                                      adresse: p.adresse || '',
+                                      code_postal: '78300',
+                                      ville: 'Poissy',
+                                      siret: ''
+                                    });
+                                    setModalModifierClientOuvert(true);
+                                    setMenuActionClientId(null);
+                                  }}
+                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5 text-slate-400"/> Modifier
+                                </button>
+                                <button 
+                                  onClick={() => basculerStatutClient(p.id)}
+                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
+                                >
+                                  <UserX className="w-3.5 h-3.5 text-slate-400"/> {estInactif ? 'Réactiver' : 'Désactiver'}
+                                </button>
+                                <button 
+                                  onClick={() => supprimerClient(p.id)}
+                                  className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-red-500/10 text-red-500 transition-colors font-medium border-t border-slate-800/60"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5"/> Supprimer
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
-
-        {/* TRÉSORERIE */}
-        {vueActuelle === 'finances' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div>
-              <h2 className="text-2xl font-black tracking-tight">Trésorerie & Finances</h2>
-              <p className="text-xs text-slate-400 mt-1">Suivi de vos encaissements réels et gestion des impayés sur le terrain.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Trésorerie Encaissée</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-emerald-500">{totalCA}€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Chantiers soldés</p>
-                  </div>
-                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500"><ArrowUpRight className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">En attente d'encaissement</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-blue-500">{caEnAttente}€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Factures en cours</p>
-                  </div>
-                  <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500"><Clock className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Factures en retard (Impayés)</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-red-500">0€</h3>
-                    <p className="text-[10px] text-red-500 mt-1">0 client à relancer</p>
-                  </div>
-                  <div className="bg-red-500/10 p-2.5 rounded-xl text-red-500"><ShieldAlert className="w-5 h-5"/></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs text-slate-400 font-medium">Charges Fournisseurs</p>
-                    <h3 className="text-2xl font-extrabold mt-1 text-amber-400">0€</h3>
-                    <p className="text-[10px] text-slate-400 mt-1">Matériel & fournitures</p>
-                  </div>
-                  <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400"><ArrowDownRight className="w-5 h-5"/></div>
-                </div>
-              </Card>
-            </div>
-
-            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl p-6 shadow-xl space-y-4`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold">Suivi des encaissements & Relances</h3>
-                  <p className="text-xs text-slate-400">Cliquez pour envoyer une relance instantanée par message aux clients.</p>
-                </div>
-                <Button onClick={() => setVueActuelle('clients')} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl">Voir tous les clients</Button>
-              </div>
-
-              <div className="divide-y divide-slate-800/50">
-                {prospectsActifs.length === 0 ? (
-                  <div className="text-center py-12 text-xs text-slate-500">Aucun chantier ou facture en attente de paiement pour le moment. Tout est à jour !</div>
-                ) : (
-                  prospectsActifs.map(client => (
-                    <div key={client.id} className="py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">{client.nom.charAt(0)}</div>
-                        <div>
-                          <h4 className="text-xs font-bold">{client.nom}</h4>
-                          <p className="text-[11px] text-slate-400">{client.probleme} • Tél : {client.telephone}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-extrabold text-amber-400">{prixMoyenDemande}€ estimés</span>
-                        <Button 
-                          onClick={() => window.open(`https://wa.me/${client.telephone.replace(/\s+/g, '')}?text=Bonjour%20${encodeURIComponent(client.nom)},%20sauf%20erreur%20de%20ma%20part,%20le%20règlement%20pour%20notre%20intervention%20est%20en%20attente.%20Merci%20de%20votre%20retour!`)} 
-                          size="sm" 
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-semibold flex items-center gap-1.5"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5"/> Relancer WhatsApp
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* VUE RÉGLAGES PROFIL */}
-        {vueActuelle === 'reglages' && (
-          <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
-            <div><h2 className="text-2xl font-black tracking-tight">Configuration de l'entreprise</h2><p className="text-xs text-slate-400 mt-1">Paramétrez vos tarifs et le comportement de l'assistant.</p></div>
-            <form onSubmit={sauvegarderProfil} className="space-y-6">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} rounded-2xl p-6 shadow-xl`}>
-                <h3 className="text-sm font-bold mb-4 flex items-center gap-2"><Building2 className="w-4 h-4 text-emerald-500"/> Identité Pro</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div><label className="text-slate-400">Entreprise</label><Input value={profil.nom_entreprise || ''} onChange={(e) => setProfil({...profil, nom_entreprise: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} required /></div>
-                  <div><label className="text-slate-400">Métier</label><Input value={profil.metier || ''} onChange={(e) => setProfil({...profil, metier: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} required /></div>
-                  <div><label className="text-slate-400">Téléphone</label><Input value={profil.telephone || ''} onChange={(e) => setProfil({...profil, telephone: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} /></div>
-                  <div><label className="text-slate-400">Adresse</label><Input value={profil.adresse || ''} onChange={(e) => setProfil({...profil, adresse: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} /></div>
-                </div>
-              </Card>
-
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} rounded-2xl p-6 shadow-xl`}>
-                <h3 className="text-sm font-bold mb-4 flex items-center gap-2"><Euro className="w-4 h-4 text-emerald-500"/> Grille Tarifaire</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div><label className="text-slate-400">Frais de déplacement (€)</label><Input type="number" step="0.01" value={profil.tarif_deplacement || 0} onChange={(e) => setProfil({...profil, tarif_deplacement: parseFloat(e.target.value) || 0})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} required /></div>
-                  <div><label className="text-slate-400">Taux horaire (€/h)</label><Input type="number" step="0.01" value={profil.tarif_horaire || 0} onChange={(e) => setProfil({...profil, tarif_horaire: parseFloat(e.target.value) || 0})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-9 mt-1`} required /></div>
-                </div>
-              </Card>
-
-              <div className="flex items-center gap-4"><Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl"><Save className="w-4 h-4 mr-2"/> Enregistrer</Button>{messageSauvegarde && <span className="text-xs text-emerald-500 font-medium">{messageSauvegarde}</span>}</div>
-            </form>
-          </div>
-        )}
-
-        {/* VUE CHATBOT TEST */}
-        {vueActuelle === 'chat' && (
-          <div className="max-w-2xl mx-auto h-[75vh] flex flex-col animate-in fade-in duration-300">
-            <div className="mb-4"><h2 className="text-2xl font-black tracking-tight">Simulateur Assistant IA</h2><p className="text-xs text-slate-400 mt-1">Testez les réponses automatiques de votre agent virtuel.</p></div>
-            <Card className={`flex-1 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border flex flex-col overflow-hidden rounded-2xl shadow-xl`}>
-              <CardContent className="flex-1 p-5 overflow-y-auto flex flex-col gap-3">
-                {messages.map((m, idx) => (<div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[80%] rounded-xl p-3 text-xs ${m.role === 'user' ? 'bg-emerald-500 text-slate-950 font-medium' : isDarkMode ? 'bg-[#0a0f1d] border border-slate-800 text-slate-300' : 'bg-slate-100 border border-slate-200 text-slate-800'}`}>{m.content}</div></div>))}
-                {iaReflechit && <div className="text-xs text-slate-400 animate-pulse">L'assistant rédige sa réponse...</div>}
-              </CardContent>
-              <div className={`p-3 border-t ${isDarkMode ? 'border-slate-800 bg-[#0a0f1d]' : 'border-slate-200 bg-slate-50'}`}>
-                <form onSubmit={envoyerMessage} className="flex gap-2"><Input value={nouveauMessage} onChange={(e) => setNouveauMessage(e.target.value)} placeholder="Simuler un message client..." className={`flex-1 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'} h-10 text-xs`} /><Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 h-10 px-4 text-xs font-bold"><Send className="w-3.5 h-3.5"/></Button></form>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* VUES EN ATTENTE POUR LES AUTRES MODULES */}
-        {['devis', 'factures'].includes(vueActuelle) && (
-          <div className="h-[70vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-4 shadow-lg"><Wrench className="w-8 h-8"/></div>
-            <h3 className="text-xl font-bold capitalize">Module {vueActuelle}</h3>
-            <p className="text-xs text-slate-400 max-w-sm mt-2">Cette option sera synchronisée lors de la mise en production globale.</p>
-            <Button onClick={() => setVueActuelle('dashboard')} className="mt-6 bg-slate-800 hover:bg-slate-700 text-white text-xs h-9">Retour au Dashboard</Button>
           </div>
         )}
 
