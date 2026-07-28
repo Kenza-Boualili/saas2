@@ -461,27 +461,42 @@ function App() {
               </Card>
             </div>
 
-            {/* SECONDE LIGNE DE STATS RAPIDES INTERACTIVES (CLIQUABLES VERS LEUR PAGE) */}
+            {/* SECONDE LIGNE DE STATS CORRIGÉE (CHIFFRE & LOGO ALIGNÉS ET CLIQUABLES) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card onClick={() => setVueActuelle('devis')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-blue-500/40 hover:scale-[1.02] cursor-pointer">
-                <div className="flex flex-col"><p className="text-xs text-slate-400 mb-2">Devis créés</p><h4 className="text-2xl font-black text-white">{(prospects || []).length}</h4></div>
+                <div>
+                  <p className="text-xs text-slate-400 font-medium">Devis créés</p>
+                  <h4 className="text-2xl font-black text-white mt-1">{(prospects || []).length}</h4>
+                </div>
                 <div className="bg-blue-500/10 p-3 rounded-xl text-blue-400"><FileText className="w-5 h-5"/></div>
               </Card>
+
               <Card onClick={() => setVueActuelle('factures')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer">
-                <div className="flex flex-col"><p className="text-xs text-slate-400 mb-2">Factures émises</p><h4 className="text-2xl font-black text-white">0</h4></div>
+                <div>
+                  <p className="text-xs text-slate-400 font-medium">Factures émises</p>
+                  <h4 className="text-2xl font-black text-white mt-1">0</h4>
+                </div>
                 <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-400"><Receipt className="w-5 h-5"/></div>
               </Card>
+
               <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer">
-                <div className="flex flex-col"><p className="text-xs text-slate-400 mb-2">Clients actifs</p><h4 className="text-2xl font-black text-white">{prospectsActifs.length}</h4></div>
+                <div>
+                  <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
+                  <h4 className="text-2xl font-black text-white mt-1">{prospectsActifs.length}</h4>
+                </div>
                 <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-400"><Users className="w-5 h-5"/></div>
               </Card>
+
               <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-purple-500/40 hover:scale-[1.02] cursor-pointer">
-                <div className="flex flex-col"><p className="text-xs text-slate-400 mb-2">Photos chantier</p><h4 className="text-2xl font-black text-white">0</h4></div>
+                <div>
+                  <p className="text-xs text-slate-400 font-medium">Photos chantier</p>
+                  <h4 className="text-2xl font-black text-white mt-1">0</h4>
+                </div>
                 <div className="bg-purple-500/10 p-3 rounded-xl text-purple-400"><Package className="w-5 h-5"/></div>
               </Card>
             </div>
 
-            {/* SECTION ACTIONS RAPIDES (HAUTEUR CORRIGÉE ET OPTIMISÉE) */}
+            {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM (HAUTEUR OPTIMISÉE ET COMPACTE) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* PIPELINE CRM INTERACTIF */}
@@ -504,14 +519,14 @@ function App() {
                 </div>
               </Card>
 
-              {/* BOUTONS ACTIONS RAPIDES (HAUTEUR COMPacte CORRIGÉE) */}
+              {/* BOUTONS ACTIONS RAPIDES (RECTANGLES REMPLIS ET COMPACTS) */}
               <div className="lg:col-span-2 bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                 <h3 className="text-sm font-bold text-white mb-3">Actions rapides</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-10 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><FileText className="w-4 h-4 mr-2 text-emerald-500"/> Nouveau devis</Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-10 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Receipt className="w-4 h-4 mr-2 text-emerald-500"/> Nouvelle facture</Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-10 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Users className="w-4 h-4 mr-2 text-blue-500"/> Ajouter client</Button>
-                  <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-10 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Package className="w-4 h-4 mr-2 text-purple-500"/> Photos chantier</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-11 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><FileText className="w-4 h-4 mr-2 text-emerald-500"/> Nouveau devis</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-11 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Receipt className="w-4 h-4 mr-2 text-emerald-500"/> Nouvelle facture</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-11 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Users className="w-4 h-4 mr-2 text-blue-500"/> Ajouter client</Button>
+                  <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-11 text-xs font-semibold justify-start px-3 transition-all hover:scale-[1.02]"><Package className="w-4 h-4 mr-2 text-purple-500"/> Photos chantier</Button>
                 </div>
               </div>
 
@@ -527,7 +542,6 @@ function App() {
                   <span className="text-xs font-bold text-emerald-400">Total {totalCA}€</span>
                 </div>
                 <div className="h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b border-slate-800">
-                  {/* ÉCHELLE VERTICALE GAUCHE */}
                   <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-400 pr-2">
                     <span>10k€</span>
                     <span>5k€</span>
@@ -570,7 +584,6 @@ function App() {
                   </div>
                 </div>
                 <div className="h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b border-slate-800">
-                  {/* ÉCHELLE VERTICALE GAUCHE */}
                   <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-400 pr-2">
                     <span>4</span>
                     <span>2</span>
