@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
@@ -31,6 +31,10 @@ function App() {
   const [chargement, setChargement] = useState(false)
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
+
+  // États pour les popups du header (Notifications et Profil)
+  const [menuNotifOuvert, setMenuNotifOuvert] = useState(false)
+  const [menuProfilOuvert, setMenuProfilOuvert] = useState(false)
 
   // Génération dynamique des années (de 2026 jusqu'à l'année actuelle réelle)
   const anneeActuelleReelle = new Date().getFullYear();
@@ -70,7 +74,7 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/api/inscription`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse, nom_entreprise: nomEntreprise }) })
       const data = await res.json()
-      if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
+      if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise, email)
       else setErreurAuth(data.erreur || "Erreur d'inscription")
     } catch (err) { setErreurAuth("Erreur serveur.") }
   }
@@ -80,13 +84,13 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/api/connexion`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse }) })
       const data = await res.json()
-      if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
+      if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise, email)
       else setErreurAuth(data.erreur || "Identifiants incorrects")
     } catch (err) { setErreurAuth("Erreur serveur.") }
   }
 
-  const connecterUtilisateur = (id, nom) => {
-    setArtisanConnecte({ id, nom_entreprise: nom })
+  const connecterUtilisateur = (id, nom, mailUtilisateur = '') => {
+    setArtisanConnecte({ id, nom_entreprise: nom, email: mailUtilisateur || email })
     setMessages([{ role: 'assistant', content: `Bonjour ! Je suis l'assistant de l'entreprise ${nom || 'Pro'}. Quel est votre besoin aujourd'hui ?` }])
     setEmail(''); setMotDePasse(''); setNomEntreprise('');
   }
@@ -234,7 +238,6 @@ function App() {
     try { return prospect?.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
   };
 
-  // Filtrage des prospects selon l'année sélectionnée
   const prospectsAnnee = (prospects || []).filter(p => {
     if (!p.date_creation) return false;
     const anneeP = new Date(p.date_creation.replace(' ', 'T')).getFullYear();
@@ -407,14 +410,97 @@ function App() {
       {/* CONTENU PRINCIPAL */}
       <main className="flex-1 p-6 lg:p-10 overflow-y-auto relative z-0 bg-[#0a0f1d]">
         
-        {/* TOP BAR */}
+        {/* TOP BAR AVEC NOTIFICATIONS ET PROFIL INTERACTIFS */}
         <header className="mb-8 flex items-center justify-between gap-4 bg-[#111827]/60 p-4 rounded-2xl border border-slate-800/60 backdrop-blur-sm shadow-md">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
             <Input placeholder="Recherche rapide (Ctrl + K)..." className="h-10 pl-10 pr-4 bg-[#0a0f1d] border-slate-800 text-white rounded-xl text-xs w-full focus:border-emerald-500" />
           </div>
-          <div className="flex items-center gap-3">
-            <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition-transform active:scale-95">
+
+          <div className="flex items-center gap-4 relative">
+            
+            {/* BOUTON CLOCHE NOTIFICATIONS */}
+            <div className="relative">
+              <button 
+                onClick={() => { setMenuNotifOuvert(!menuNotifOuvert); setMenuProfilOuvert(false); }}
+                className="w-10 h-10 rounded-xl bg-[#0a0f1d] border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white hover:border-emerald-500/50 transition-all relative"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              </button>
+
+              {/* POPUP NOTIFICATIONS */}
+              {menuNotifOuvert && (
+                <div className="absolute right-0 mt-3 w-80 bg-[#111827] border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in duration-150">
+                  <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Notifications</h4>
+                    <span className="text-[10px] text-emerald-400 font-semibold cursor-pointer hover:underline" onClick={() => setMenuNotifOuvert(false)}>Tout marquer comme lu</span>
+                  </div>
+                  <div className="p-6 text-center space-y-3">
+                    <div className="w-10 h-10 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                      <Bell className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-slate-400">Aucune notification pour le moment</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* BOUTON MODE SOMBRE / LUMINEUX (VISUEL) */}
+            <button className="w-10 h-10 rounded-xl bg-[#0a0f1d] border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white hover:border-emerald-500/50 transition-all">
+              <Moon className="w-4 h-4" />
+            </button>
+
+            {/* BOUTON PROFIL / AVATAR */}
+            <div className="relative">
+              <button 
+                onClick={() => { setMenuProfilOuvert(!menuProfilOuvert); setMenuNotifOuvert(false); }}
+                className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-900/30 cursor-pointer overflow-hidden border border-emerald-400/50"
+              >
+                {artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0).toUpperCase() : 'P'}
+              </button>
+
+              {/* POPUP PROFIL TYPE CLERK / SUPABASE */}
+              {menuProfilOuvert && (
+                <div className="absolute right-0 mt-3 w-72 bg-[#111827] border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in duration-150 text-xs">
+                  <div className="p-4 border-b border-slate-800 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black shrink-0">
+                      {artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0).toUpperCase() : 'P'}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="font-bold text-white truncate">{artisanConnecte?.nom_entreprise || 'Mon Entreprise'}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{artisanConnecte?.email || 'pro@kraftpilot.com'}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-2 space-y-1">
+                    <button 
+                      onClick={() => { setVueActuelle('reglages'); setMenuProfilOuvert(false); }} 
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                    >
+                      <SettingsIcon className="w-4 h-4 text-emerald-400" /> Gérer l'entreprise
+                    </button>
+                    <button 
+                      onClick={() => { setVueActuelle('reglages'); setMenuProfilOuvert(false); }} 
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                    >
+                      <User className="w-4 h-4 text-emerald-400" /> Paramètres du compte
+                    </button>
+                  </div>
+
+                  <div className="p-2 border-t border-slate-800">
+                    <button 
+                      onClick={deconnexion} 
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors font-medium"
+                    >
+                      <SignOut className="w-4 h-4" /> Se déconnecter
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition-transform active:scale-95 ml-2">
               <Plus className="w-4 h-4" /> Nouvelle intervention
             </Button>
           </div>
