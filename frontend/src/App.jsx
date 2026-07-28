@@ -713,5 +713,4 @@ function App() {
   )
 }
 
-export Date = null; // helper placeholder
 export default App
