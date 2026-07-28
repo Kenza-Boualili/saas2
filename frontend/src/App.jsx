@@ -29,7 +29,6 @@ function App() {
   const [vueActuelle, setVueActuelle] = useState('dashboard') 
   const [prospects, setProspects] = useState([])
   const [chargement, setChargement] = useState(false)
-  const [filtreStatut, setFiltreStatut] = useState('actifs')
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
@@ -43,12 +42,8 @@ function App() {
     nom: '', probleme: '', telephone: '', adresse: '', statut: 'nouveau', date_intervention: '', urgent: 'non'
   })
 
-  // États pour les tooltips interactifs des graphiques au survol de la souris
   const [hoverIndexCa, setHoverIndexCa] = useState(null);
   const [hoverIndexAct, setHoverIndexAct] = useState(null);
-
-  const dernierIdVuRef = useRef(null)
-  const [alerteToast, setAlerteToast] = useState(null)
 
   const [messages, setMessages] = useState([])
   const [nouveauMessage, setNouveauMessage] = useState('')
@@ -68,7 +63,7 @@ function App() {
       const res = await fetch(`${API_URL}/api/inscription`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse, nom_entreprise: nomEntreprise }) })
       const data = await res.json()
       if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
-      else setErreurAuth(data.erreur)
+      else setErreurAuth(data.erreur || "Erreur d'inscription")
     } catch (err) { setErreurAuth("Erreur serveur.") }
   }
 
@@ -78,38 +73,38 @@ function App() {
       const res = await fetch(`${API_URL}/api/connexion`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mot_de_passe: motDePasse }) })
       const data = await res.json()
       if (data.success) connecterUtilisateur(data.artisan_id, data.nom_entreprise)
-      else setErreurAuth(data.erreur)
+      else setErreurAuth(data.erreur || "Identifiants incorrects")
     } catch (err) { setErreurAuth("Erreur serveur.") }
   }
 
   const connecterUtilisateur = (id, nom) => {
     setArtisanConnecte({ id, nom_entreprise: nom })
-    setMessages([{ role: 'assistant', content: `Bonjour ! Je suis l'assistant de l'entreprise ${nom}. Quel est votre besoin aujourd'hui ?` }])
+    setMessages([{ role: 'assistant', content: `Bonjour ! Je suis l'assistant de l'entreprise ${nom || 'Pro'}. Quel est votre besoin aujourd'hui ?` }])
     setEmail(''); setMotDePasse(''); setNomEntreprise('');
   }
 
   const deconnexion = () => {
-    setArtisanConnecte(null); setProspects([]); setVueActuelle('dashboard'); dernierIdVuRef.current = null;
+    setArtisanConnecte(null); setProspects([]); setVueActuelle('dashboard');
   }
 
   const chargerProspects = (silencieux = false) => {
-    if (!artisanConnecte) return
+    if (!artisanConnecte?.id) return
     if (!silencieux) setChargement(true)
     fetch(`${API_URL}/api/prospects?artisan_id=${artisanConnecte.id}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => { 
-        setProspects(data.prospects || []); 
+        setProspects(data?.prospects || []); 
         setChargement(false) 
       })
       .catch(err => setChargement(false))
   }
 
   const chargerProfil = async () => {
-    if (!artisanConnecte) return
+    if (!artisanConnecte?.id) return
     try {
       const res = await fetch(`${API_URL}/api/artisans/${artisanConnecte.id}/profil`)
       const data = await res.json()
-      if (data.nom_entreprise) setProfil(data)
+      if (data && data.nom_entreprise) setProfil(data)
     } catch (err) {}
   }
 
@@ -127,7 +122,7 @@ function App() {
 
   const soumettreClientManuel = async (e) => {
     e.preventDefault();
-    if (!artisanConnecte) return;
+    if (!artisanConnecte?.id) return;
     try {
       const res = await fetch(`${API_URL}/api/prospects`, {
         method: 'POST',
@@ -147,7 +142,7 @@ function App() {
 
   const changerStatut = async (id, nouveauStatut) => {
     const statutFinal = nouveauStatut === 'termine' ? 'archive' : nouveauStatut;
-    setProspects(prospectsActuels => prospectsActuels.map(p => p.id === id ? { ...p, statut: statutFinal } : p))
+    setProspects(prospectsActuels => (prospectsActuels || []).map(p => p.id === id ? { ...p, statut: statutFinal } : p))
     if (prospectSelectionne && prospectSelectionne.id === id) {
       if (statutFinal === 'archive') setProspectSelectionne(null);
       else setProspectSelectionne(prev => ({...prev, statut: statutFinal}))
@@ -194,7 +189,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (artisanConnecte) {
+    if (artisanConnecte?.id) {
       chargerProspects(false)
       chargerProfil()
       const minuteur = setInterval(() => chargerProspects(true), 3000)
@@ -212,7 +207,7 @@ function App() {
 
   const envoyerMessage = async (e) => {
     e.preventDefault()
-    if (!nouveauMessage.trim() || !artisanConnecte) return
+    if (!nouveauMessage.trim() || !artisanConnecte?.id) return
     const texteMessage = nouveauMessage
     const historiqueActuel = [...messages]
     const nouvelHistorique = [...historiqueActuel, { role: 'user', content: texteMessage }]
@@ -220,7 +215,7 @@ function App() {
     try {
       const reponse = await fetch(`${API_URL}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artisan_id: artisanConnecte.id, nouveau_message: texteMessage, historique: historiqueActuel }) })
       const data = await reponse.json()
-      setMessages([...nouvelHistorique, { role: 'assistant', content: data.reponse }])
+      setMessages([...nouvelHistorique, { role: 'assistant', content: data?.reponse || "Réponse vide." }])
       chargerProspects(true) 
     } catch (e) {
       setMessages([...nouvelHistorique, { role: 'assistant', content: "Erreur serveur." }])
@@ -228,21 +223,20 @@ function App() {
   }
 
   const getHistoriqueChat = (prospect) => {
-    try { return prospect.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
+    try { return prospect?.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
   };
 
-  // Calculs statistiques & indicateurs
-  const prospectsActifs = prospects.filter(p => p.statut !== 'archive' && p.statut !== 'annule');
-  const prixMoyenDemande = (profil.tarif_deplacement || 50) + (profil.tarif_horaire || 60);
+  const prospectsActifs = (prospects || []).filter(p => p.statut !== 'archive' && p.statut !== 'annule');
+  const prixMoyenDemande = (profil?.tarif_deplacement || 50) + (profil?.tarif_horaire || 60);
   let caEnAttente = prospectsActifs.length * prixMoyenDemande;
-  let totalCA = prospects.filter(p => p.statut === 'archive').length * prixMoyenDemande;
+  let totalCA = (prospects || []).filter(p => p.statut === 'archive').length * prixMoyenDemande;
   
-  const factureMoyenne = prospects.length > 0 ? Math.round(totalCA / prospects.length) : 0;
-  const tauxConversion = prospects.length > 0 ? Math.round((prospects.filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospects.length) * 100) : 0;
+  const factureMoyenne = (prospects || []).length > 0 ? Math.round(totalCA / prospects.length) : 0;
+  const tauxConversion = (prospects || []).length > 0 ? Math.round(((prospects || []).filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospects.length) * 100) : 0;
 
-  const clientsFiltresRecherche = prospects.filter(p => {
+  const clientsFiltresRecherche = (prospects || []).filter(p => {
     if (p.statut === 'annule' || p.statut === 'archive') return false; 
-    const terme = rechercheClient.toLowerCase();
+    const terme = (rechercheClient || '').toLowerCase();
     return (p.nom && p.nom.toLowerCase().includes(terme)) || (p.telephone && p.telephone.toLowerCase().includes(terme)) || (p.adresse && p.adresse.toLowerCase().includes(terme)) || (p.probleme && p.probleme.toLowerCase().includes(terme));
   });
 
@@ -388,8 +382,8 @@ function App() {
 
         <div className="p-4 border-t border-slate-800/60 bg-[#0a0f1d]/50">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-8 h-8 rounded-full bg-amber-500/25 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-xs uppercase">{artisanConnecte.nom_entreprise.charAt(0)}</div>
-            <div className="overflow-hidden"><p className="text-xs font-semibold text-white truncate">{artisanConnecte.nom_entreprise}</p><p className="text-[10px] text-slate-500">Compte Actif</p></div>
+            <div className="w-8 h-8 rounded-full bg-amber-500/25 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-xs uppercase">{artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0) : 'P'}</div>
+            <div className="overflow-hidden"><p className="text-xs font-semibold text-white truncate">{artisanConnecte?.nom_entreprise || 'Mon Entreprise'}</p><p className="text-[10px] text-slate-500">Compte Actif</p></div>
           </div>
           <Button onClick={deconnexion} variant="outline" className="w-full bg-transparent border-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs h-8"><LogOut className="w-3 h-3 mr-1.5" /> Déconnexion</Button>
         </div>
@@ -411,13 +405,13 @@ function App() {
           </div>
         </header>
 
-        {/* VUE TABLEAU DE BORD (DASHBOARD AVEC TOUTES LES CARTES INTERACTIVES ET GRAPHIQUES AU SURVOL) */}
+        {/* VUE TABLEAU DE BORD (DASHBOARD) */}
         {vueActuelle === 'dashboard' && (
           <div className="space-y-8 animate-in fade-in duration-300">
 
             <div>
               <h2 className="text-2xl font-black text-white tracking-tight">Tableau de bord</h2>
-              <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité pour l'année {anneeActuelle}.</p>
+              <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité pour l'année 2026.</p>
             </div>
 
             {/* GRILLE DES 4 CARTES FINANCIÈRES PRINCIPALES INTERACTIVES */}
@@ -470,7 +464,7 @@ function App() {
             {/* SECONDE LIGNE DE STATS RAPIDES INTERACTIVES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-blue-500/40 hover:scale-[1.02] cursor-pointer">
-                <div><p className="text-xs text-slate-400">Devis créés</p><h4 className="text-xl font-bold text-white mt-1">{prospects.length}</h4></div>
+                <div><p className="text-xs text-slate-400">Devis créés</p><h4 className="text-xl font-bold text-white mt-1">{(prospects || []).length}</h4></div>
                 <div className="bg-blue-500/10 p-3 rounded-xl text-blue-400"><FileText className="w-5 h-5"/></div>
               </Card>
               <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer">
@@ -490,7 +484,7 @@ function App() {
             {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
-              {/* PIPELINE CRM (DEMANDÉ) */}
+              {/* PIPELINE CRM INTERACTIF */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between transition-all hover:border-amber-500/40">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5">
@@ -514,10 +508,10 @@ function App() {
               <div className="lg:col-span-2 bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                 <h3 className="text-sm font-bold text-white mb-4">Actions rapides</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><FileText className="w-4 h-4"/> Nouveau devis</Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Receipt className="w-4 h-4"/> Nouvelle facture</Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-blue-500 hover:bg-blue-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Users className="w-4 h-4"/> Ajouter client</Button>
-                  <Button onClick={() => setVueActuelle('clients')} className="bg-purple-500 hover:bg-purple-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Package className="w-4 h-4"/> Photos chantier</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4 transition-all hover:scale-[1.02]"><FileText className="w-4 h-4 mr-2 text-amber-500"/> Nouveau devis</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4 transition-all hover:scale-[1.02]"><Receipt className="w-4 h-4 mr-2 text-emerald-500"/> Nouvelle facture</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4 transition-all hover:scale-[1.02]"><Users className="w-4 h-4 mr-2 text-blue-500"/> Ajouter client</Button>
+                  <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4 transition-all hover:scale-[1.02]"><Package className="w-4 h-4 mr-2 text-purple-500"/> Photos chantier</Button>
                 </div>
               </div>
 
@@ -526,8 +520,8 @@ function App() {
             {/* GRAPHIQUES INTERACTIFS AU SURVOL DE LA SOURIS (ÉVOLUTION CA & ACTIVITÉ MENSUELLE) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               
-              {/* ÉVOLUTION DU CA (Graphique interactif souris comme sur image) */}
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+              {/* ÉVOLUTION DU CA (Graphique interactif souris) */}
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-amber-500/30">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold text-white">Évolution du CA</h3>
                   <span className="text-xs font-bold text-amber-400">Total {totalCA}€</span>
@@ -540,14 +534,11 @@ function App() {
                       onMouseEnter={() => setHoverIndexCa(idx)}
                       onMouseLeave={() => setHoverIndexCa(null)}
                     >
-                      {/* Ligne verticale au survol */}
                       {hoverIndexCa === idx && (
                         <div className="absolute bottom-0 w-[1px] h-full bg-amber-400/80 z-0"></div>
                       )}
-                      {/* Point sur la courbe */}
                       <div className={`w-2.5 h-2.5 rounded-full z-10 transition-all ${hoverIndexCa === idx ? 'bg-amber-400 scale-125 ring-4 ring-amber-400/20' : 'bg-transparent'}`}></div>
                       
-                      {/* Tooltip de la souris */}
                       {hoverIndexCa === idx && (
                         <div className="absolute bottom-12 z-30 bg-[#162032] border border-slate-700 text-white p-3 rounded-xl shadow-2xl text-xs w-28 text-center animate-in fade-in duration-150">
                           <p className="font-bold text-slate-300 capitalize">{mois === 'janv.' ? 'janvier' : mois === 'févr.' ? 'février' : mois === 'mars' ? 'mars' : mois === 'avr.' ? 'avril' : mois === 'mai' ? 'mai' : mois === 'juin' ? 'juin' : mois === 'juil.' ? 'juillet' : mois === 'août' ? 'août' : mois === 'sept.' ? 'septembre' : mois === 'oct.' ? 'octobre' : mois === 'nov.' ? 'novembre' : 'décembre'}</p>
@@ -564,7 +555,7 @@ function App() {
               </Card>
 
               {/* ACTIVITÉ MENSUELLE (Graphique interactif souris) */}
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-amber-500/30">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold text-white">Activité mensuelle</h3>
                   <div className="flex items-center gap-4 text-[11px]">
@@ -580,12 +571,10 @@ function App() {
                       onMouseEnter={() => setHoverIndexAct(idx)}
                       onMouseLeave={() => setHoverIndexAct(null)}
                     >
-                      {/* Barre translucide au survol */}
                       {hoverIndexAct === idx && (
                         <div className="absolute bottom-0 w-6 h-full bg-slate-700/40 rounded-t z-0"></div>
                       )}
                       
-                      {/* Tooltip de la souris */}
                       {hoverIndexAct === idx && (
                         <div className="absolute bottom-12 z-30 bg-[#162032] border border-slate-700 text-white p-3 rounded-xl shadow-2xl text-xs w-32 text-left animate-in fade-in duration-150">
                           <p className="font-bold text-slate-300 capitalize mb-1">{mois === 'janv.' ? 'janvier' : mois === 'févr.' ? 'février' : mois === 'mars' ? 'mars' : mois === 'avr.' ? 'avril' : mois === 'mai' ? 'mai' : mois === 'juin' ? 'juin' : mois === 'juil.' ? 'juillet' : mois === 'août' ? 'août' : mois === 'sept.' ? 'septembre' : mois === 'oct.' ? 'octobre' : mois === 'nov.' ? 'novembre' : 'décembre'}</p>
@@ -617,15 +606,15 @@ function App() {
 
             {/* SECTION INDICATEURS CLÉS FINAUX */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-amber-500/40 cursor-pointer">
                 <p className="text-xs text-slate-400 font-medium">Facture moyenne</p>
                 <h4 className="text-3xl font-black text-amber-400 mt-2">{factureMoyenne}€</h4>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer">
                 <p className="text-xs text-slate-400 font-medium">Taux de conversion</p>
                 <h4 className="text-3xl font-black text-emerald-400 mt-2">{tauxConversion}%</h4>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-blue-500/40 cursor-pointer">
                 <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
                 <h4 className="text-3xl font-black text-blue-400 mt-2">{prospectsActifs.length}</h4>
               </Card>
@@ -724,4 +713,5 @@ function App() {
   )
 }
 
+export Date = null; // helper placeholder
 export default App
