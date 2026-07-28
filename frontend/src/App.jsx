@@ -1737,7 +1737,7 @@ function App() {
                   <Button onClick={() => setVueActuelle('factures')} className="bg-indigo-500 hover:bg-indigo-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-indigo-900/20">
                     Consulter les factures
                   </Button>
-                </CardCard>
+                </Card>
               </div>
             </div>
           </div>
