@@ -461,42 +461,54 @@ function App() {
               </Card>
             </div>
 
-            {/* SECONDE LIGNE DE STATS PARFAITEMENT CENTRÉE & ALIGNÉE */}
+            {/* SECONDE LIGNE DE STATS FORMAT TOP CARDS (STYLE UNIFIÉ SANS DÉCALAGE) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card onClick={() => setVueActuelle('devis')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-blue-500/40 hover:scale-[1.02] cursor-pointer min-h-[110px]">
-                <div className="flex flex-col justify-center items-start">
-                  <p className="text-xs text-slate-400 font-medium">Devis créés</p>
-                  <h4 className="text-2xl font-black text-white mt-1">{(prospects || []).length}</h4>
+              <Card onClick={() => setVueActuelle('devis')} className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-blue-500/50 hover:scale-[1.02] cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Devis créés</p>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">{(prospects || []).length}</h3>
+                    <p className="text-[10px] text-blue-400 mt-1">Propositions envoyées</p>
+                  </div>
+                  <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-400"><FileText className="w-5 h-5"/></div>
                 </div>
-                <div className="bg-blue-500/10 p-3 rounded-xl text-blue-400 shrink-0"><FileText className="w-5 h-5"/></div>
               </Card>
 
-              <Card onClick={() => setVueActuelle('factures')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer min-h-[110px]">
-                <div className="flex flex-col justify-center items-start">
-                  <p className="text-xs text-slate-400 font-medium">Factures émises</p>
-                  <h4 className="text-2xl font-black text-white mt-1">0</h4>
+              <Card onClick={() => setVueActuelle('factures')} className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-emerald-500/50 hover:scale-[1.02] cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Factures émises</p>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">0</h3>
+                    <p className="text-[10px] text-emerald-400 mt-1">Documents générés</p>
+                  </div>
+                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-400"><Receipt className="w-5 h-5"/></div>
                 </div>
-                <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-400 shrink-0"><Receipt className="w-5 h-5"/></div>
               </Card>
 
-              <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer min-h-[110px]">
-                <div className="flex flex-col justify-center items-start">
-                  <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
-                  <h4 className="text-2xl font-black text-white mt-1">{prospectsActifs.length}</h4>
+              <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-emerald-500/50 hover:scale-[1.02] cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">{prospectsActifs.length}</h3>
+                    <p className="text-[10px] text-emerald-400 mt-1">En cours de traitement</p>
+                  </div>
+                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-400"><Users className="w-5 h-5"/></div>
                 </div>
-                <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-400 shrink-0"><Users className="w-5 h-5"/></div>
               </Card>
 
-              <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-purple-500/40 hover:scale-[1.02] cursor-pointer min-h-[110px]">
-                <div className="flex flex-col justify-center items-start">
-                  <p className="text-xs text-slate-400 font-medium">Photos chantier</p>
-                  <h4 className="text-2xl font-black text-white mt-1">0</h4>
+              <Card onClick={() => setVueActuelle('clients')} className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-purple-500/50 hover:scale-[1.02] cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Photos chantier</p>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">0</h3>
+                    <p className="text-[10px] text-purple-400 mt-1">Médias enregistrés</p>
+                  </div>
+                  <div className="bg-purple-500/10 p-2.5 rounded-xl text-purple-400"><Package className="w-5 h-5"/></div>
                 </div>
-                <div className="bg-purple-500/10 p-3 rounded-xl text-purple-400 shrink-0"><Package className="w-5 h-5"/></div>
               </Card>
             </div>
 
-            {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM (CASES PLEINES ET GÉANTES) */}
+            {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM (CASES PLEINES ET GÉANTES HAUTEUR PLEINE) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* PIPELINE CRM INTERACTIF */}
@@ -519,23 +531,23 @@ function App() {
                 </div>
               </Card>
 
-              {/* BOUTONS ACTIONS RAPIDES (GROSSES CASES RECTANGULAIRES GÉANTES ET REMPLIES) */}
+              {/* BOUTONS ACTIONS RAPIDES (GROSSES CASES RECTANGULAIRES GÉANTES REMPLISSANT TOUT) */}
               <div className="lg:col-span-2 bg-[#111827] border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <h3 className="text-sm font-bold text-white mb-4">Actions rapides</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-28 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-xl transition-all hover:scale-[1.02] shadow-md group">
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group">
                     <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:bg-emerald-500/20 transition-colors"><FileText className="w-6 h-6"/></div>
                     <span>Nouveau devis</span>
                   </Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-28 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-xl transition-all hover:scale-[1.02] shadow-md group">
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group">
                     <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
                     <span>Nouvelle facture</span>
                   </Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-28 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-xl transition-all hover:scale-[1.02] shadow-md group">
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group">
                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
                     <span>Ajouter client</span>
                   </Button>
-                  <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-28 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-xl transition-all hover:scale-[1.02] shadow-md group">
+                  <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800/80 text-slate-200 border border-slate-800/80 h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group">
                     <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
                     <span>Photos chantier</span>
                   </Button>
