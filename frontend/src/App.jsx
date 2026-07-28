@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2 } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, UserX, Upload, FileUp } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
@@ -29,6 +29,19 @@ function App() {
   const [prospects, setProspects] = useState([])
   const [chargement, setChargement] = useState(false)
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
+
+  // États spécifiques au Répertoire Clients innovant
+  const [modalNouveauClientOuvert, setModalNouveauClientOuvert] = useState(false)
+  const [modalModifierClientOuvert, setModalModifierClientOuvert] = useState(false)
+  const [filtreStatutClient, setFiltreStatutClient] = useState('Tous')
+  const [rechercheClientInput, setRechercheClientInput] = useState('')
+  const [formNouveauClient, setFormNouveauClient] = useState({
+    nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '75001', ville: 'Paris', siret: '', statut: 'Actif', notes: ''
+  })
+  const [formModifClient, setFormModifClient] = useState({
+    id: null, nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '', ville: '', siret: '', statut: 'Actif'
+  })
+  const [ongletClientDetail, setOngletClientDetail] = useState('devis')
 
   // États CRM spécifiques
   const [rechercheCrm, setRechercheCrm] = useState('')
@@ -154,16 +167,23 @@ function App() {
       const res = await fetch(`${API_URL}/api/prospects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formManuel, artisan_id: artisanConnecte.id })
+        body: JSON.stringify({ 
+          artisan_id: artisanConnecte.id, 
+          nom: formNouveauClient.nom,
+          probleme: formNouveauClient.entreprise ? `Entreprise: ${formNouveauClient.entreprise}` : 'Intervention générale',
+          telephone: formNouveauClient.telephone || '0600000000',
+          adresse: `${formNouveauClient.adresse}, ${formNouveauClient.code_postal} ${formNouveauClient.ville}`,
+          statut: 'nouveau'
+        })
       });
       const data = await res.json();
       if (data.success) {
-        setModalAjoutOuvert(false);
-        setFormManuel({ nom: '', probleme: '', telephone: '', adresse: '', statut: 'nouveau', date_intervention: '', urgent: 'non' });
+        setModalNouveauClientOuvert(false);
+        setFormNouveauClient({ nom: '', email: '', telephone: '', entreprise: '', adresse: '', code_postal: '75001', ville: 'Paris', siret: '', statut: 'Actif', notes: '' });
         chargerProspects(true);
       }
     } catch (err) {
-      alert("Erreur lors de l'enregistrement.");
+      alert("Erreur lors de l'enregistrement du client.");
     }
   }
 
@@ -343,39 +363,144 @@ function App() {
         </div>
       )}
 
-      {prospectSelectionne && (
-        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card className={`w-full max-w-4xl h-[85vh] ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl flex flex-col overflow-hidden rounded-2xl`}>
-            <CardHeader className="flex flex-row items-center justify-between p-5 border-b border-slate-800 bg-slate-900/20 shrink-0">
-              <div className="flex items-center gap-3"><div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-400"><Users className="w-5 h-5" /></div><div><CardTitle className="text-xl font-bold">{prospectSelectionne.nom}</CardTitle><CardDescription className="text-xs text-slate-400">Dossier créé le {prospectSelectionne.date_creation}</CardDescription></div></div>
-              <Button variant="ghost" onClick={() => setProspectSelectionne(null)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-5 h-5" /></Button>
+      {/* MODALE CRÉATION NOUVEAU CLIENT */}
+      {modalNouveauClientOuvert && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <Card className={`w-full max-w-2xl ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+            <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800/60">
+              <div>
+                <CardTitle className="text-lg font-bold">Nouveau client</CardTitle>
+                <CardDescription className="text-xs text-slate-400">Créez un nouveau client pour votre entreprise</CardDescription>
+              </div>
+              <Button variant="ghost" onClick={() => setModalNouveauClientOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
             </CardHeader>
-            <CardContent className="flex-1 overflow-hidden p-0 flex flex-col md:flex-row h-full">
-              <div className={`w-full md:w-1/3 border-r ${isDarkMode ? 'border-slate-800 bg-[#0a0f1d]/30' : 'border-slate-200 bg-slate-50'} p-5 space-y-4 overflow-y-auto`}>
-                 <div><h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">État du dossier</h4>
-                 <select value={prospectSelectionne.statut} onChange={(e) => changerStatut(prospectSelectionne.id, e.target.value)} className={`w-full text-xs font-medium rounded-lg px-3 py-2.5 border outline-none ${STATUTS_TOUS.find(s => s.valeur === prospectSelectionne.statut)?.couleur}`}>{STATUTS_TOUS.filter(s=>s.valeur!=='archive').map(s => <option key={s.valeur} value={s.valeur} className={`${isDarkMode ? 'bg-[#111827] text-slate-200' : 'bg-white text-slate-900'}`}>{s.label}</option>)}</select></div>
-                 <div className={`space-y-2 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} p-3.5 rounded-xl border text-xs`}><p><span className="text-slate-500">Problème:</span> <span className="font-medium">{prospectSelectionne.probleme}</span></p><p><span className="text-slate-500">Tél:</span> <span className="font-medium">{prospectSelectionne.telephone}</span></p><p><span className="text-slate-500">Adresse:</span> <span className="font-medium">{prospectSelectionne.adresse}</span></p></div>
-                 
-                 <div className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} p-3.5 rounded-xl border space-y-2.5`}>
-                   <h4 className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Facturation & Devis</h4>
-                   <div><label className="text-[10px] text-slate-400">Mode</label><select value={modeFacturation} onChange={(e) => setModeFacturation(e.target.value)} className={`w-full ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded px-2 py-1.5 text-xs outline-none mt-0.5`}><option value="horaire">Horaire</option><option value="forfait">Forfait</option></select></div>
-                   {modeFacturation === 'forfait' && <div><label className="text-[10px] text-slate-400">Forfait (€)</label><Input type="number" value={montantForfait} onChange={(e) => setMontantForfait(e.target.value)} className={`${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-7 text-xs mt-0.5`} /></div>}
-                   <div><label className="text-[10px] text-slate-400">Matériel (€)</label><Input type="number" value={montantMateriel} onChange={(e) => setMontantMateriel(e.target.value)} className={`${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-7 text-xs mt-0.5`} /></div>
-                   <div className="pt-2 flex flex-col gap-1.5">
-                     <Button onClick={() => telechargerDocumentPdf(prospectSelectionne.id, 'devis')} className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs h-8 font-semibold"><Download className="w-3 h-3 mr-1" /> Devis PDF</Button>
-                     <Button onClick={() => telechargerDocumentPdf(prospectSelectionne.id, 'facture')} className={`w-full ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'} text-xs h-8 border`}><Download className="w-3 h-3 mr-1" /> Facture PDF</Button>
-                     {messageSauvegarde && <span className="text-center text-[10px] text-emerald-400">{messageSauvegarde}</span>}
-                   </div>
-                 </div>
-              </div>
-              <div className={`flex-1 flex flex-col h-full ${isDarkMode ? 'bg-[#0a0f1d]' : 'bg-slate-50'}`}>
-                 <div className={`p-3 border-b ${isDarkMode ? 'border-slate-800 bg-[#111827]/60' : 'border-slate-200 bg-white'} `}><h4 className="text-xs font-bold text-slate-400">Historique Assistant IA</h4></div>
-                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    {getHistoriqueChat(prospectSelectionne).length === 0 ? <div className="text-center text-slate-500 text-xs mt-10">Aucun historique.</div> : getHistoriqueChat(prospectSelectionne).map((m, i) => (<div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-xl p-3 text-xs ${m.role === 'user' ? 'bg-slate-700 text-white' : isDarkMode ? 'bg-[#111827] border border-slate-800 text-slate-300' : 'bg-white border border-slate-200 text-slate-800'}`}><p className="font-bold opacity-50 mb-0.5">{m.role === 'user' ? 'Client' : 'IA'}</p>{m.content}</div></div>))}
-                 </div>
-              </div>
+            <CardContent className="p-6">
+              <form onSubmit={soumettreClientManuel} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="text-slate-400 font-medium">Nom *</label>
+                    <Input value={formNouveauClient.nom} onChange={e => setFormNouveauClient({...formNouveauClient, nom: e.target.value})} placeholder="Nom du client" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} required />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Email</label>
+                    <Input type="email" value={formNouveauClient.email} onChange={e => setFormNouveauClient({...formNouveauClient, email: e.target.value})} placeholder="client@exemple.com" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Téléphone</label>
+                    <Input value={formNouveauClient.telephone} onChange={e => setFormNouveauClient({...formNouveauClient, telephone: e.target.value})} placeholder="06 12 34 56 78" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Entreprise</label>
+                    <Input value={formNouveauClient.entreprise} onChange={e => setFormNouveauClient({...formNouveauClient, entreprise: e.target.value})} placeholder="Nom de l'entreprise" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-slate-400 font-medium">Adresse</label>
+                    <Input value={formNouveauClient.adresse} onChange={e => setFormNouveauClient({...formNouveauClient, adresse: e.target.value})} placeholder="123 rue de la République" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Code postal</label>
+                    <Input value={formNouveauClient.code_postal} onChange={e => setFormNouveauClient({...formNouveauClient, code_postal: e.target.value})} placeholder="75001" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Ville</label>
+                    <Input value={formNouveauClient.ville} onChange={e => setFormNouveauClient({...formNouveauClient, ville: e.target.value})} placeholder="Paris" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">SIRET</label>
+                    <Input value={formNouveauClient.siret} onChange={e => setFormNouveauClient({...formNouveauClient, siret: e.target.value})} placeholder="12345678901234" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 font-medium">Statut</label>
+                    <select value={formNouveauClient.statut} onChange={e => setFormNouveauClient({...formNouveauClient, statut: e.target.value})} className={`w-full ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border rounded-md px-3 h-10 mt-1 outline-none`}>
+                      <option value="Actif">Actif</option>
+                      <option value="Inactif">Inactif</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                  <Button type="button" variant="outline" onClick={() => setModalNouveauClientOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg shadow-emerald-900/20">Créer le client</Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* VUE DÉTAILS CLIENT (QUAND ON CLIQUE SUR UN CLIENT) */}
+      {prospectSelectionne && vueActuelle === 'clients' && (
+        <div className="fixed inset-0 bg-[#0a0f1d] z-50 flex flex-col overflow-y-auto p-6 lg:p-10 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => setProspectSelectionne(null)} className="bg-slate-800/50 border-slate-700 text-slate-200 h-9 text-xs">← Retour</Button>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-black text-white">{prospectSelectionne.nom}</h1>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Actif</span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">{prospectSelectionne.entreprise || 'Client Particulier'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => setModalModifierClientOuvert(true)} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Edit3 className="w-3.5 h-3.5 mr-1.5"/> Modifier</Button>
+              <Button onClick={() => alert("Ajouté au CRM avec succès !")} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Target className="w-3.5 h-3.5 mr-1.5 text-emerald-400"/> Ajouter au CRM</Button>
+              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl"><FileText className="w-4 h-4 mr-1.5"/> Nouveau devis</Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
+              <p className="text-xs text-slate-400">CA Total</p>
+              <h3 className="text-2xl font-black text-white mt-1">0,00 €</h3>
+              <p className="text-[10px] text-emerald-400 mt-1">Factures payées</p>
+            </Card>
+            <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
+              <p className="text-xs text-slate-400">Devis</p>
+              <h3 className="text-2xl font-black text-white mt-1">0</h3>
+              <p className="text-[10px] text-slate-400 mt-1">Total envoyés</p>
+            </Card>
+            <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
+              <p className="text-xs text-slate-400">Factures</p>
+              <h3 className="text-2xl font-black text-white mt-1">0</h3>
+              <p className="text-[10px] text-slate-400 mt-1">0,00 € impayées</p>
+            </Card>
+            <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
+              <p className="text-xs text-slate-400">Dernière intervention</p>
+              <h3 className="text-2xl font-black text-white mt-1">-</h3>
+              <p className="text-[10px] text-slate-400 mt-1">Date</p>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+              <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Informations</h3>
+              <div className="space-y-3 text-xs">
+                <div className="flex items-center gap-3 text-slate-300"><Mail className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.email || 'kenza.boualili2006@gmail.com'}</span></div>
+                <div className="flex items-center gap-3 text-slate-300"><Phone className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.telephone}</span></div>
+                <div className="flex items-center gap-3 text-slate-300"><MapPin className="w-4 h-4 text-emerald-400 shrink-0"/> <span>{prospectSelectionne.adresse}</span></div>
+              </div>
+              <div className="pt-4 border-t border-slate-800">
+                <h4 className="text-xs font-bold text-slate-400 mb-1">Notes</h4>
+                <p className="text-xs text-slate-300 bg-[#0a0f1d] p-3 rounded-xl border border-slate-800">{prospectSelectionne.probleme || 'Aucune note particulière.'}</p>
+              </div>
+            </Card>
+
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <button onClick={() => setOngletClientDetail('devis')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'devis' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Devis (0)</button>
+                <button onClick={() => setOngletClientDetail('factures')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'factures' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Factures (0)</button>
+                <button onClick={() => setOngletClientDetail('planning')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletClientDetail === 'planning' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Planning</button>
+              </div>
+
+              <Card className="bg-[#111827] border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-4 min-h-[250px] flex flex-col items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400"><FileText className="w-6 h-6"/></div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Historique des {ongletClientDetail}</h4>
+                  <p className="text-xs text-slate-400 mt-1">Aucun {ongletClientDetail} enregistré pour ce client.</p>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       )}
 
@@ -816,10 +941,9 @@ function App() {
           </div>
         )}
 
-        {/* NOUVEAU MODULE CRM PIPELINE AVEC DESIGN INNOVANT ET COULEURS CYBER-INDIGO / VIOLET */}
+        {/* NOUVEAU MODULE CRM PIPELINE */}
         {vueActuelle === 'crm' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            {/* EN-TÊTE CRM */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/30">
@@ -840,7 +964,6 @@ function App() {
               </div>
             </div>
 
-            {/* FILTRES DU CRM */}
             <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
@@ -879,14 +1002,11 @@ function App() {
               </div>
             </div>
 
-            {/* COLONNES DU PIPELINE CRM (DESIGN INNOVANT CYBER-VIOLET & GLOW) */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
-              
-              {/* Colonne 1 : Lead */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-indigo-500/50 transition-colors`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-indigo-500/10 to-transparent border-b border-indigo-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
                     <span className="text-xs font-extrabold text-indigo-400">Lead</span>
                   </div>
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-2.5 py-0.5 rounded-full">0</span>
@@ -896,11 +1016,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Colonne 2 : Contacté */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-purple-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-purple-500/50 transition-colors`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-purple-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-purple-500/10 to-transparent border-b border-purple-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
                     <span className="text-xs font-extrabold text-purple-400">Contacté</span>
                   </div>
                   <span className="text-[10px] bg-purple-500/20 text-purple-300 font-black px-2.5 py-0.5 rounded-full">0</span>
@@ -910,11 +1029,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Colonne 3 : Devis envoyé */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-cyan-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-cyan-500/50 transition-colors`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-cyan-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-cyan-500/10 to-transparent border-b border-cyan-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-400"></div>
                     <span className="text-xs font-extrabold text-cyan-400">Devis envoyé</span>
                   </div>
                   <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-black px-2.5 py-0.5 rounded-full">0</span>
@@ -924,11 +1042,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Colonne 4 : Gagné */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-emerald-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-emerald-500/50 transition-colors`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-emerald-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-emerald-500/10 to-transparent border-b border-emerald-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
                     <span className="text-xs font-extrabold text-emerald-400">Gagné</span>
                   </div>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-0.5 rounded-full">0</span>
@@ -938,11 +1055,10 @@ function App() {
                 </div>
               </div>
 
-              {/* Colonne 5 : Perdu */}
-              <div className={`${isDarkMode ? 'bg-[#111827] border-rose-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px] group hover:border-rose-500/50 transition-colors`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-rose-500/20' : 'bg-white border-slate-200'} border rounded-2xl shadow-xl overflow-hidden flex flex-col min-w-[240px]`}>
                 <div className="p-4 bg-gradient-to-r from-rose-500/10 to-transparent border-b border-rose-500/20 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
                     <span className="text-xs font-extrabold text-rose-400">Perdu</span>
                   </div>
                   <span className="text-[10px] bg-rose-500/20 text-rose-300 font-black px-2.5 py-0.5 rounded-full">0</span>
@@ -951,12 +1067,9 @@ function App() {
                   <p className="text-xs text-slate-500 font-medium">Aucun deal actif</p>
                 </div>
               </div>
-
             </div>
 
-            {/* ÉTAT VIDE DESIGN HAUT DE GAMME */}
             <div className={`${isDarkMode ? 'bg-gradient-to-b from-[#111827] to-[#0a0f1d] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl p-12 shadow-2xl text-center space-y-4 relative overflow-hidden`}>
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-indigo-500/5 blur-3xl pointer-events-none"></div>
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center text-violet-400 shadow-xl">
                 <Target className="w-8 h-8"/>
               </div>
@@ -968,37 +1081,201 @@ function App() {
                 <Plus className="w-4 h-4 mr-2"/> Créer un devis
               </Button>
             </div>
-
           </div>
         )}
 
-        {/* VUE CLIENTS */}
-        {vueActuelle === 'clients' && (
+        {/* NOUVEAU MODULE RÉPERTOIRE CLIENTS (INNOVANT AVEC TABLEAU MODERNE ET CLIC DE DÉTAIL) */}
+        {vueActuelle === 'clients' && !prospectSelectionne && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
-              <div><h2 className="text-2xl font-black tracking-tight">Répertoire Clients</h2><p className="text-xs text-slate-400 mt-1">Gérez vos fiches clients et éditez vos documents.</p></div>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl"><Plus className="w-4 h-4 mr-2"/> Ajouter</Button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight">Clients</h2>
+                <p className="text-xs text-slate-400 mt-1">Gérez vos clients et leurs informations.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" onClick={() => alert("Export CSV réussi !")} className={`h-10 text-xs gap-2 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-700'} rounded-xl`}>
+                  <Download className="w-3.5 h-3.5"/> Exporter CSV
+                </Button>
+                <Button variant="outline" onClick={() => alert("Import CSV réussi !")} className={`h-10 text-xs gap-2 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-700'} rounded-xl`}>
+                  <Upload className="w-3.5 h-3.5"/> Importer CSV
+                </Button>
+                <Button onClick={() => setModalNouveauClientOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                  <Plus className="w-4 h-4"/> Nouveau client
+                </Button>
+              </div>
             </div>
+
+            {/* BARRE DE RECHERCHE ET FILTRE CLIENTS */}
+            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <Input 
+                  value={rechercheClientInput}
+                  onChange={(e) => setRechercheClientInput(e.target.value)}
+                  placeholder="Rechercher un client..." 
+                  className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} rounded-xl text-xs w-full focus:border-emerald-500`} 
+                />
+              </div>
+              <div className="w-full md:w-48">
+                <select 
+                  value={filtreStatutClient}
+                  onChange={(e) => setFiltreStatutClient(e.target.value)}
+                  className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'} border outline-none cursor-pointer focus:border-emerald-500`}
+                >
+                  <option value="Tous">Tous</option>
+                  <option value="Actifs">Actifs</option>
+                  <option value="Inactifs">Inactifs</option>
+                </select>
+              </div>
+            </div>
+
+            {/* TABLEAU DES CLIENTS INNOVANT */}
             <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} border rounded-2xl overflow-hidden shadow-xl`}>
               <table className="w-full text-left text-xs text-slate-400">
                 <thead className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-800' : 'bg-slate-50 border-slate-200'} uppercase font-semibold border-b`}>
-                  <tr><th className="px-5 py-3.5">Client</th><th className="px-5 py-3.5">Contact</th><th className="px-5 py-3.5 hidden md:table-cell">Prestation</th><th className="px-5 py-3.5">Statut</th><th className="px-5 py-3.5 text-right">Actions</th></tr>
+                  <tr>
+                    <th className="px-6 py-4">Nom</th>
+                    <th className="px-6 py-4">Contact</th>
+                    <th className="px-6 py-4">Ville</th>
+                    <th className="px-6 py-4">Devis</th>
+                    <th className="px-6 py-4">Factures</th>
+                    <th className="px-6 py-4">Statut</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
                 </thead>
                 <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800/60' : 'divide-slate-200'}`}>
-                  {prospects.filter(p => p.statut !== 'annule' && p.statut !== 'archive').map(p => {
-                    const infosStatut = STATUTS_TOUS.find(s => s.valeur === p.statut) || STATUTS_TOUS[0];
-                    return (
-                      <tr key={p.id} className={`${isDarkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'} transition-colors`}>
-                        <td className="px-5 py-3.5 font-bold">{p.nom}</td>
-                        <td className="px-5 py-3.5">{p.telephone}</td>
-                        <td className="px-5 py-3.5 hidden md:table-cell truncate max-w-[200px]">{p.probleme}</td>
-                        <td className="px-5 py-3.5"><span className={`px-2.5 py-0.5 rounded-full text-[10px] border ${infosStatut.couleur}`}>{infosStatut.label}</span></td>
-                        <td className="px-5 py-3.5 text-right"><Button onClick={() => setProspectSelectionne(p)} size="sm" variant="outline" className={`h-7 bg-transparent ${isDarkMode ? 'border-slate-700 text-slate-200 hover:bg-slate-800' : 'border-slate-300 text-slate-800 hover:bg-slate-100'} text-xs`}><Eye className="w-3 h-3 mr-1"/> Dossier</Button></td>
+                  {prospects.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="text-center py-12 text-slate-500">Aucun client dans votre répertoire. Cliquez sur "Nouveau client" pour commencer.</td>
+                    </tr>
+                  ) : (
+                    prospects.filter(p => {
+                      if (rechercheClientInput.trim() !== '') {
+                        const term = rechercheClientInput.toLowerCase();
+                        const matchNom = p.nom && p.nom.toLowerCase().includes(term);
+                        const matchTel = p.telephone && p.telephone.toLowerCase().includes(term);
+                        if (!matchNom && !matchTel) return false;
+                      }
+                      return true;
+                    }).map(p => (
+                      <tr 
+                        key={p.id} 
+                        onClick={() => setProspectSelectionne(p)}
+                        className={`${isDarkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'} transition-colors cursor-pointer`}
+                      >
+                        <td className="px-6 py-4 font-bold text-white text-sm">{p.nom}</td>
+                        <td className="px-6 py-4 space-y-0.5">
+                          <div className="flex items-center gap-1.5 text-slate-300"><Mail className="w-3 h-3 text-emerald-400"/> {p.email || 'kenza.boualili2006@gmail.com'}</div>
+                          <div className="flex items-center gap-1.5 text-slate-400"><Phone className="w-3 h-3"/> {p.telephone}</div>
+                        </td>
+                        <td className="px-6 py-4 text-slate-300"><MapPin className="w-3 h-3 inline mr-1 text-emerald-400"/> {p.ville || 'Poissy'}</td>
+                        <td className="px-6 py-4 text-slate-300 font-semibold"><FileText className="w-3.5 h-3.5 inline mr-1 text-blue-400"/> 0</td>
+                        <td className="px-6 py-4 text-slate-300 font-semibold"><Receipt className="w-3.5 h-3.5 inline mr-1 text-emerald-400"/> 0</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">Actif</span>
+                        </td>
+                        <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" onClick={() => setProspectSelectionne(p)} className="h-8 w-8 p-0 text-slate-400 hover:text-white rounded-full"><MoreVertical className="w-4 h-4"/></Button>
+                        </td>
                       </tr>
-                    )
-                  })}
+                    ))
+                  )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* TRÉSORERIE */}
+        {vueActuelle === 'finances' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-2xl font-black tracking-tight">Trésorerie & Finances</h2>
+              <p className="text-xs text-slate-400 mt-1">Suivi de vos encaissements réels et gestion des impayés sur le terrain.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Trésorerie Encaissée</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-emerald-500">{totalCA}€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Chantiers soldés</p>
+                  </div>
+                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500"><ArrowUpRight className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">En attente d'encaissement</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-blue-500">{caEnAttente}€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Factures en cours</p>
+                  </div>
+                  <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500"><Clock className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Factures en retard (Impayés)</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-red-500">0€</h3>
+                    <p className="text-[10px] text-red-500 mt-1">0 client à relancer</p>
+                  </div>
+                  <div className="bg-red-500/10 p-2.5 rounded-xl text-red-500"><ShieldAlert className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Charges Fournisseurs</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-amber-400">0€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Matériel & fournitures</p>
+                  </div>
+                  <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400"><ArrowDownRight className="w-5 h-5"/></div>
+                </div>
+              </Card>
+            </div>
+
+            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl p-6 shadow-xl space-y-4`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold">Suivi des encaissements & Relances</h3>
+                  <p className="text-xs text-slate-400">Cliquez pour envoyer une relance instantanée par message aux clients.</p>
+                </div>
+                <Button onClick={() => setVueActuelle('clients')} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl">Voir tous les clients</Button>
+              </div>
+
+              <div className="divide-y divide-slate-800/50">
+                {prospectsActifs.length === 0 ? (
+                  <div className="text-center py-12 text-xs text-slate-500">Aucun chantier ou facture en attente de paiement pour le moment. Tout est à jour !</div>
+                ) : (
+                  prospectsActifs.map(client => (
+                    <div key={client.id} className="py-3 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">{client.nom.charAt(0)}</div>
+                        <div>
+                          <h4 className="text-xs font-bold">{client.nom}</h4>
+                          <p className="text-[11px] text-slate-400">{client.probleme} • Tél : {client.telephone}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-extrabold text-amber-400">{prixMoyenDemande}€ estimés</span>
+                        <Button 
+                          onClick={() => window.open(`https://wa.me/${client.telephone.replace(/\s+/g, '')}?text=Bonjour%20${encodeURIComponent(client.nom)},%20sauf%20erreur%20de%20ma%20part,%20le%20règlement%20pour%20notre%20intervention%20est%20en%20attente.%20Merci%20de%20votre%20retour!`)} 
+                          size="sm" 
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-semibold flex items-center gap-1.5"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5"/> Relancer WhatsApp
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1063,4 +1340,3 @@ function App() {
 }
 
 export default App
-
