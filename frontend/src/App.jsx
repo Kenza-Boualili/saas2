@@ -676,7 +676,7 @@ function App() {
                 </div>
               </Card>
 
-              {/* SECTION CONTACTS DU CLIENT AVEC BOUTON "AJOUTER" FONCTIONNEL */}
+              {/* SECTION CONTACTS DU CLIENT */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
@@ -1470,18 +1470,24 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
-                            {/* BOUTON ROND AVEC 3 PETITS POINTS EXACTEMENT COMME SUR TON IMAGE */}
+                            {/* BOUTON ROND AVEC 3 PETITS POINTS CORRIGÉ */}
                             <Button 
                               variant="outline" 
-                              onClick={() => setMenuActionClientId(menuActionClientId === p.id ? null : p.id)} 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setMenuActionClientId(menuActionClientId === p.id ? null : p.id);
+                              }} 
                               className={`h-9 w-9 p-0 rounded-full ${isDarkMode ? 'bg-[#1a2333] border-slate-700 text-white hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-800'} shadow-md`}
                             >
-                              <MoreHorizontal className="w-4 h-4"/>
+                              <MoreHorizontal className="w-4 h-4 pointer-events-none"/>
                             </Button>
 
                             {/* MENU DÉROULANT DES ACTIONS */}
                             {menuActionClientId === p.id && (
-                              <div className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}>
+                              <div 
+                                onClick={(e) => e.stopPropagation()}
+                                className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}
+                              >
                                 <button 
                                   onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
