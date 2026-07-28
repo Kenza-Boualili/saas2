@@ -1736,8 +1736,8 @@ function App() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 space-y-6">
-                    {/* Bloc Facture d'acompte avec option colorée */}
-                    <Card className="bg-gradient-to-r from-emerald-950/30 via-[#111827] to-teal-950/20 border-emerald-500/30 p-5 rounded-2xl shadow-xl space-y-4">
+                    {/* Bloc Facture d'acompte interactif */}
+                    <Card className="bg-gradient-to-r from-emerald-950/30 via-[#111827] to-teal-950/25 border-emerald-500/40 p-5 rounded-2xl shadow-xl space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Euro className="w-5 h-5"/></div>
@@ -1746,14 +1746,32 @@ function App() {
                             <p className="text-[10px] text-slate-400">Créer une facture partielle basée sur un devis accepté</p>
                           </div>
                         </div>
-                        <input type="checkbox" className="w-5 h-5 accent-emerald-500 cursor-pointer rounded"/>
+                        <input 
+                          type="checkbox" 
+                          id="toggleAcompte"
+                          onChange={(e) => {
+                            const bloc = document.getElementById('detailsAcompte');
+                            if (bloc) bloc.style.display = e.target.checked ? 'block' : 'none';
+                          }}
+                          className="w-5 h-5 accent-emerald-500 cursor-pointer rounded"
+                        />
                       </div>
-                      <div className="pt-2 border-t border-slate-800/80 space-y-2">
-                        <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pourcentage de l'acompte</label>
-                        <div className="flex gap-2">
-                          {['30%', '40%', '50%', '60%', '70%'].map((pct, idx) => (
-                            <button key={idx} type="button" className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${pct === '30%' ? 'bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-900/40' : 'bg-[#0a0f1d] text-slate-300 border-slate-700 hover:border-emerald-500/50'}`}>{pct}</button>
-                          ))}
+
+                      <div id="detailsAcompte" style={{ display: 'none' }} className="pt-3 border-t border-slate-800/80 space-y-4 animate-in fade-in duration-200">
+                        <div className="space-y-2">
+                          <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pourcentage de l'acompte</label>
+                          <div className="flex gap-2">
+                            {['30%', '40%', '50%', '60%', '70%'].map((pct, idx) => (
+                              <button key={idx} type="button" className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${pct === '30%' ? 'bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-900/40' : 'bg-[#0a0f1d] text-slate-300 border-slate-700 hover:border-emerald-500/50'}`}>{pct}</button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-xs font-slate-400 font-medium">Sélectionner un devis accepté</label>
+                          <div className="p-3 bg-[#0a0f1d] border border-slate-800 rounded-xl text-xs text-slate-400">
+                            Aucun devis accepté disponible. Créez d'abord un devis et faites-le accepter.
+                          </div>
                         </div>
                       </div>
                     </Card>
