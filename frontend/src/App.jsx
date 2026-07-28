@@ -1449,16 +1449,226 @@ function App() {
           </div>
         )}
 
+       {/* MODULE DEVIS & CRÉATION DE DEVIS AVEC DESIGN AVANCÉ */}
         {vueActuelle === 'devis' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black tracking-tight">Propositions Devis</h2>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl"><Plus className="w-4 h-4 mr-2"/> Nouveau devis</Button>
-            </div>
-            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl text-center py-16`}>
-              <FileText className="w-10 h-10 mx-auto text-slate-500 mb-2"/>
-              <p className="text-xs text-slate-400">Aucun devis créé pour l'instant.</p>
-            </Card>
+            {/* Si aucun devis en cours de création, on affiche la liste ou le vide */}
+            {!window.modeCreationDevis ? (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tight text-white">Devis</h2>
+                    <p className="text-xs text-slate-400 mt-1">Gérez vos devis et propositions commerciales</p>
+                  </div>
+                  <Button onClick={() => window.modeCreationDevis = true} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-900/20 flex items-center gap-2">
+                    <Plus className="w-4 h-4"/> Nouveau devis
+                  </Button>
+                </div>
+
+                <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                    <Input placeholder="Rechercher un devis ou client..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full`} />
+                  </div>
+                  <div className="w-full md:w-48">
+                    <select className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer`}>
+                      <option value="Tous">Tous</option>
+                      <option value="Brouillon">Brouillon</option>
+                      <option value="Envoyé">Envoyé</option>
+                      <option value="Accepté">Accepté</option>
+                    </select>
+                  </div>
+                </div>
+
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-12 rounded-2xl shadow-xl text-center space-y-4`}>
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 to-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+                    <FileText className="w-8 h-8"/>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-white">Aucun devis</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez votre premier devis en quelques clics et commencez à gérer votre activité.</p>
+                  </div>
+                  <Button onClick={() => window.modeCreationDevis = true} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl shadow-lg shadow-amber-900/20">
+                    <Plus className="w-4 h-4 mr-2"/> Créer mon premier devis
+                  </Button>
+                </Card>
+              </div>
+            ) : (
+              /* FORMULAIRE DE CRÉATION DE DEVIS INNOVANT ET COMPLET */
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-4">
+                    <Button variant="outline" onClick={() => window.modeCreationDevis = false} className="bg-slate-800/50 border-slate-700 text-slate-200 h-9 text-xs">← Retour</Button>
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight text-white">Nouveau devis</h2>
+                      <p className="text-xs text-slate-400">Créez un devis pour votre client</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => alert("Pack ajouté !")} className="bg-[#111827] border-slate-700 text-slate-200 text-xs h-9"><Plus className="w-3.5 h-3.5 mr-1.5"/> Ajouter un pack</Button>
+                    <Button variant="outline" onClick={() => alert("Template chargé !")} className="bg-[#111827] border-slate-700 text-slate-200 text-xs h-9"><FileText className="w-3.5 h-3.5 mr-1.5"/> Utiliser un template</Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* Bloc Informations Générales */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Informations générales</h3>
+                        <p className="text-xs text-slate-400">Sélectionnez le client et les dates</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs text-slate-400 font-medium">Client</label>
+                        <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-400 text-xs flex items-center justify-between">
+                          <span>Aucun client trouvé. Créez votre premier client ci-dessous pour commencer.</span>
+                        </div>
+                        <div onClick={() => setModalNouveauClientOuvert(true)} className="border border-dashed border-blue-500/50 bg-blue-500/5 hover:bg-blue-500/10 cursor-pointer p-4 rounded-xl flex items-center gap-3 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">+</div>
+                          <div>
+                            <p className="text-xs font-bold text-blue-400">Créer un nouveau client</p>
+                            <p className="text-[10px] text-slate-400">Ajout rapide sans quitter la page</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Date du devis</label>
+                          <Input defaultValue="28/07/2026" className="bg-[#0a0f1d] border-slate-700 text-white h-10 text-xs mt-1"/>
+                        </div>
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Valide jusqu'au</label>
+                          <Input defaultValue="27/08/2026" className="bg-[#0a0f1d] border-slate-700 text-white h-10 text-xs mt-1"/>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-slate-400 font-medium block mb-2">Taux de TVA</label>
+                        <div className="flex flex-wrap gap-2">
+                          {['0%', '2.1%', '5.5%', '10%', '20%', 'Autre'].map((tva, idx) => (
+                            <button key={idx} type="button" className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${tva === '20%' ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-[#0a0f1d] text-slate-300 border-slate-700 hover:border-slate-500'}`}>{tva}</button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1.5">Ce taux sera appliqué à l'ensemble du devis</p>
+                      </div>
+                    </Card>
+
+                    {/* Bloc Articles et prestations */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                        <div>
+                          <h3 className="text-sm font-bold text-white">Articles et prestations</h3>
+                          <p className="text-xs text-slate-400">Ajoutez les lignes du devis</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" onClick={() => alert("Modale Main d'œuvre ouverte")} className="bg-[#0a0f1d] border-slate-700 text-slate-200 text-xs h-8"><Wrench className="w-3.5 h-3.5 mr-1 text-amber-400"/> Main d'œuvre</Button>
+                          <Button variant="outline" onClick={() => alert("Modale Frais kilométriques ouverte")} className="bg-[#0a0f1d] border-slate-700 text-slate-200 text-xs h-8"><Truck className="w-3.5 h-3.5 mr-1 text-amber-400"/> Frais kilométriques</Button>
+                          <Button variant="outline" onClick={() => alert("Ligne vide ajoutée")} className="bg-[#111827] border-slate-700 text-slate-200 text-xs h-8"><Plus className="w-3.5 h-3.5 mr-1"/> Ligne vide</Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Sélectionner un produit...</label>
+                          <select className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                            <option>Sélectionner un produit...</option>
+                            <option>Installation tableau électrique</option>
+                            <option>Recherche de fuite</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Description</label>
+                          <Input placeholder="Ex: Installation tableau électrique" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Quantité</label>
+                            <Input defaultValue="1" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Unité</label>
+                            <Input defaultValue="unité" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Prix unitaire HT</label>
+                            <Input defaultValue="0.00" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">TVA</label>
+                            <select className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                              <option>20% - Taux normal</option>
+                              <option>10% - Rénovation</option>
+                              <option>5.5% - Énergétique</option>
+                              <option>0% - Exonéré</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Bloc Photos du chantier */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-bold text-white">Photos du chantier</h3>
+                          <p className="text-xs text-slate-400">Ajoutez des photos avant, pendant ou après les travaux</p>
+                        </div>
+                        <Button onClick={() => alert("Ajout de photos...")} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl shadow-lg shadow-amber-900/20">
+                          <Plus className="w-4 h-4 mr-1.5"/> Ajouter des photos
+                        </Button>
+                      </div>
+                      <div className="border border-dashed border-slate-800 p-8 rounded-xl text-center text-xs text-slate-500">
+                        Sélectionnez un client et cliquez sur "Ajouter des photos" pour commencer
+                      </div>
+                    </Card>
+
+                    {/* Bloc Notes et conditions */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Notes et conditions</h3>
+                        <p className="text-xs text-slate-400">Informations complémentaires</p>
+                      </div>
+                      <div className="space-y-3 text-xs">
+                        <div>
+                          <label className="text-slate-400 font-medium">Notes internes (facultatif)</label>
+                          <textarea placeholder="Informations complémentaires, instructions particulières..." className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl p-3 h-20 mt-1 outline-none resize-none"></textarea>
+                        </div>
+                        <div>
+                          <label className="text-slate-400 font-medium">Conditions générales</label>
+                          <textarea placeholder="Conditions de paiement et générales..." className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl p-3 h-24 mt-1 outline-none resize-none"></textarea>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Panneau Récapitulatif Fixe à droite */}
+                  <div className="space-y-6">
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-5 sticky top-6">
+                      <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Récapitulatif</h3>
+                      <div className="space-y-2 text-xs text-slate-300 border-b border-slate-800 pb-4">
+                        <p className="font-semibold text-white">Sans description</p>
+                        <p className="text-slate-400">Qté: 1 unité × 0,00 € = 0,00 €</p>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between"><span className="text-slate-400">Total HT</span><span className="font-bold text-white">0,00 €</span></div>
+                        <div className="flex justify-between"><span className="text-slate-400">TVA (20%)</span><span className="font-bold text-white">0,00 €</span></div>
+                        <div className="flex justify-between text-sm pt-2 border-t border-slate-800"><span className="font-extrabold text-white">Total TTC</span><span className="font-black text-amber-400 text-lg">0,00 €</span></div>
+                      </div>
+                      <div className="space-y-2 pt-2">
+                        <Button onClick={() => { alert("Devis créé avec succès !"); window.modeCreationDevis = false; }} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-11 rounded-xl shadow-lg shadow-amber-900/20">
+                          <FileText className="w-4 h-4 mr-2"/> Créer le devis
+                        </Button>
+                        <Button variant="outline" onClick={() => window.modeCreationDevis = false} className="w-full bg-[#0a0f1d] border-slate-700 text-slate-300 hover:text-white text-xs h-10 rounded-xl">
+                          Annuler
+                        </Button>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
