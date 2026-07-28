@@ -1671,17 +1671,236 @@ function App() {
             )}
           </div>
         )}
-
+{/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
         {vueActuelle === 'factures' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black tracking-tight">Facturation</h2>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl"><Plus className="w-4 h-4 mr-2"/> Nouvelle facture</Button>
-            </div>
-            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-8 rounded-2xl shadow-xl text-center py-16`}>
-              <Receipt className="w-10 h-10 mx-auto text-slate-500 mb-2"/>
-              <p className="text-xs text-slate-400">Aucune facture enregistrée.</p>
-            </Card>
+            {!window.modeCreationFacture ? (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                      <Receipt className="w-7 h-7 text-emerald-400"/> Factures
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1">Gérez vos factures et encaissements en un clin d'œil</p>
+                  </div>
+                  <Button onClick={() => window.modeCreationFacture = true} className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center gap-2">
+                    <Plus className="w-4 h-4"/> Nouvelle facture
+                  </Button>
+                </div>
+
+                <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3.5 top-3 w-4 h-4 text-emerald-400" />
+                    <Input placeholder="Rechercher une facture ou client..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-emerald-500`} />
+                  </div>
+                  <div className="w-full md:w-48">
+                    <select className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer focus:border-emerald-500 font-semibold text-emerald-400`}>
+                      <option value="Toutes">🔍 Toutes</option>
+                      <option value="Brouillons">📝 Brouillons</option>
+                      <option value="Envoyées">📤 Envoyées</option>
+                      <option value="Payées">✅ Payées</option>
+                      <option value="En retard">⏳ En retard</option>
+                      <option value="Annulées">❌ Annulées</option>
+                    </select>
+                  </div>
+                </div>
+
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-12 rounded-2xl shadow-xl text-center space-y-4 relative overflow-hidden`}>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+                    <Receipt className="w-8 h-8"/>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-white">Aucune facture</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez votre première facture ou convertissez un devis accepté.</p>
+                  </div>
+                  <Button onClick={() => window.modeCreationFacture = true} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-emerald-900/30">
+                    <Plus className="w-4 h-4 mr-2"/> Créer ma première facture
+                  </Button>
+                </CardCard>
+              </div>
+            ) : (
+              /* FORMULAIRE DE CRÉATION DE FACTURE COLORÉ ET ULTRA-DESIGN */
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-4">
+                    <Button variant="outline" onClick={() => window.modeCreationFacture = false} className="bg-slate-800/50 border-slate-700 text-slate-200 h-9 text-xs">← Retour</Button>
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                        <Receipt className="w-6 h-6 text-emerald-400"/> Nouvelle facture
+                      </h2>
+                      <p className="text-xs text-slate-400">Créez une facture professionnelle pour votre client</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* Bloc Facture d'acompte avec option colorée */}
+                    <Card className="bg-gradient-to-r from-emerald-950/30 via-[#111827] to-teal-950/20 border-emerald-500/30 p-5 rounded-2xl shadow-xl space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Euro className="w-5 h-5"/></div>
+                          <div>
+                            <h4 className="text-xs font-bold text-white">Facture d'acompte</h4>
+                            <p className="text-[10px] text-slate-400">Créer une facture partielle basée sur un devis accepté</p>
+                          </div>
+                        </div>
+                        <input type="checkbox" className="w-5 h-5 accent-emerald-500 cursor-pointer rounded"/>
+                      </div>
+                      <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                        <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pourcentage de l'acompte</label>
+                        <div className="flex gap-2">
+                          {['30%', '40%', '50%', '60%', '70%'].map((pct, idx) => (
+                            <button key={idx} type="button" className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${pct === '30%' ? 'bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-900/40' : 'bg-[#0a0f1d] text-slate-300 border-slate-700 hover:border-emerald-500/50'}`}>{pct}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Informations Générales */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Informations générales</h3>
+                        <p className="text-xs text-slate-400">Sélectionnez le client et les échéances</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs text-slate-400 font-medium">Client</label>
+                        <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-400 text-xs">
+                          <span>Aucun client trouvé. Créez votre premier client ci-dessous pour commencer.</span>
+                        </div>
+                        <div onClick={() => setModalNouveauClientOuvert(true)} className="border border-dashed border-emerald-500/50 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer p-4 rounded-xl flex items-center gap-3 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">+</div>
+                          <div>
+                            <p className="text-xs font-bold text-emerald-400">Créer un nouveau client</p>
+                            <p className="text-[10px] text-slate-400">Ajout rapide sans quitter la page</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Date de la facture</label>
+                          <Input defaultValue="28/07/2026" className="bg-[#0a0f1d] border-slate-700 text-white h-10 text-xs mt-1"/>
+                        </div>
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Conditions de paiement</label>
+                          <select className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                            <option>30 jours</option>
+                            <option>15 jours</option>
+                            <option>Paiement comptant</option>
+                            <option>À réception</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Date d'échéance (calculée automatiquement)</label>
+                          <Input defaultValue="27/08/2026" className="bg-[#0a0f1d] border-slate-700 text-slate-400 h-10 text-xs mt-1" disabled/>
+                        </div>
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Moyen de paiement (optionnel)</label>
+                          <select className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                            <option>Virement bancaire</option>
+                            <option>Carte bancaire</option>
+                            <option>Chèque</option>
+                            <option>Espèces</option>
+                          </select>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Articles et prestations */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                        <div>
+                          <h3 className="text-sm font-bold text-white">Articles et prestations</h3>
+                          <p className="text-xs text-slate-400">Ajoutez les lignes de la facture</p>
+                        </div>
+                        <Button onClick={() => alert("Ligne ajoutée !")} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-8 px-3 rounded-xl shadow-md">
+                          <Plus className="w-3.5 h-3.5 mr-1"/> Ajouter une ligne
+                        </Button>
+                      </div>
+
+                      <div className="space-y-4 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Sélectionner un produit...</label>
+                          <select className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                            <option>Sélectionner un produit...</option>
+                            <option>Prestation électrique</option>
+                            <option>Dépannage plomberie</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-slate-400 font-medium">Description</label>
+                          <Input placeholder="Ex: Prestation électrique" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Quantité</label>
+                            <Input defaultValue="1" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Unité</label>
+                            <Input defaultValue="unité" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">Prix unitaire HT</label>
+                            <Input defaultValue="0" className="bg-[#111827] border-slate-700 text-white h-10 text-xs mt-1"/>
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-400 font-medium">TVA</label>
+                            <select className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3 h-10 text-xs mt-1 outline-none">
+                              <option>20% - Taux normal</option>
+                              <option>10% - Rénovation</option>
+                              <option>5.5% - Énergétique</option>
+                              <option>0% - Exonéré</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="text-right text-xs text-emerald-400 font-semibold pt-2 border-t border-slate-800">
+                          Total ligne : 0,00 € HT
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Notes internes */}
+                    <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Notes</h3>
+                        <p className="text-xs text-slate-400">Informations complémentaires</p>
+                      </div>
+                      <div>
+                        <label className="text-xs text-slate-400 font-medium">Notes internes (facultatif)</label>
+                        <textarea placeholder="Informations complémentaires, instructions particulières..." className="w-full bg-[#0a0f1d] border border-slate-700 text-white rounded-xl p-3 h-20 mt-1 outline-none resize-none text-xs"></textarea>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Panneau Récapitulatif Facture à droite */}
+                  <div className="space-y-6">
+                    <Card className="bg-[#111827] border-emerald-500/30 p-6 rounded-2xl shadow-xl space-y-5 sticky top-6">
+                      <h3 className="text-sm font-bold text-white border-b border-slate-800 pb-3">Récapitulatif</h3>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between"><span className="text-slate-400">Total HT</span><span className="font-bold text-white">0,00 €</span></div>
+                        <div className="flex justify-between"><span className="text-slate-400">TVA (20%)</span><span className="font-bold text-white">0,00 €</span></div>
+                        <div className="flex justify-between text-sm pt-2 border-t border-slate-800"><span className="font-extrabold text-white">Total TTC</span><span className="font-black text-emerald-400 text-lg">0,00 €</span></div>
+                      </div>
+                      <div className="space-y-2 pt-2">
+                        <Button onClick={() => { alert("Facture créée avec succès !"); window.modeCreationFacture = false; }} className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold text-xs h-11 rounded-xl shadow-lg shadow-emerald-900/30">
+                          <Receipt className="w-4 h-4 mr-2"/> Créer la facture
+                        </Button>
+                        <Button variant="outline" onClick={() => window.modeCreationFacture = false} className="w-full bg-[#0a0f1d] border-slate-700 text-slate-300 hover:text-white text-xs h-10 rounded-xl">
+                          Annuler
+                        </Button>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
