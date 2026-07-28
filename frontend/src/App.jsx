@@ -32,6 +32,9 @@ function App() {
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
+  // État pour le filtre de l'année sélectionnée (par défaut 2026)
+  const [anneeSelectionnee, setAnneeSelectionnee] = useState(2026);
+
   // États facturation & modale
   const [modeFacturation, setModeFacturation] = useState('horaire')
   const [montantForfait, setMontantForfait] = useState('')
@@ -226,13 +229,20 @@ function App() {
     try { return prospect?.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
   };
 
-  const prospectsActifs = (prospects || []).filter(p => p.statut !== 'archive' && p.statut !== 'annule');
+  // Filtrage des prospects selon l'année sélectionnée
+  const prospectsAnnee = (prospects || []).filter(p => {
+    if (!p.date_creation) return false;
+    const anneeP = new Date(p.date_creation.replace(' ', 'T')).getFullYear();
+    return anneeP === Number(anneeSelectionnee);
+  });
+
+  const prospectsActifs = prospectsAnnee.filter(p => p.statut !== 'archive' && p.statut !== 'annule');
   const prixMoyenDemande = (profil?.tarif_deplacement || 50) + (profil?.tarif_horaire || 60);
   let caEnAttente = prospectsActifs.length * prixMoyenDemande;
-  let totalCA = (prospects || []).filter(p => p.statut === 'archive').length * prixMoyenDemande;
+  let totalCA = prospectsAnnee.filter(p => p.statut === 'archive').length * prixMoyenDemande;
   
-  const factureMoyenne = (prospects || []).length > 0 ? Math.round(totalCA / prospects.length) : 0;
-  const tauxConversion = (prospects || []).length > 0 ? Math.round(((prospects || []).filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospects.length) * 100) : 0;
+  const factureMoyenne = prospectsAnnee.length > 0 ? Math.round(totalCA / prospectsAnnee.length) : 0;
+  const tauxConversion = prospectsAnnee.length > 0 ? Math.round((prospectsAnnee.filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospectsAnnee.length) * 100) : 0;
 
   const clientsFiltresRecherche = (prospects || []).filter(p => {
     if (p.statut === 'annule' || p.statut === 'archive') return false; 
@@ -409,9 +419,26 @@ function App() {
         {vueActuelle === 'dashboard' && (
           <div className="space-y-8 animate-in fade-in duration-300">
 
-            <div>
-              <h2 className="text-2xl font-black text-white tracking-tight">Tableau de bord</h2>
-              <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité pour l'année 2026.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight">Tableau de bord</h2>
+                <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité professionnelle.</p>
+              </div>
+              
+              {/* SÉLECTEUR D'ANNÉE DEMANDÉ */}
+              <div className="flex items-center">
+                <select 
+                  value={anneeSelectionnee} 
+                  onChange={(e) => setAnneeSelectionnee(e.target.value)}
+                  className="bg-[#111827] border border-slate-700 text-white text-xs font-semibold rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500 shadow-lg cursor-pointer"
+                >
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                  <option value="2028">2028</option>
+                  <option value="2029">2029</option>
+                  <option value="2030">2030</option>
+                </select>
+              </div>
             </div>
 
             {/* GRILLE DES 4 CARTES FINANCIÈRES PRINCIPALES INTERACTIVES */}
@@ -419,7 +446,7 @@ function App() {
               <Card onClick={() => setVueActuelle('finances')} className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-emerald-500/50 hover:scale-[1.02] cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs text-slate-400 font-medium">CA Total</p>
+                    <p className="text-xs text-slate-400 font-medium">CA Total ({anneeSelectionnee})</p>
                     <h3 className="text-2xl font-extrabold text-white mt-1">{totalCA}€</h3>
                     <p className="text-[10px] text-emerald-400 mt-1">0 factures payées</p>
                   </div>
@@ -467,7 +494,7 @@ function App() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-xs text-slate-400 font-medium">Devis créés</p>
-                    <h3 className="text-2xl font-extrabold text-white mt-1">{(prospects || []).length}</h3>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">{prospectsAnnee.length}</h3>
                     <p className="text-[10px] text-blue-400 mt-1">Propositions envoyées</p>
                   </div>
                   <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-400"><FileText className="w-5 h-5"/></div>
@@ -562,7 +589,7 @@ function App() {
               {/* ÉVOLUTION DU CA AVEC ÉCHELLE */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-white">Évolution du CA</h3>
+                  <h3 className="text-sm font-bold text-white">Évolution du CA ({anneeSelectionnee})</h3>
                   <span className="text-xs font-bold text-emerald-400">Total {totalCA}€</span>
                 </div>
                 <div className="h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b border-slate-800">
@@ -601,7 +628,7 @@ function App() {
               {/* ACTIVITÉ MENSUELLE AVEC ÉCHELLE ET TEXTE BLANC LISIBLE */}
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-white">Activité mensuelle</h3>
+                  <h3 className="text-sm font-bold text-white">Activité mensuelle ({anneeSelectionnee})</h3>
                   <div className="flex items-center gap-4 text-[11px]">
                     <span className="flex items-center gap-1.5 text-slate-200"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Factures</span>
                     <span className="flex items-center gap-1.5 text-slate-200"><div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Devis</span>
@@ -644,11 +671,11 @@ function App() {
             {/* SECTION TOP 5 CLIENTS & RÉPARTITION DES DEVIS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-emerald-500/30">
-                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-white">Top 5 clients</h3></div>
+                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-white">Top 5 clients ({anneeSelectionnee})</h3></div>
                 <div className="flex-1 flex items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
               </Card>
               <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-emerald-500/30">
-                <div className="flex items-center gap-2"><PieChart className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-white">Répartition des devis</h3></div>
+                <div className="flex items-center gap-2"><PieChart className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-white">Répartition des devis ({anneeSelectionnee})</h3></div>
                 <div className="flex-1 flex items-center justify-center text-xs text-slate-400">Aucune donnée disponible</div>
               </Card>
             </div>
