@@ -1470,29 +1470,29 @@ function App() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right relative" onClick={(e) => e.stopPropagation()}>
-                            {/* BOUTON ROND AVEC 3 PETITS POINTS CORRIGÉ */}
+                            {/* BOUTON AVEC 3 PETITS POINTS VERTICAUX (CORRIGÉ) */}
                             <Button 
-                              variant="outline" 
+                              variant="ghost" 
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setMenuActionClientId(menuActionClientId === p.id ? null : p.id);
                               }} 
-                              className={`h-9 w-9 p-0 rounded-full ${isDarkMode ? 'bg-[#1a2333] border-slate-700 text-white hover:bg-slate-800' : 'bg-white border-slate-300 text-slate-800'} shadow-md`}
+                              className={`h-8 w-8 p-0 rounded-full ${isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-800/60' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
                             >
-                              <MoreHorizontal className="w-4 h-4 pointer-events-none"/>
+                              <MoreVertical className="w-5 h-5 pointer-events-none"/>
                             </Button>
 
                             {/* MENU DÉROULANT DES ACTIONS */}
                             {menuActionClientId === p.id && (
                               <div 
                                 onClick={(e) => e.stopPropagation()}
-                                className={`absolute right-12 top-14 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden text-xs py-1 text-left animate-in fade-in duration-150`}
+                                className={`absolute right-10 top-12 w-44 ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-xl shadow-2xl z-[999] overflow-hidden text-xs py-1 text-left animate-in fade-in zoom-in-95 duration-150`}
                               >
                                 <button 
                                   onClick={() => { setProspectSelectionne(p); setMenuActionClientId(null); }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
                                 >
-                                  <Eye className="w-3.5 h-3.5 text-slate-400"/> Voir détails
+                                  <Eye className="w-4 h-4 text-slate-400"/> Voir détails
                                 </button>
                                 <button 
                                   onClick={() => {
@@ -1512,19 +1512,19 @@ function App() {
                                   }}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
                                 >
-                                  <Edit3 className="w-3.5 h-3.5 text-slate-400"/> Modifier
+                                  <Edit3 className="w-4 h-4 text-slate-400"/> Modifier
                                 </button>
                                 <button 
                                   onClick={() => basculerStatutClient(p.id)}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-800/60 transition-colors"
                                 >
-                                  <UserX className="w-3.5 h-3.5 text-slate-400"/> {estInactif ? 'Réactiver' : 'Désactiver'}
+                                  <UserX className="w-4 h-4 text-slate-400"/> {estInactif ? 'Réactiver' : 'Désactiver'}
                                 </button>
                                 <button 
                                   onClick={() => supprimerClient(p.id)}
                                   className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-red-500/10 text-red-500 transition-colors font-medium border-t border-slate-800/60"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5"/> Supprimer
+                                  <Trash2 className="w-4 h-4"/> Supprimer
                                 </button>
                               </div>
                             )}
