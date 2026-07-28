@@ -640,22 +640,22 @@ function App() {
               <p className="text-xs text-slate-400">CA Total</p>
               <h3 className="text-2xl font-black text-white mt-1">0,00 €</h3>
               <p className="text-[10px] text-emerald-400 mt-1">Factures payées</p>
-            </CardCard>
+            </Card>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Devis</p>
               <h3 className="text-2xl font-black text-white mt-1">0</h3>
               <p className="text-[10px] text-slate-400 mt-1">Total envoyés</p>
-            </CardCard>
+            </Card>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Factures</p>
               <h3 className="text-2xl font-black text-white mt-1">0</h3>
               <p className="text-[10px] text-slate-400 mt-1">0,00 € impayées</p>
-            </CardCard>
+            </Card>
             <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl shadow-xl">
               <p className="text-xs text-slate-400">Dernière intervention</p>
               <h3 className="text-2xl font-black text-white mt-1">-</h3>
               <p className="text-[10px] text-slate-400 mt-1">Date</p>
-            </CardCard>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1502,3 +1502,4 @@ function App() {
 }
 
 export default App
+
