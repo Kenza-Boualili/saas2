@@ -2,18 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ArrowUpRight, Flame, Award, ShieldAlert, Sparkles } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
 const STATUTS_TOUS = [
-  { valeur: 'nouveau', label: 'Nouveau', couleur: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-  { valeur: 'contacte', label: 'À relancer', couleur: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-  { valeur: 'planifie', label: 'Planifié', couleur: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+  { valeur: 'nouveau', label: 'Nouveau', couleur: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+  { valeur: 'contacte', label: 'À relancer', couleur: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+  { valeur: 'planifie', label: 'Planifié', couleur: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
   { valeur: 'termine', label: 'Terminé', couleur: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
   { valeur: 'annule', label: 'Annulé', couleur: 'bg-red-500/10 text-red-400 border-red-500/30' },
   { valeur: 'archive', label: 'Archivé', couleur: 'bg-slate-800/50 text-slate-500 border-slate-700/50' },
 ]
+
+const MOIS_ANNEE = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
 function App() {
   const [artisanConnecte, setArtisanConnecte] = useState(null)
@@ -31,16 +33,19 @@ function App() {
   const [rechercheClient, setRechercheClient] = useState('')
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
-  // États facturation
+  // États facturation & modale
   const [modeFacturation, setModeFacturation] = useState('horaire')
   const [montantForfait, setMontantForfait] = useState('')
   const [montantMateriel, setMontantMateriel] = useState('')
-
-  // Modale ajout
   const [modalAjoutOuvert, setModalAjoutOuvert] = useState(false)
+  
   const [formManuel, setFormManuel] = useState({
     nom: '', probleme: '', telephone: '', adresse: '', statut: 'nouveau', date_intervention: '', urgent: 'non'
   })
+
+  // États pour les tooltips interactifs des graphiques au survol de la souris
+  const [hoverIndexCa, setHoverIndexCa] = useState(null);
+  const [hoverIndexAct, setHoverIndexAct] = useState(null);
 
   const dernierIdVuRef = useRef(null)
   const [alerteToast, setAlerteToast] = useState(null)
@@ -81,24 +86,10 @@ function App() {
     setArtisanConnecte({ id, nom_entreprise: nom })
     setMessages([{ role: 'assistant', content: `Bonjour ! Je suis l'assistant de l'entreprise ${nom}. Quel est votre besoin aujourd'hui ?` }])
     setEmail(''); setMotDePasse(''); setNomEntreprise('');
-    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-      Notification.requestPermission();
-    }
   }
 
   const deconnexion = () => {
     setArtisanConnecte(null); setProspects([]); setVueActuelle('dashboard'); dernierIdVuRef.current = null;
-  }
-
-  const declencherNotification = (prospect) => {
-    setAlerteToast(prospect);
-    setTimeout(() => setAlerteToast(null), 8000);
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(`Nouvelle demande : ${prospect.nom}`, {
-        body: `Besoin : ${prospect.probleme}\nTél : ${prospect.telephone}`,
-        icon: "https://cdn-icons-png.flaticon.com/512/1055/1055685.png"
-      });
-    }
   }
 
   const chargerProspects = (silencieux = false) => {
@@ -107,16 +98,7 @@ function App() {
     fetch(`${API_URL}/api/prospects?artisan_id=${artisanConnecte.id}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => { 
-        const liste = data.prospects || [];
-        if (liste.length > 0) {
-          const maxId = Math.max(...liste.map(p => p.id));
-          if (dernierIdVuRef.current !== null && maxId > dernierIdVuRef.current) {
-            const nouveau = liste.find(p => p.id === maxId);
-            if (nouveau) declencherNotification(nouveau);
-          }
-          dernierIdVuRef.current = maxId;
-        }
-        setProspects(liste); 
+        setProspects(data.prospects || []); 
         setChargement(false) 
       })
       .catch(err => setChargement(false))
@@ -135,11 +117,10 @@ function App() {
     e.preventDefault(); setMessageSauvegarde('Sauvegarde en cours...')
     try {
       await fetch(`${API_URL}/api/artisans/${artisanConnecte.id}/profil`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profil) })
-      setMessageSauvegarde('Profil mis à jour avec succès.')
-      setArtisanConnecte(prev => ({ ...prev, nom_entreprise: profil.nom_entreprise }))
+      setMessageSauvegarde('Modifications enregistrées.')
       setTimeout(() => setMessageSauvegarde(''), 3000)
     } catch (erreur) {
-      setMessageSauvegarde('Erreur lors de la sauvegarde.')
+      setMessageSauvegarde('Erreur de sauvegarde.')
       setTimeout(() => setMessageSauvegarde(''), 3000)
     }
   }
@@ -160,7 +141,7 @@ function App() {
         chargerProspects(true);
       }
     } catch (err) {
-      alert("Erreur lors de l'enregistrement de l'intervention.");
+      alert("Erreur lors de l'enregistrement.");
     }
   }
 
@@ -168,23 +149,18 @@ function App() {
     const statutFinal = nouveauStatut === 'termine' ? 'archive' : nouveauStatut;
     setProspects(prospectsActuels => prospectsActuels.map(p => p.id === id ? { ...p, statut: statutFinal } : p))
     if (prospectSelectionne && prospectSelectionne.id === id) {
-      if (statutFinal === 'archive') {
-        setProspectSelectionne(null);
-      } else {
-        setProspectSelectionne(prev => ({...prev, statut: statutFinal}))
-      }
+      if (statutFinal === 'archive') setProspectSelectionne(null);
+      else setProspectSelectionne(prev => ({...prev, statut: statutFinal}))
     }
     try { 
       await fetch(`${API_URL}/api/prospects/${id}/statut`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ statut: statutFinal }) 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: statutFinal }) 
       }) 
-    } catch (erreur) {}
+    } catch (e) {}
   }
 
   const telechargerDocumentPdf = async (prospectId, typeDoc) => {
-    if (!prospectId) { alert("Veuillez sélectionner un client valide."); return; }
+    if (!prospectId) return;
     setMessageSauvegarde('Génération...');
     try {
       await fetch(`${API_URL}/api/prospects/${prospectId}/facturation`, {
@@ -198,7 +174,7 @@ function App() {
       });
 
       const response = await fetch(`${API_URL}/api/prospects/${prospectId}/document?type_doc=${typeDoc}`);
-      if (!response.ok) throw new Error(`Erreur serveur (${response.status})`);
+      if (!response.ok) throw new Error();
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -212,7 +188,7 @@ function App() {
       setMessageSauvegarde('Téléchargé !');
       setTimeout(() => setMessageSauvegarde(''), 2000);
     } catch (err) {
-      alert("Erreur lors du téléchargement du document PDF.");
+      alert("Erreur génération PDF.");
       setMessageSauvegarde('');
     }
   };
@@ -246,7 +222,7 @@ function App() {
       const data = await reponse.json()
       setMessages([...nouvelHistorique, { role: 'assistant', content: data.reponse }])
       chargerProspects(true) 
-    } catch (erreur) {
+    } catch (e) {
       setMessages([...nouvelHistorique, { role: 'assistant', content: "Erreur serveur." }])
     } finally { setIaReflechit(false) }
   }
@@ -255,32 +231,15 @@ function App() {
     try { return prospect.historique_chat ? JSON.parse(prospect.historique_chat) : []; } catch (e) { return []; }
   };
 
-  const maintenant = new Date();
-  const anneeActuelle = maintenant.getFullYear();
-  const debutAujourdhui = new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate()).getTime();
-  const debutSemaine = debutAujourdhui - (7 * 24 * 60 * 60 * 1000); 
-  const debutMois = new Date(maintenant.getFullYear(), maintenant.getMonth(), 1).getTime();
-
-  let statsAujourdhui = 0; let statsSemaine = 0; let statsMois = 0;
-  const prixMoyenDemande = (profil.tarif_deplacement || 50) + (profil.tarif_horaire || 60);
-  let caEncaisse = 0; let caPrevisionnel = 0; let caEnAttente = 0;
-
-  prospects.forEach(p => {
-    if (!p.date_creation || p.statut === 'annule') return; 
-    const dateP = new Date(p.date_creation.replace(' ', 'T'));
-    const timeP = dateP.getTime();
-    if (timeP >= debutAujourdhui) statsAujourdhui++;
-    if (timeP >= debutSemaine) statsSemaine++;
-    if (timeP >= debutMois) statsMois++;
-    if (dateP.getFullYear() === anneeActuelle) {
-      if (p.statut === 'archive') caEncaisse += prixMoyenDemande;
-      else if (p.statut === 'planifie') caPrevisionnel += prixMoyenDemande;
-      else caEnAttente += prixMoyenDemande;
-    }
-  });
-
-  const totalCA = caEncaisse + caPrevisionnel + caEnAttente;
+  // Calculs statistiques & indicateurs
   const prospectsActifs = prospects.filter(p => p.statut !== 'archive' && p.statut !== 'annule');
+  const prixMoyenDemande = (profil.tarif_deplacement || 50) + (profil.tarif_horaire || 60);
+  let caEnAttente = prospectsActifs.length * prixMoyenDemande;
+  let totalCA = prospects.filter(p => p.statut === 'archive').length * prixMoyenDemande;
+  
+  const factureMoyenne = prospects.length > 0 ? Math.round(totalCA / prospects.length) : 0;
+  const tauxConversion = prospects.length > 0 ? Math.round((prospects.filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospects.length) * 100) : 0;
+
   const clientsFiltresRecherche = prospects.filter(p => {
     if (p.statut === 'annule' || p.statut === 'archive') return false; 
     const terme = rechercheClient.toLowerCase();
@@ -295,7 +254,7 @@ function App() {
           <CardHeader className="space-y-3 text-center pb-8">
             <div className="flex justify-center mb-2"><div className="bg-amber-500 p-4 rounded-2xl shadow-lg shadow-amber-900/50"><Wrench className="w-8 h-8 text-slate-950 font-bold" /></div></div>
             <CardTitle className="text-3xl font-extrabold tracking-tight text-white">KraftPilot</CardTitle>
-            <CardDescription className="text-slate-400 text-sm">{vueAuth === 'connexion' ? 'Accédez à votre espace de pilotage' : 'Créez votre espace professionnel'}</CardDescription>
+            <CardDescription className="text-slate-400 text-sm">{vueAuth === 'connexion' ? 'Connectez-vous à votre espace' : 'Créez votre espace professionnel'}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={vueAuth === 'connexion' ? gererConnexion : gererInscription} className="space-y-5">
@@ -331,18 +290,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-50 flex font-sans relative overflow-hidden">
       
-      {/* 🔔 TOAST NOTIFICATION */}
-      {alerteToast && (
-        <div className="fixed bottom-6 right-6 z-[100] bg-amber-500 text-slate-950 font-semibold p-4 rounded-2xl shadow-2xl flex items-start gap-3 animate-in slide-in-from-bottom-8 duration-500 border border-amber-300 min-w-[280px]">
-          <div className="bg-slate-950/10 p-2 rounded-full shrink-0"><BellRing className="w-5 h-5 animate-pulse text-slate-950" /></div>
-          <div className="flex-1">
-            <h4 className="font-bold text-sm flex items-center justify-between">Nouveau prospect !<button onClick={() => setAlerteToast(null)} className="text-slate-950 hover:text-white p-1 rounded-full"><X className="w-4 h-4"/></button></h4>
-            <p className="text-xs mt-0.5">{alerteToast.nom} - {alerteToast.probleme}</p>
-          </div>
-        </div>
-      )}
-
-      {/* ➕ MODALE AJOUT MANUEL */}
+      {/* MODALE AJOUT MANUEL */}
       {modalAjoutOuvert && (
         <div className="fixed inset-0 bg-[#0a0f1d]/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-lg bg-[#111827] border-slate-800 shadow-2xl rounded-2xl">
@@ -366,7 +314,7 @@ function App() {
         </div>
       )}
 
-      {/* 🗂️ MODALE FICHE CLIENT */}
+      {/* MODALE FICHE CLIENT */}
       {prospectSelectionne && (
         <div className="fixed inset-0 bg-[#0a0f1d]/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-4xl h-[85vh] bg-[#111827] border-slate-800 shadow-2xl flex flex-col overflow-hidden rounded-2xl">
@@ -403,7 +351,7 @@ function App() {
         </div>
       )}
 
-      {/* 🧭 MENU LATÉRAL UNIQUE */}
+      {/* MENU LATÉRAL UNIQUE */}
       <aside className="w-64 bg-[#0d1322] border-r border-slate-800/80 flex flex-col hidden lg:flex z-10 shrink-0">
         <div className="p-5 flex items-center gap-3 border-b border-slate-800/60">
           <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-900/30">KP</div>
@@ -426,23 +374,12 @@ function App() {
               <button onClick={() => setVueActuelle('clients')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'clients' ? 'bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-900/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}><Users className="w-4 h-4" /> Répertoire Clients</button>
               <button onClick={() => setVueActuelle('devis')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><FileText className="w-4 h-4" /> Propositions Devis</button>
               <button onClick={() => setVueActuelle('factures')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><Receipt className="w-4 h-4" /> Facturation</button>
-              <button onClick={() => setVueActuelle('avoirs')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><FileSpreadsheet className="w-4 h-4" /> Notes & Avoirs</button>
-            </nav>
-          </div>
-
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold px-3 mb-2">Chantier & Stocks</p>
-            <nav className="space-y-1">
-              <button onClick={() => setVueActuelle('fournisseurs')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><Truck className="w-4 h-4" /> Fournisseurs</button>
-              <button onClick={() => setVueActuelle('commandes')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><ShoppingCart className="w-4 h-4" /> Commandes Matériel</button>
             </nav>
           </div>
 
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold px-3 mb-2">Paramétrage</p>
             <nav className="space-y-1">
-              <button onClick={() => setVueActuelle('catalogue')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><Package className="w-4 h-4" /> Catalogue Prestations</button>
-              <button onClick={() => setVueActuelle('planning')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><CalendarCheck className="w-4 h-4" /> Agenda Chantiers</button>
               <button onClick={() => setVueActuelle('chat')} className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white"><MessageSquare className="w-4 h-4" /> Simulateur Assistant IA</button>
               <button onClick={() => setVueActuelle('reglages')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'reglages' ? 'bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-900/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}><Settings className="w-4 h-4" /> Configuration</button>
             </nav>
@@ -451,7 +388,7 @@ function App() {
 
         <div className="p-4 border-t border-slate-800/60 bg-[#0a0f1d]/50">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs uppercase">{artisanConnecte.nom_entreprise.charAt(0)}</div>
+            <div className="w-8 h-8 rounded-full bg-amber-500/25 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-xs uppercase">{artisanConnecte.nom_entreprise.charAt(0)}</div>
             <div className="overflow-hidden"><p className="text-xs font-semibold text-white truncate">{artisanConnecte.nom_entreprise}</p><p className="text-[10px] text-slate-500">Compte Actif</p></div>
           </div>
           <Button onClick={deconnexion} variant="outline" className="w-full bg-transparent border-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs h-8"><LogOut className="w-3 h-3 mr-1.5" /> Déconnexion</Button>
@@ -462,76 +399,67 @@ function App() {
       <main className="flex-1 p-6 lg:p-10 overflow-y-auto relative z-0 bg-[#0a0f1d]">
         
         {/* TOP BAR */}
-        <header className="mb-8 flex items-center justify-between gap-4 bg-[#111827]/60 p-4 rounded-2xl border border-slate-800/60 backdrop-blur-sm">
+        <header className="mb-8 flex items-center justify-between gap-4 bg-[#111827]/60 p-4 rounded-2xl border border-slate-800/60 backdrop-blur-sm shadow-md">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
             <Input placeholder="Recherche rapide (Ctrl + K)..." className="h-10 pl-10 pr-4 bg-[#0a0f1d] border-slate-800 text-white rounded-xl text-xs w-full focus:border-amber-500" />
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-900/20 flex items-center gap-2">
+            <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-amber-900/20 flex items-center gap-2 transition-transform active:scale-95">
               <Plus className="w-4 h-4" /> Nouvelle intervention
             </Button>
           </div>
         </header>
 
-        {/* VUE TABLEAU DE BORD (DASHBOARD REPRODUIT DE MANIÈRE UNIQUE) */}
+        {/* VUE TABLEAU DE BORD (DASHBOARD AVEC TOUTES LES CARTES INTERACTIVES ET GRAPHIQUES AU SURVOL) */}
         {vueActuelle === 'dashboard' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            
-            {/* BANNER PROMO / UPGRADE */}
-            <div className="bg-gradient-to-r from-amber-950/40 via-[#161f33] to-amber-950/20 border border-amber-500/30 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-              <div className="flex items-center gap-4">
-                <div className="bg-amber-500/20 p-3 rounded-xl text-amber-400 shrink-0"><Sparkles className="w-6 h-6"/></div>
-                <div>
-                  <h4 className="text-sm font-bold text-white">Passez à l'offre illimitée</h4>
-                  <p className="text-xs text-slate-300 mt-0.5">Profitez de l'assistant IA WhatsApp sans aucune limite et débloquez les relances automatiques.</p>
-                </div>
-              </div>
-              <Button className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs h-10 px-5 rounded-xl shadow-md shrink-0">Passer Pro</Button>
-            </div>
 
             <div>
               <h2 className="text-2xl font-black text-white tracking-tight">Tableau de bord</h2>
               <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité pour l'année {anneeActuelle}.</p>
             </div>
 
-            {/* GRILLE DES 4 CARTES PRINCIPALES FINANCIÈRES */}
+            {/* GRILLE DES 4 CARTES FINANCIÈRES PRINCIPALES INTERACTIVES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden">
+              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-amber-500/50 hover:scale-[1.02] cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs text-slate-400 font-medium">CA Global</p>
+                    <p className="text-xs text-slate-400 font-medium">CA Total</p>
                     <h3 className="text-2xl font-extrabold text-white mt-1">{totalCA}€</h3>
-                    <p className="text-[10px] text-emerald-400 mt-1">0 factures réglées</p>
+                    <p className="text-[10px] text-emerald-400 mt-1">0 factures payées</p>
                   </div>
                   <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-400"><Euro className="w-5 h-5"/></div>
                 </div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden">
+
+              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-blue-500/50 hover:scale-[1.02] cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs text-slate-400 font-medium">En Suspens</p>
+                    <p className="text-xs text-slate-400 font-medium">CA en Attente</p>
                     <h3 className="text-2xl font-extrabold text-white mt-1">{caEnAttente}€</h3>
-                    <p className="text-[10px] text-blue-400 mt-1">Factures non soldées</p>
+                    <p className="text-[10px] text-blue-400 mt-1">Factures non payées</p>
                   </div>
                   <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-400"><Clock className="w-5 h-5"/></div>
                 </div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden">
+
+              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-red-500/50 hover:scale-[1.02] cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-xs text-slate-400 font-medium">Impayés</p>
                     <h3 className="text-2xl font-extrabold text-red-400 mt-1">0€</h3>
-                    <p className="text-[10px] text-red-400 mt-1">0 dossier en retard</p>
+                    <p className="text-[10px] text-red-400 mt-1">0 facture(s) en retard</p>
                   </div>
                   <div className="bg-red-500/10 p-2.5 rounded-xl text-red-400"><ShieldAlert className="w-5 h-5"/></div>
                 </div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden">
+
+              <Card className="bg-[#111827] border-slate-800 shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-amber-500/50 hover:scale-[1.02] cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs text-slate-400 font-medium">Indicateur Conversion</p>
-                    <h3 className="text-2xl font-extrabold text-white mt-1">100%</h3>
+                    <p className="text-xs text-slate-400 font-medium">Taux Conversion</p>
+                    <h3 className="text-2xl font-extrabold text-white mt-1">{tauxConversion}%</h3>
                     <p className="text-[10px] text-amber-400 mt-1">Devis ➔ Facture</p>
                   </div>
                   <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400"><TrendingUp className="w-5 h-5"/></div>
@@ -539,46 +467,167 @@ function App() {
               </Card>
             </div>
 
-            {/* SECONDE LIGNE DE COMPTEURS (DEVIS, FACTURES, CLIENTS, PHOTOS) */}
+            {/* SECONDE LIGNE DE STATS RAPIDES INTERACTIVES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                <div><p className="text-xs text-slate-400">Devis Établis</p><h4 className="text-xl font-bold text-white mt-1">{prospects.length}</h4></div>
+              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-blue-500/40 hover:scale-[1.02] cursor-pointer">
+                <div><p className="text-xs text-slate-400">Devis créés</p><h4 className="text-xl font-bold text-white mt-1">{prospects.length}</h4></div>
                 <div className="bg-blue-500/10 p-3 rounded-xl text-blue-400"><FileText className="w-5 h-5"/></div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                <div><p className="text-xs text-slate-400">Facturations Transmises</p><h4 className="text-xl font-bold text-white mt-1">0</h4></div>
+              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-emerald-500/40 hover:scale-[1.02] cursor-pointer">
+                <div><p className="text-xs text-slate-400">Factures émises</p><h4 className="text-xl font-bold text-white mt-1">0</h4></div>
                 <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-400"><Receipt className="w-5 h-5"/></div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                <div><p className="text-xs text-slate-400">Dossiers Actifs</p><h4 className="text-xl font-bold text-white mt-1">{prospectsActifs.length}</h4></div>
+              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-amber-500/40 hover:scale-[1.02] cursor-pointer">
+                <div><p className="text-xs text-slate-400">Clients actifs</p><h4 className="text-xl font-bold text-white mt-1">{prospectsActifs.length}</h4></div>
                 <div className="bg-amber-500/10 p-3 rounded-xl text-amber-400"><Users className="w-5 h-5"/></div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between">
-                <div><p className="text-xs text-slate-400">Médias Chantiers</p><h4 className="text-xl font-bold text-white mt-1">0</h4></div>
+              <Card className="bg-[#111827] border-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:border-purple-500/40 hover:scale-[1.02] cursor-pointer">
+                <div><p className="text-xs text-slate-400">Photos chantier</p><h4 className="text-xl font-bold text-white mt-1">0</h4></div>
                 <div className="bg-purple-500/10 p-3 rounded-xl text-purple-400"><Package className="w-5 h-5"/></div>
               </Card>
             </div>
 
-            {/* SECTION ACTIONS RAPIDES */}
-            <div className="bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <h3 className="text-sm font-bold text-white mb-4">Raccourcis Opérationnels</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4"><FileText className="w-4 h-4 mr-2 text-amber-500"/> Nouveau devis</Button>
-                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4"><Receipt className="w-4 h-4 mr-2 text-emerald-500"/> Nouvelle facture</Button>
-                <Button onClick={() => setModalAjoutOuvert(true)} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4"><Users className="w-4 h-4 mr-2 text-blue-500"/> Ajouter client</Button>
-                <Button onClick={() => setVueActuelle('clients')} className="bg-[#0a0f1d] hover:bg-slate-800 text-slate-200 border border-slate-800 h-12 text-xs font-semibold justify-start px-4"><Package className="w-4 h-4 mr-2 text-purple-500"/> Photos chantier</Button>
+            {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* PIPELINE CRM (DEMANDÉ) */}
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between transition-all hover:border-amber-500/40">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="bg-amber-500/10 p-2 rounded-xl text-amber-400"><Target className="w-5 h-5"/></div>
+                    <h3 className="text-sm font-bold text-white">Pipeline CRM</h3>
+                  </div>
+                  <Button onClick={() => setVueActuelle('crm')} size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-8">Voir CRM →</Button>
+                </div>
+                <div>
+                  <h4 className="text-2xl font-extrabold text-amber-400">{caEnAttente}€</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Total pipeline actif</p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-800 text-center">
+                  <div className="bg-[#0a0f1d] p-2 rounded-xl border border-slate-800"><span className="block text-xs font-bold text-blue-400">{prospectsActifs.length} leads</span></div>
+                  <div className="bg-[#0a0f1d] p-2 rounded-xl border border-slate-800"><span className="block text-xs font-bold text-amber-400">0 devis</span></div>
+                  <div className="bg-[#0a0f1d] p-2 rounded-xl border border-slate-800"><span className="block text-xs font-bold text-emerald-400">0 gagnés</span></div>
+                </div>
+              </Card>
+
+              {/* BOUTONS ACTIONS RAPIDES */}
+              <div className="lg:col-span-2 bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <h3 className="text-sm font-bold text-white mb-4">Actions rapides</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><FileText className="w-4 h-4"/> Nouveau devis</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Receipt className="w-4 h-4"/> Nouvelle facture</Button>
+                  <Button onClick={() => setModalAjoutOuvert(true)} className="bg-blue-500 hover:bg-blue-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Users className="w-4 h-4"/> Ajouter client</Button>
+                  <Button onClick={() => setVueActuelle('clients')} className="bg-purple-500 hover:bg-purple-600 text-slate-950 font-bold h-12 text-xs flex flex-col items-center justify-center gap-1 rounded-xl"><Package className="w-4 h-4"/> Photos chantier</Button>
+                </div>
               </div>
+
             </div>
 
-            {/* GRILLE GRAPHIQUES & STATS SECONDAIRES */}
+            {/* GRAPHIQUES INTERACTIFS AU SURVOL DE LA SOURIS (ÉVOLUTION CA & ACTIVITÉ MENSUELLE) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-72 flex flex-col justify-between">
-                <div><h3 className="text-sm font-bold text-white">Dynamique Financière</h3><p className="text-[11px] text-slate-400">Évolution annuelle du chiffre d'affaires</p></div>
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl mt-4">Graphique d'activité en cours de synchronisation</div>
+              
+              {/* ÉVOLUTION DU CA (Graphique interactif souris comme sur image) */}
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white">Évolution du CA</h3>
+                  <span className="text-xs font-bold text-amber-400">Total {totalCA}€</span>
+                </div>
+                <div className="h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b border-slate-800">
+                  {MOIS_ANNEE.map((mois, idx) => (
+                    <div 
+                      key={idx} 
+                      className="flex-1 h-full flex flex-col items-center justify-end relative group cursor-pointer"
+                      onMouseEnter={() => setHoverIndexCa(idx)}
+                      onMouseLeave={() => setHoverIndexCa(null)}
+                    >
+                      {/* Ligne verticale au survol */}
+                      {hoverIndexCa === idx && (
+                        <div className="absolute bottom-0 w-[1px] h-full bg-amber-400/80 z-0"></div>
+                      )}
+                      {/* Point sur la courbe */}
+                      <div className={`w-2.5 h-2.5 rounded-full z-10 transition-all ${hoverIndexCa === idx ? 'bg-amber-400 scale-125 ring-4 ring-amber-400/20' : 'bg-transparent'}`}></div>
+                      
+                      {/* Tooltip de la souris */}
+                      {hoverIndexCa === idx && (
+                        <div className="absolute bottom-12 z-30 bg-[#162032] border border-slate-700 text-white p-3 rounded-xl shadow-2xl text-xs w-28 text-center animate-in fade-in duration-150">
+                          <p className="font-bold text-slate-300 capitalize">{mois === 'janv.' ? 'janvier' : mois === 'févr.' ? 'février' : mois === 'mars' ? 'mars' : mois === 'avr.' ? 'avril' : mois === 'mai' ? 'mai' : mois === 'juin' ? 'juin' : mois === 'juil.' ? 'juillet' : mois === 'août' ? 'août' : mois === 'sept.' ? 'septembre' : mois === 'oct.' ? 'octobre' : mois === 'nov.' ? 'novembre' : 'décembre'}</p>
+                          <p className="text-amber-400 font-extrabold mt-1">CA : 0€</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <div className="absolute bottom-2 left-0 right-0 h-[2px] bg-amber-500"></div>
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-500 pt-3 px-1">
+                  {MOIS_ANNEE.map((m, i) => <span key={i}>{m}</span>)}
+                </div>
               </Card>
-              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-72 flex flex-col justify-between">
-                <div><h3 className="text-sm font-bold text-white">Volume Opérationnel</h3><p className="text-[11px] text-slate-400">Répartition mensuelle des interventions</p></div>
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl mt-4">Statistiques mensuelles vides</div>
+
+              {/* ACTIVITÉ MENSUELLE (Graphique interactif souris) */}
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white">Activité mensuelle</h3>
+                  <div className="flex items-center gap-4 text-[11px]">
+                    <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Factures</span>
+                    <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Devis</span>
+                  </div>
+                </div>
+                <div className="h-48 relative flex items-end justify-between px-2 pt-6 pb-2 border-b border-slate-800">
+                  {MOIS_ANNEE.map((mois, idx) => (
+                    <div 
+                      key={idx} 
+                      className="flex-1 h-full flex flex-col items-center justify-end relative group cursor-pointer"
+                      onMouseEnter={() => setHoverIndexAct(idx)}
+                      onMouseLeave={() => setHoverIndexAct(null)}
+                    >
+                      {/* Barre translucide au survol */}
+                      {hoverIndexAct === idx && (
+                        <div className="absolute bottom-0 w-6 h-full bg-slate-700/40 rounded-t z-0"></div>
+                      )}
+                      
+                      {/* Tooltip de la souris */}
+                      {hoverIndexAct === idx && (
+                        <div className="absolute bottom-12 z-30 bg-[#162032] border border-slate-700 text-white p-3 rounded-xl shadow-2xl text-xs w-32 text-left animate-in fade-in duration-150">
+                          <p className="font-bold text-slate-300 capitalize mb-1">{mois === 'janv.' ? 'janvier' : mois === 'févr.' ? 'février' : mois === 'mars' ? 'mars' : mois === 'avr.' ? 'avril' : mois === 'mai' ? 'mai' : mois === 'juin' ? 'juin' : mois === 'juil.' ? 'juillet' : mois === 'août' ? 'août' : mois === 'sept.' ? 'septembre' : mois === 'oct.' ? 'octobre' : mois === 'nov.' ? 'novembre' : 'décembre'}</p>
+                          <p className="text-blue-400 font-semibold">Devis : 0</p>
+                          <p className="text-emerald-400 font-semibold mt-0.5">Factures : 0</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-500 pt-3 px-1">
+                  {MOIS_ANNEE.map((m, i) => <span key={i}>{m}</span>)}
+                </div>
+              </Card>
+
+            </div>
+
+            {/* SECTION TOP 5 CLIENTS & RÉPARTITION DES DEVIS */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-amber-500/30">
+                <div className="flex items-center gap-2"><Users className="w-4 h-4 text-amber-500"/><h3 className="text-sm font-bold text-white">Top 5 clients</h3></div>
+                <div className="flex-1 flex items-center justify-center text-xs text-slate-500">Aucune donnée disponible</div>
+              </Card>
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-amber-500/30">
+                <div className="flex items-center gap-2"><PieChart className="w-4 h-4 text-amber-500"/><h3 className="text-sm font-bold text-white">Répartition des devis</h3></div>
+                <div className="flex-1 flex items-center justify-center text-xs text-slate-500">Aucune donnée disponible</div>
+              </Card>
+            </div>
+
+            {/* SECTION INDICATEURS CLÉS FINAUX */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+                <p className="text-xs text-slate-400 font-medium">Facture moyenne</p>
+                <h4 className="text-3xl font-black text-amber-400 mt-2">{factureMoyenne}€</h4>
+              </Card>
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+                <p className="text-xs text-slate-400 font-medium">Taux de conversion</p>
+                <h4 className="text-3xl font-black text-emerald-400 mt-2">{tauxConversion}%</h4>
+              </Card>
+              <Card className="bg-[#111827] border-slate-800 p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02]">
+                <p className="text-xs text-slate-400 font-medium">Clients actifs</p>
+                <h4 className="text-3xl font-black text-blue-400 mt-2">{prospectsActifs.length}</h4>
               </Card>
             </div>
 
@@ -661,11 +710,11 @@ function App() {
         )}
 
         {/* VUES EN ATTENTE */}
-        {['finances', 'crm', 'devis', 'factures', 'avoirs', 'fournisseurs', 'commandes', 'catalogue', 'planning'].includes(vueActuelle) && (
+        {['finances', 'crm', 'devis', 'factures'].includes(vueActuelle) && (
           <div className="h-[70vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-300">
             <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 shadow-lg"><Wrench className="w-8 h-8"/></div>
             <h3 className="text-xl font-bold text-white capitalize">Module {vueActuelle}</h3>
-            <p className="text-xs text-slate-400 max-w-sm mt-2">Cette option sera connectée lors du prochain déploiement de vos outils de gestion.</p>
+            <p className="text-xs text-slate-400 max-w-sm mt-2">Cette option sera synchronisée lors de la mise en production globale.</p>
             <Button onClick={() => setVueActuelle('dashboard')} className="mt-6 bg-slate-800 hover:bg-slate-700 text-white text-xs h-9">Retour au Dashboard</Button>
           </div>
         )}
