@@ -268,7 +268,6 @@ function App() {
   const factureMoyenne = prospectsAnnee.length > 0 ? Math.round(totalCA / prospectsAnnee.length) : 0;
   const tauxConversion = prospectsAnnee.length > 0 ? Math.round((prospectsAnnee.filter(p => p.statut === 'termine' || p.statut === 'archive').length / prospectsAnnee.length) * 100) : 0;
 
-  // Filtrage des résultats de la recherche globale dans le header
   const resultatsRechercheGlobale = rechercheGlobale.trim() === '' ? [] : (prospects || []).filter(p => {
     if (p.statut === 'annule' || p.statut === 'archive') return false;
     const terme = rechercheGlobale.toLowerCase();
@@ -430,7 +429,7 @@ function App() {
       {/* CONTENU PRINCIPAL */}
       <main className={`flex-1 p-6 lg:p-10 overflow-y-auto relative z-0 ${isDarkMode ? 'bg-[#0a0f1d]' : 'bg-slate-100'} transition-colors`}>
         
-        {/* TOP BAR AVEC RECHERCHE ET BOUTONS INTERACTIFS */}
+        {/* TOP BAR */}
         <header className={`mb-8 flex items-center justify-between gap-4 ${isDarkMode ? 'bg-[#111827]/60 border-slate-800/60' : 'bg-white/80 border-slate-200 shadow-sm'} p-4 rounded-2xl border backdrop-blur-sm shadow-md transition-colors`}>
           
           {/* BARRE DE RECHERCHE GLOBALE FONCTIONNELLE */}
@@ -482,9 +481,9 @@ function App() {
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               </button>
 
-              {/* POPUP NOTIFICATIONS */}
+              {/* POPUP NOTIFICATIONS AVEC Z-INDEX ÉLEVÉ */}
               {menuNotifOuvert && (
-                <div className={`absolute right-0 mt-3 w-80 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in duration-150`}>
+                <div className={`absolute right-0 mt-3 w-80 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] overflow-hidden animate-in fade-in duration-150`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'} flex items-center justify-between`}>
                     <h4 className="text-xs font-bold uppercase tracking-wider">Notifications</h4>
                     <span className="text-[10px] text-emerald-500 font-semibold cursor-pointer hover:underline" onClick={() => setMenuNotifOuvert(false)}>Tout marquer comme lu</span>
@@ -499,7 +498,7 @@ function App() {
               )}
             </div>
 
-            {/* BOUTON MODE CLAIR / SOMBRE FONCTIONNEL */}
+            {/* BOUTON MODE CLAIR / SOMBRE */}
             <button 
               onClick={() => setIsDarkMode(!isDarkMode)}
               className={`w-10 h-10 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-800 text-amber-400 hover:border-emerald-500/50' : 'bg-slate-50 border-slate-300 text-slate-700 hover:border-emerald-500/50'} border flex items-center justify-center transition-all`}
@@ -517,9 +516,9 @@ function App() {
                 {artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0).toUpperCase() : 'P'}
               </button>
 
-              {/* POPUP PROFIL */}
+              {/* POPUP PROFIL AVEC Z-INDEX ÉLEVÉ */}
               {menuProfilOuvert && (
-                <div className={`absolute right-0 mt-3 w-72 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in duration-150 text-xs`}>
+                <div className={`absolute right-0 mt-3 w-72 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] overflow-hidden animate-in fade-in duration-150 text-xs`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'} flex items-center gap-3`}>
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black shrink-0">
                       {artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0).toUpperCase() : 'P'}
