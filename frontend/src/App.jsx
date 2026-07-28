@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon } from "lucide-react"
+import { LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, LogOut as SignOut, Settings as SettingsIcon, ArrowUpRight, ArrowDownRight, MessageCircle } from "lucide-react"
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
@@ -31,12 +31,10 @@ function App() {
   const [chargement, setChargement] = useState(false)
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
 
-  // États pour les fonctionnalités interactives ajoutées
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [rechercheGlobale, setRechercheGlobale] = useState('')
   const searchInputRef = useRef(null)
 
-  // Raccourci clavier Ctrl+K pour la recherche
   useEffect(() => {
     const gererRaccourciClavier = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -48,11 +46,9 @@ function App() {
     return () => window.removeEventListener('keydown', gererRaccourciClavier);
   }, []);
 
-  // États pour les popups du header (Notifications et Profil)
   const [menuNotifOuvert, setMenuNotifOuvert] = useState(false)
   const [menuProfilOuvert, setMenuProfilOuvert] = useState(false)
 
-  // Génération dynamique des années
   const anneeActuelleReelle = new Date().getFullYear();
   const anneesDisponibles = [];
   for (let y = 2026; y <= anneeActuelleReelle; y++) {
@@ -60,7 +56,6 @@ function App() {
   }
   const [anneeSelectionnee, setAnneeSelectionnee] = useState(anneeActuelleReelle);
 
-  // États facturation & modale
   const [modeFacturation, setModeFacturation] = useState('horaire')
   const [montantForfait, setMontantForfait] = useState('')
   const [montantMateriel, setMontantMateriel] = useState('')
@@ -321,7 +316,6 @@ function App() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#0a0f1d] text-slate-50' : 'bg-slate-100 text-slate-900'} flex font-sans relative overflow-hidden transition-colors`}>
       
-      {/* MODALE AJOUT MANUEL */}
       {modalAjoutOuvert && (
         <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className={`w-full max-w-lg ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
@@ -345,7 +339,6 @@ function App() {
         </div>
       )}
 
-      {/* MODALE FICHE CLIENT */}
       {prospectSelectionne && (
         <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className={`w-full max-w-4xl h-[85vh] ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl flex flex-col overflow-hidden rounded-2xl`}>
@@ -429,10 +422,9 @@ function App() {
       {/* CONTENU PRINCIPAL */}
       <main className={`flex-1 p-6 lg:p-10 overflow-y-auto relative z-0 ${isDarkMode ? 'bg-[#0a0f1d]' : 'bg-slate-100'} transition-colors`}>
         
-        {/* TOP BAR AVEC RELATIVE Z-50 POUR QUE LES MENUS RESTENT AU PREMIER PLAN */}
+        {/* TOP BAR */}
         <header className={`mb-8 flex items-center justify-between gap-4 ${isDarkMode ? 'bg-[#111827]/60 border-slate-800/60' : 'bg-white/80 border-slate-200 shadow-sm'} p-4 rounded-2xl border backdrop-blur-sm shadow-md transition-colors relative z-50`}>
           
-          {/* BARRE DE RECHERCHE GLOBALE FONCTIONNELLE */}
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
             <Input 
@@ -448,7 +440,6 @@ function App() {
               </button>
             )}
 
-            {/* RÉSULTATS DE RECHERCHE DÉROULANTS */}
             {resultatsRechercheGlobale.length > 0 && (
               <div className={`absolute left-0 right-0 mt-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] max-h-64 overflow-y-auto`}>
                 <div className="p-2 border-b border-slate-700/50 text-[10px] text-slate-400 uppercase tracking-wider font-bold">Clients correspondants</div>
@@ -471,7 +462,6 @@ function App() {
 
           <div className="flex items-center gap-4 relative">
             
-            {/* BOUTON CLOCHE NOTIFICATIONS */}
             <div className="relative">
               <button 
                 onClick={() => { setMenuNotifOuvert(!menuNotifOuvert); setMenuProfilOuvert(false); }}
@@ -481,7 +471,6 @@ function App() {
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               </button>
 
-              {/* POPUP NOTIFICATIONS AVEC Z-INDEX ÉLEVÉ */}
               {menuNotifOuvert && (
                 <div className={`absolute right-0 mt-3 w-80 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] overflow-hidden animate-in fade-in duration-150`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'} flex items-center justify-between`}>
@@ -498,7 +487,6 @@ function App() {
               )}
             </div>
 
-            {/* BOUTON MODE CLAIR / SOMBRE */}
             <button 
               onClick={() => setIsDarkMode(!isDarkMode)}
               className={`w-10 h-10 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-800 text-amber-400 hover:border-emerald-500/50' : 'bg-slate-50 border-slate-300 text-slate-700 hover:border-emerald-500/50'} border flex items-center justify-center transition-all`}
@@ -507,7 +495,6 @@ function App() {
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-slate-700" />}
             </button>
 
-            {/* BOUTON PROFIL / AVATAR */}
             <div className="relative">
               <button 
                 onClick={() => { setMenuProfilOuvert(!menuProfilOuvert); setMenuNotifOuvert(false); }}
@@ -516,7 +503,6 @@ function App() {
                 {artisanConnecte?.nom_entreprise ? artisanConnecte.nom_entreprise.charAt(0).toUpperCase() : 'P'}
               </button>
 
-              {/* POPUP PROFIL AVEC Z-INDEX ÉLEVÉ */}
               {menuProfilOuvert && (
                 <div className={`absolute right-0 mt-3 w-72 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] overflow-hidden animate-in fade-in duration-150 text-xs`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-200'} flex items-center gap-3`}>
@@ -565,14 +551,11 @@ function App() {
         {/* VUE TABLEAU DE BORD (DASHBOARD) */}
         {vueActuelle === 'dashboard' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-black tracking-tight">Tableau de bord</h2>
                 <p className="text-xs text-slate-400 mt-1">Vue d'ensemble de votre activité professionnelle.</p>
               </div>
-              
-              {/* SÉLECTEUR D'ANNÉE DYNAMIQUE AUTOMATIQUE */}
               <div className="flex items-center">
                 <select 
                   value={anneeSelectionnee} 
@@ -586,7 +569,6 @@ function App() {
               </div>
             </div>
 
-            {/* GRILLE DES 4 CARTES FINANCIÈRES PRINCIPALES INTERACTIVES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card onClick={() => setVueActuelle('finances')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-emerald-500/50 hover:scale-[1.02] cursor-pointer`}>
                 <div className="flex justify-between items-start">
@@ -633,7 +615,6 @@ function App() {
               </Card>
             </div>
 
-            {/* SECONDE LIGNE DE STATS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card onClick={() => setVueActuelle('devis')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-blue-500/50 hover:scale-[1.02] cursor-pointer`}>
                 <div className="flex justify-between items-start">
@@ -680,10 +661,7 @@ function App() {
               </Card>
             </div>
 
-            {/* SECTION ACTIONS RAPIDES ET PIPELINE CRM */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* PIPELINE CRM INTERACTIF */}
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl flex flex-col justify-between transition-all hover:border-emerald-500/40`}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5">
@@ -703,7 +681,6 @@ function App() {
                 </div>
               </Card>
 
-              {/* BOUTONS ACTIONS RAPIDES */}
               <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border p-6 rounded-2xl shadow-xl flex flex-col justify-between`}>
                 <h3 className="text-sm font-bold mb-4">Actions rapides</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -725,13 +702,9 @@ function App() {
                   </Button>
                 </div>
               </div>
-
             </div>
 
-            {/* GRAPHIQUES */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
-              {/* ÉVOLUTION DU CA */}
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30`}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold">Évolution du CA ({anneeSelectionnee})</h3>
@@ -770,7 +743,6 @@ function App() {
                 </div>
               </Card>
 
-              {/* ACTIVITÉ MENSUELLE */}
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl relative overflow-hidden transition-all hover:border-emerald-500/30`}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold">Activité mensuelle ({anneeSelectionnee})</h3>
@@ -810,10 +782,8 @@ function App() {
                   {MOIS_ANNEE.map((m, i) => <span key={i}>{m}</span>)}
                 </div>
               </Card>
-
             </div>
 
-            {/* SECTION TOP 5 CLIENTS & RÉPARTITION */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl h-64 flex flex-col justify-between transition-all hover:border-emerald-500/30`}>
                 <div className="flex items-center gap-2"><Users className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold">Top 5 clients ({anneeSelectionnee})</h3></div>
@@ -825,7 +795,6 @@ function App() {
               </Card>
             </div>
 
-            {/* INDICATEURS CLÉS FINAUX */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card onClick={() => setVueActuelle('factures')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl text-center transition-all hover:scale-[1.02] hover:border-emerald-500/40 cursor-pointer`}>
                 <p className="text-xs text-slate-400 font-medium">Facture moyenne</p>
@@ -840,7 +809,102 @@ function App() {
                 <h4 className="text-3xl font-black text-blue-500 mt-2">{prospectsActifs.length}</h4>
               </Card>
             </div>
+          </div>
+        )}
 
+        {/* VUE TRÉSORERIE / FINANCES (NOUVEAU MODULE CONCRET ET TERRAIN) */}
+        {vueActuelle === 'finances' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-2xl font-black tracking-tight">Trésorerie & Finances</h2>
+              <p className="text-xs text-slate-400 mt-1">Suivi de vos encaissements réels et gestion des impayés sur le terrain.</p>
+            </div>
+
+            {/* BLOCS DE SYNTHÈSE TRÉSORERIE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Trésorerie Encaissée</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-emerald-500">{totalCA}€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Chantiers soldés</p>
+                  </div>
+                  <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-500"><ArrowUpRight className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">En attente d'encaissement</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-blue-500">{caEnAttente}€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Factures en cours</p>
+                  </div>
+                  <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500"><Clock className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Factures en retard (Impayés)</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-red-500">0€</h3>
+                    <p className="text-[10px] text-red-500 mt-1">0 client à relancer</p>
+                  </div>
+                  <div className="bg-red-500/10 p-2.5 rounded-xl text-red-500"><ShieldAlert className="w-5 h-5"/></div>
+                </div>
+              </Card>
+
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium">Charges Fournisseurs</p>
+                    <h3 className="text-2xl font-extrabold mt-1 text-amber-400">0€</h3>
+                    <p className="text-[10px] text-slate-400 mt-1">Matériel & fournitures</p>
+                  </div>
+                  <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400"><ArrowDownRight className="w-5 h-5"/></div>
+                </div>
+              </Card>
+            </div>
+
+            {/* TABLEAU DES CRÉANCES & RELANCE WHATSAPP RAPIDE */}
+            <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl p-6 shadow-xl space-y-4`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold">Suivi des encaissements & Relances</h3>
+                  <p className="text-xs text-slate-400">Cliquez pour envoyer une relance instantanée par message aux clients.</p>
+                </div>
+                <Button onClick={() => setVueActuelle('clients')} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl">Voir tous les clients</Button>
+              </div>
+
+              <div className="divide-y divide-slate-800/50">
+                {prospectsActifs.length === 0 ? (
+                  <div className="text-center py-12 text-xs text-slate-500">Aucun chantier ou facture en attente de paiement pour le moment. Tout est à jour !</div>
+                ) : (
+                  prospectsActifs.map(client => (
+                    <div key={client.id} className="py-3 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">{client.nom.charAt(0)}</div>
+                        <div>
+                          <h4 className="text-xs font-bold">{client.nom}</h4>
+                          <p className="text-[11px] text-slate-400">{client.probleme} • Tél : {client.telephone}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-extrabold text-amber-400">{prixMoyenDemande}€ estimés</span>
+                        <Button 
+                          onClick={() => window.open(`https://wa.me/${client.telephone.replace(/\s+/g, '')}?text=Bonjour%20${encodeURIComponent(client.nom)},%20sauf%20erreur%20de%20ma%20part,%20le%20règlement%20pour%20notre%20intervention%20est%20en%20attente.%20Merci%20de%20votre%20retour!`)} 
+                          size="sm" 
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-semibold flex items-center gap-1.5"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5"/> Relancer WhatsApp
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -919,8 +983,8 @@ function App() {
           </div>
         )}
 
-        {/* VUES EN ATTENTE */}
-        {['finances', 'crm', 'devis', 'factures'].includes(vueActuelle) && (
+        {/* VUES EN ATTENTE POUR LES AUTRES MODULES */}
+        {['crm', 'devis', 'factures'].includes(vueActuelle) && (
           <div className="h-[70vh] flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-300">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-4 shadow-lg"><Wrench className="w-8 h-8"/></div>
             <h3 className="text-xl font-bold capitalize">Module {vueActuelle}</h3>
