@@ -429,8 +429,8 @@ function App() {
       {/* CONTENU PRINCIPAL */}
       <main className={`flex-1 p-6 lg:p-10 overflow-y-auto relative z-0 ${isDarkMode ? 'bg-[#0a0f1d]' : 'bg-slate-100'} transition-colors`}>
         
-        {/* TOP BAR */}
-        <header className={`mb-8 flex items-center justify-between gap-4 ${isDarkMode ? 'bg-[#111827]/60 border-slate-800/60' : 'bg-white/80 border-slate-200 shadow-sm'} p-4 rounded-2xl border backdrop-blur-sm shadow-md transition-colors`}>
+        {/* TOP BAR AVEC RELATIVE Z-50 POUR QUE LES MENUS RESTENT AU PREMIER PLAN */}
+        <header className={`mb-8 flex items-center justify-between gap-4 ${isDarkMode ? 'bg-[#111827]/60 border-slate-800/60' : 'bg-white/80 border-slate-200 shadow-sm'} p-4 rounded-2xl border backdrop-blur-sm shadow-md transition-colors relative z-50`}>
           
           {/* BARRE DE RECHERCHE GLOBALE FONCTIONNELLE */}
           <div className="relative w-full max-w-sm">
@@ -450,7 +450,7 @@ function App() {
 
             {/* RÉSULTATS DE RECHERCHE DÉROULANTS */}
             {resultatsRechercheGlobale.length > 0 && (
-              <div className={`absolute left-0 right-0 mt-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-50 max-h-64 overflow-y-auto`}>
+              <div className={`absolute left-0 right-0 mt-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border rounded-2xl shadow-2xl z-[999] max-h-64 overflow-y-auto`}>
                 <div className="p-2 border-b border-slate-700/50 text-[10px] text-slate-400 uppercase tracking-wider font-bold">Clients correspondants</div>
                 {resultatsRechercheGlobale.map(client => (
                   <div 
@@ -935,3 +935,4 @@ function App() {
 }
 
 export default App
+
