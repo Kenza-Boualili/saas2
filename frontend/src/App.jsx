@@ -50,6 +50,19 @@ function App() {
 
 
   const [modalTacheOuvert, setModalTacheOuvert] = useState(false);
+
+  const [vueEmail, setVueEmail] = useState('envoyes'); // 'envoyes', 'composer', 'templates'
+  const [emailsEnvoyes, setEmailsEnvoyes] = useState([]);
+  const [filtreTypeEmail, setFiltreTypeEmail] = useState('Tous');
+  const [formEmail, setFormEmail] = useState({ destinataire: '', sujet: '', message: '', type: 'Devis' });
+  const [modalTemplateConfig, setModalTemplateConfig] = useState(false);
+  const [templateEnCours, setTemplateEnCours] = useState(null);
+  const [templatesEmails, setTemplatesEmails] = useState([
+    { id: 1, titre: 'Envoi de devis', desc: 'Email automatique lors de l\'envoi d\'un devis', actif: true, sujet: 'Votre devis n°{devis.numero}', contenu: 'Bonjour {client.prenom} {client.nom},\n\nSuite à notre échange, veuillez trouver ci-joint votre devis n°{devis.numero} d\'un montant de {devis.montant_ttc}.\n\nCordialement,\n{entreprise.nom}' },
+    { id: 2, titre: 'Relance devis', desc: 'Rappel pour relancer un devis non signé', actif: true, sujet: 'Relance : Devis n°{devis.numero}', contenu: 'Bonjour {client.prenom},\n\nSauf erreur de notre part, nous n\'avons pas reçu votre retour concernant le devis n°{devis.numero}.\n\nCordialement,\n{entreprise.nom}' },
+    { id: 3, titre: 'Envoi de facture', desc: 'Email automatique lors de l\'envoi d\'une facture', actif: true, sujet: 'Facture n°{facture.numero}', contenu: 'Bonjour {client.prenom},\n\nVeuillez trouver ci-joint votre facture n°{facture.numero}.\n\nCordialement,\n{entreprise.nom}' }
+  ]);
+  
   const [taches, setTaches] = useState([]);
   const [ongletTaches, setOngletTaches] = useState('Toutes');
   const [formTache, setFormTache] = useState({
