@@ -3013,35 +3013,37 @@ function App() {
           </div>
         )}
 
-        {vueActuelle === 'reglages' && (
-          <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl mx-auto">
-            <h2 className="text-2xl font-black tracking-tight">Configuration de l'entreprise</h2>
-            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl`}>
-              <form onSubmit={sauvegarderProfil} className="space-y-4 text-xs">
-                <div>
-                  <label className="text-slate-400 font-medium">Nom de l'entreprise</label>
-                  <Input value={profil.nom_entreprise} onChange={e => setProfil({...profil, nom_entreprise: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-slate-400 font-medium">Tarif horaire (€)</label>
-                    <Input type="number" value={profil.tarif_horaire} onChange={e => setProfil({...profil, tarif_horaire: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
-                  </div>
-                  <div>
-                    <label className="text-slate-400 font-medium">Tarif déplacement (€)</label>
-                    <Input type="number" value={profil.tarif_deplacement} onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
-                  </div>
-                </div>
-               {messageSauvegarde && <p className="text-emerald-400 font-semibold">{messageSauvegarde}</p>}
-                <div className="pt-4 flex justify-end">
-                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs"><Save className="w-4 h-4 mr-2"/> Enregistrer</Button>
-                </div>
-              </form>
-            </Card>
-          </div>
-        )}
+      {vueActuelle === 'reglages' && (
+              <div className="space-y-6 animate-in fade-in duration-300 max-w-2xl mx-auto">
+                <h2 className="text-2xl font-black tracking-tight">Configuration de l'entreprise</h2>
+                <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl`}>
+                  <form onSubmit={sauvegarderProfil} className="space-y-4 text-xs">
+                    <div>
+                      <label className="text-slate-400 font-medium">Nom de l'entreprise</label>
+                      <Input value={profil.nom_entreprise} onChange={e => setProfil({...profil, nom_entreprise: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-slate-400 font-medium">Tarif horaire (€)</label>
+                        <Input type="number" value={profil.tarif_horaire} onChange={e => setProfil({...profil, tarif_horaire: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                      </div>
+                      <div>
+                        <label className="text-slate-400 font-medium">Tarif déplacement (€)</label>
+                        <Input type="number" value={profil.tarif_deplacement} onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
+                      </div>
+                    </div>
+                    {messageSauvegarde && <p className="text-emerald-400 font-semibold">{messageSauvegarde}</p>}
+                    <div className="pt-4 flex justify-end">
+                      <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs"><Save className="w-4 h-4 mr-2"/> Enregistrer</Button>
+                    </div>
+                  </form>
+                </Card>
+              </div>
+            )}
 
-        </div>  
+          </div>
+        </div>
+
       </main>
     </div>
   )
