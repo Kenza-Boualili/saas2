@@ -1744,11 +1744,12 @@ function App() {
             </div>
           </div>
         )}
+        
 {/* MODULE FOURNISSEURS & APPROVISIONNEMENT FONCTIONNEL */}
         {vueActuelle === 'fournisseurs' && (
           <div className="space-y-6 animate-in fade-in duration-300 relative">
             
-            {/* MODALE AJOUT FOURNISSEUR */}
+            {/* MODALE AJOUT FOURnisseur */}
             {modalFournisseurOuvert && (
               <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                 <Card className={`w-full max-w-lg ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
