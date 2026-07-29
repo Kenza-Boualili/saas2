@@ -1744,10 +1744,54 @@ function App() {
             </div>
           </div>
         )}
-
-        {/* MODULE FOURNISSEURS & APPROVISIONNEMENT */}
+{/* MODULE FOURNISSEURS & APPROVISIONNEMENT FONCTIONNEL */}
         {vueActuelle === 'fournisseurs' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
+            
+            {/* MODALE AJOUT FOURNISSEUR */}
+            {modalFournisseurOuvert && (
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <Card className={`w-full max-w-lg ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+                  <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2"><Truck className="w-5 h-5 text-cyan-400"/> Nouveau fournisseur</CardTitle>
+                    <Button variant="ghost" onClick={() => setModalFournisseurOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!formFournisseur.nom) return;
+                      setFournisseurs([...fournisseurs, { ...formFournisseur, id: Date.now() }]);
+                      setFormFournisseur({ nom: '', activite: '', email: '', telephone: '' });
+                      setModalFournisseurOuvert(false);
+                    }} className="space-y-4 text-xs">
+                      <div>
+                        <label className="text-slate-400 font-medium">Nom de l'entreprise *</label>
+                        <Input value={formFournisseur.nom} onChange={e => setFormFournisseur({...formFournisseur, nom: e.target.value})} placeholder="ex: Leroy Merlin Pro" className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                      </div>
+                      <div>
+                        <label className="text-slate-400 font-medium">Activité / Spécialité</label>
+                        <Input value={formFournisseur.activite} onChange={e => setFormFournisseur({...formFournisseur, activite: e.target.value})} placeholder="ex: Matériaux de construction" className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-400 font-medium">Email</label>
+                          <Input value={formFournisseur.email} onChange={e => setFormFournisseur({...formFournisseur, email: e.target.value})} placeholder="contact@fournisseur.com" className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} />
+                        </div>
+                        <div>
+                          <label className="text-slate-400 font-medium">Téléphone</label>
+                          <Input value={formFournisseur.telephone} onChange={e => setFormFournisseur({...formFournisseur, telephone: e.target.value})} placeholder="01 23 45 67 89" className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} />
+                        </div>
+                      </div>
+                      <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                        <Button type="button" variant="outline" onClick={() => setModalFournisseurOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                        <Button type="submit" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold h-10 px-5 text-xs shadow-lg">Enregistrer</Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
@@ -1758,16 +1802,15 @@ function App() {
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">Centralisez vos fournisseurs et prestataires. Créez des bons de commande professionnels.</p>
               </div>
-              <Button onClick={() => alert("Ouverture du formulaire d'ajout fournisseur")} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-cyan-500/30 flex items-center gap-2">
+              <Button onClick={() => setModalFournisseurOuvert(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-cyan-500/30 flex items-center gap-2">
                 <Plus className="w-4 h-4"/> Nouveau fournisseur
               </Button>
             </div>
 
-            {/* Statistiques rapides */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className={`${isDarkMode ? 'bg-[#111827] border-cyan-500/20 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-cyan-500`}>
                 <p className="text-xs text-slate-400 font-medium">Fournisseurs enregistrés</p>
-                <h3 className="text-2xl font-black mt-1 text-cyan-400">0</h3>
+                <h3 className="text-2xl font-black mt-1 text-cyan-400">{fournisseurs.length}</h3>
                 <p className="text-[10px] text-slate-500 mt-1">Partenaires actifs</p>
               </Card>
               <Card className={`${isDarkMode ? 'bg-[#111827] border-blue-500/20 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl border-l-4 border-l-blue-500`}>
@@ -1782,27 +1825,33 @@ function App() {
               </Card>
             </div>
 
-            {/* Barre de recherche et tableau vide stylisé */}
-            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
-              <div className="relative flex-1 w-full">
-                <Search className="absolute left-3.5 top-3 w-4 h-4 text-cyan-400" />
-                <Input placeholder="Rechercher un fournisseur par nom, activité ou email..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-cyan-500`} />
+            {fournisseurs.length === 0 ? (
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4 relative overflow-hidden`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-inner">
+                  <ShoppingCart className="w-8 h-8"/>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-white">Aucun fournisseur répertorié</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">Commencez par ajouter vos fournisseurs de matériel pour éditer vos bons de commande.</p>
+                </div>
+                <Button onClick={() => setModalFournisseurOuvert(true)} className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-cyan-500/30">
+                  <Plus className="w-4 h-4 mr-2"/> Ajouter un fournisseur
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {fournisseurs.map(f => (
+                  <Card key={f.id} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl space-y-2`}>
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-sm text-cyan-400">{f.nom}</h4>
+                      <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full font-semibold">{f.activite || 'Général'}</span>
+                    </div>
+                    <p className="text-xs text-slate-400">📧 {f.email || 'N/A'} • 📞 {f.telephone || 'N/A'}</p>
+                  </Card>
+                ))}
               </div>
-            </div>
-
-            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4 relative overflow-hidden`}>
-              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-inner">
-                <ShoppingCart className="w-8 h-8"/>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">Aucun fournisseur répertorié</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">Commencez par ajouter vos fournisseurs de matériel pour éditer vos bons de commande.</p>
-              </div>
-              <Button onClick={() => alert("Formulaire d'ajout ouvert")} className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-cyan-500/30">
-                <Plus className="w-4 h-4 mr-2"/> Ajouter un fournisseur
-              </Button>
-            </Card>
+            )}
           </div>
         )}
 {/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
