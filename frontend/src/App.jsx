@@ -2216,6 +2216,144 @@ function App() {
             </div>
           </div>
         )}
+
+      {/* MODULE TÂCHES & PRODUCTIVITÉ (DESIGN UNIQUE) */}
+        {vueActuelle === 'taches' && (
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
+
+            {/* MODALE CRÉATION DE TÂCHE */}
+            {modalTacheOuvert && (
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <Card className={`w-full max-w-lg ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+                  <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2"><CheckSquare className="w-5 h-5 text-emerald-400"/> Nouvelle tâche</CardTitle>
+                    <Button variant="ghost" onClick={() => setModalTacheOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!formTache.titre) return;
+                      setTaches([...taches, { ...formTache, id: Date.now() }]);
+                      setFormTache({ titre: '', echeance: '', client: 'Aucun client', deal: 'Aucun deal', terminee: false });
+                      setModalTacheOuvert(false);
+                    }} className="space-y-4 text-xs">
+                      
+                      <div>
+                        <label className="text-slate-400 font-medium">Titre *</label>
+                        <Input value={formTache.titre} onChange={e => setFormTache({...formTache, titre: e.target.value})} placeholder="Ex: Rappeler le client pour validation devis" className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 font-medium">Échéance (optionnel)</label>
+                        <Input type="date" value={formTache.echeance} onChange={e => setFormTache({...formTache, echeance: e.target.value})} className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} />
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 font-medium">Lier à un client (optionnel)</label>
+                        <select value={formTache.client} onChange={e => setFormTache({...formTache, client: e.target.value})} className={`w-full h-10 mt-1 px-3 rounded-xl border ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}>
+                          <option value="Aucun client">Aucun client</option>
+                          <option value="Client A (Jean Dupont)">Client A (Jean Dupont)</option>
+                          <option value="Client B (Marie Curie)">Client B (Marie Curie)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 font-medium">Lier à un deal (optionnel)</label>
+                        <select value={formTache.deal} onChange={e => setFormTache({...formTache, deal: e.target.value})} className={`w-full h-10 mt-1 px-3 rounded-xl border ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}>
+                          <option value="Aucun deal">Aucun deal</option>
+                          <option value="Chantier Rénovation Villa">Chantier Rénovation Villa</option>
+                          <option value="Installation Électrique">Installation Électrique</option>
+                        </select>
+                      </div>
+
+                      <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                        <Button type="button" variant="outline" onClick={() => setModalTacheOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                        <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg">Créer la tâche</Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* EN-TÊTE TÂCHES */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/20">
+                    <CheckSquare className="w-5 h-5"/>
+                  </div>
+                  Gestion des tâches
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">{taches.filter(t => !t.terminee).length} tâche(s) en cours</p>
+              </div>
+              <Button onClick={() => setModalTacheOuvert(true)} className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                <Plus className="w-4 h-4"/> Nouvelle tâche
+              </Button>
+            </div>
+
+            {/* ONGLETS DE FILTRAGE DES TÂCHES */}
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+              {['Toutes', 'Aujourd\'hui', 'En retard', 'Terminées'].map(onglet => (
+                <button 
+                  key={onglet}
+                  onClick={() => setOngletTaches(onglet)}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${ongletTaches === onglet ? 'bg-emerald-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+                >
+                  {onglet}
+                </button>
+              ))}
+            </div>
+
+            {/* LISTE DES TÂCHES OU ÉTAT VIDE */}
+            {taches.length === 0 ? (
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4 relative overflow-hidden`}>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+                  <CheckSquare className="w-8 h-8"/>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-white">Aucune tâche enregistrée</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">Créez votre première tâche pour organiser vos journées de travail.</p>
+                </div>
+                <Button onClick={() => setModalTacheOuvert(true)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg">
+                  <Plus className="w-4 h-4 mr-2"/> Créer une tâche
+                </Button>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {taches
+                  .filter(t => {
+                    if (ongletTaches === 'Terminées') return t.terminee;
+                    if (ongletTaches === 'En cours') return !t.terminee;
+                    return true;
+                  })
+                  .map(tache => (
+                    <div key={tache.id} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border flex items-center justify-between text-xs`}>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => {
+                            setTaches(taches.map(item => item.id === tache.id ? {...item, terminee: !item.terminee} : item));
+                          }}
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${tache.terminee ? 'bg-emerald-500 border-emerald-500 text-slate-950 font-bold' : 'border-slate-600 hover:border-emerald-500'}`}
+                        >
+                          {tache.terminee && '✓'}
+                        </button>
+                        <div>
+                          <p className={`font-bold ${tache.terminee ? 'line-through text-slate-500' : 'text-white'}`}>{tache.titre}</p>
+                          <p className="text-[10px] text-slate-400">👤 {tache.client} {tache.deal !== 'Aucun deal' && `• 💼 ${tache.deal}`}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 font-semibold">{tache.echeance || 'Aucune échéance'}</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+          </div>
+        )}
+        
 {/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
         {vueActuelle === 'factures' && (
           <div className="space-y-6 animate-in fade-in duration-300">
