@@ -23,6 +23,23 @@ function App() {
   const [modalFournisseurOuvert, setModalFournisseurOuvert] = useState(false);
   const [fournisseurs, setFournisseurs] = useState([]);
   const [formFournisseur, setFormFournisseur] = useState({ nom: '', activite: '', email: '', telephone: '' });
+  const [modalRDVOuvert, setModalRDVOuvert] = useState(false);
+  const [modalSyncOuvert, setModalSyncOuvert] = useState(false);
+  const [rendezVous, setRendezVous] = useState([]);
+  const [filtreRDV, setFiltreRDV] = useState('Tous');
+  const [formRDV, setFormRDV] = useState({
+    client: '',
+    titre: '',
+    description: '',
+    lieu: '',
+    date: '01/07/2026',
+    heureDebut: '09:00',
+    heureFin: '10:00',
+    statut: 'Prévu',
+    rappel: true,
+    suiviPostRDV: false,
+    delaiPostRDV: '24 heures après'
+  });
   
   const [email, setEmail] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
