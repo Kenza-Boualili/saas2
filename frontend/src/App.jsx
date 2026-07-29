@@ -3029,7 +3029,7 @@ function App() {
                     <Input type="number" value={profil.tarif_deplacement} onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-10 mt-1`} />
                   </div>
                 </div>
-                {messageSauvegarde && <p className="text-emerald-400 font-semibold">{messageSauvegarde}</p>}
+               {messageSauvegarde && <p className="text-emerald-400 font-semibold">{messageSauvegarde}</p>}
                 <div className="pt-4 flex justify-end">
                   <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-10 px-5 text-xs"><Save className="w-4 h-4 mr-2"/> Enregistrer</Button>
                 </div>
@@ -3038,6 +3038,7 @@ function App() {
           </div>
         )}
 
+        </div>  
       </main>
     </div>
   )
