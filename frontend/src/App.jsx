@@ -52,6 +52,13 @@ function App() {
   const [modalTacheOuvert, setModalTacheOuvert] = useState(false);
 
   const [vueEmail, setVueEmail] = useState('envoyes'); // 'envoyes', 'composer', 'templates'
+
+  const [ongletArchives, setOngletArchives] = useState('Tous');
+  const [archives, setArchives] = useState([
+    { id: 1, nom: 'odslf', email: 'kenza.bll78@gmail.com', type: 'Client', date: '28/07/2026', montant: '—' }
+  ]);
+  const [menuActionId, setMenuActionId] = useState(null);
+  
   const [emailsEnvoyes, setEmailsEnvoyes] = useState([]);
   const [filtreTypeEmail, setFiltreTypeEmail] = useState('Tous');
   const [formEmail, setFormEmail] = useState({ destinataire: '', sujet: '', message: '', type: 'Devis' });
