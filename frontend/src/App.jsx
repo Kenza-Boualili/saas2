@@ -1864,6 +1864,244 @@ function App() {
           </div>
         )}
 
+
+    {/* MODULE PLANNING & AGENDA AVANCÉ (DESIGN UNIQUE) */}
+        {vueActuelle === 'planning' && (
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
+
+            {/* MODALE DE SYNCHRONISATION CALENDRIER */}
+            {modalSyncOuvert && (
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <Card className={`w-full max-w-xl ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+                  <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2"><Calendar className="w-5 h-5 text-amber-400"/> Synchronisation calendrier</CardTitle>
+                    <Button variant="ghost" onClick={() => setModalSyncOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5 text-xs">
+                    <p className="text-slate-400">Synchronisez votre planning avec votre calendrier iPhone, Android ou Outlook.</p>
+                    
+                    <div className="space-y-2">
+                      <label className="font-bold text-white">Lien d'abonnement</label>
+                      <div className="flex items-center gap-2">
+                        <Input readOnly value="webcal://artisanpro.app/api/calendar/feed/cms4mzqe40000jr045xj0f97y" className={`h-10 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-300'}`} />
+                        <Button onClick={() => alert("Lien copié dans le presse-papier !")} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-4">Copier</Button>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-slate-300 space-y-1">
+                      <p className="font-bold text-amber-400">iPhone / iPad :</p>
+                      <p>1. Ouvrez Réglages → Calendrier → Comptes<br/>2. Touchez "Ajouter un compte" → "Autre" → "S'abonner à un calendrier"<br/>3. Collez le lien ci-dessus et enregistrez.</p>
+                    </div>
+
+                    <div className="pt-2 flex justify-end">
+                      <Button onClick={() => setModalSyncOuvert(false)} className="bg-slate-800 hover:bg-slate-700 text-white font-bold h-10 px-5">Fermer</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* MODALE CRÉATION RENDEZ-VOUS */}
+            {modalRDVOuvert && (
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                <Card className={`w-full max-w-2xl ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl my-8`}>
+                  <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800">
+                    <div>
+                      <CardTitle className="text-lg font-bold flex items-center gap-2"><Plus className="w-5 h-5 text-amber-400"/> Nouveau rendez-vous</CardTitle>
+                      <p className="text-xs text-slate-400 mt-1">Planifiez une intervention ou un rendez-vous client</p>
+                    </div>
+                    <Button variant="ghost" onClick={() => setModalRDVOuvert(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                  </CardHeader>
+                  <CardContent className="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!formRDV.titre) return;
+                      setRendezVous([...rendezVous, { ...formRDV, id: Date.now() }]);
+                      setModalRDVOuvert(false);
+                    }} className="space-y-5 text-xs">
+                      
+                      <div className="space-y-2">
+                        <label className="text-slate-400 font-medium">Client *</label>
+                        <div className="p-3 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl">
+                          Aucun client trouvé. Créez votre premier client ou sélectionnez-en un.
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-slate-400 font-medium">Titre de l'intervention *</label>
+                        <Input value={formRDV.titre} onChange={e => setFormRDV({...formRDV, titre: e.target.value})} placeholder="Ex: Installation tableau électrique" className={`h-10 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-slate-400 font-medium">Description</label>
+                        <textarea value={formRDV.description} onChange={e => setFormRDV({...formRDV, description: e.target.value})} placeholder="Détails de l'intervention..." className={`w-full p-3 h-20 rounded-xl border outline-none resize-none ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}></textarea>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="text-slate-400 font-medium">Date *</label>
+                          <Input value={formRDV.date} onChange={e => setFormRDV({...formRDV, date: e.target.value})} className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                        </div>
+                        <div>
+                          <label className="text-slate-400 font-medium">Heure de début *</label>
+                          <Input value={formRDV.heureDebut} onChange={e => setFormRDV({...formRDV, heureDebut: e.target.value})} className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                        </div>
+                        <div>
+                          <label className="text-slate-400 font-medium">Heure de fin *</label>
+                          <Input value={formRDV.heureFin} onChange={e => setFormRDV({...formRDV, heureFin: e.target.value})} className={`h-10 mt-1 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 p-4 bg-[#0a0f1d] rounded-xl border border-slate-800">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-white">Rappel pré-RDV</p>
+                            <p className="text-[10px] text-slate-400">Envoyer un email de rappel automatique 24h avant</p>
+                          </div>
+                          <input type="checkbox" checked={formRDV.rappel} onChange={e => setFormRDV({...formRDV, rappel: e.target.checked})} className="w-4 h-4 accent-amber-500 cursor-pointer"/>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 p-4 bg-[#0a0f1d] rounded-xl border border-slate-800">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-white">Suivi post-RDV</p>
+                            <p className="text-[10px] text-slate-400">Envoyer un récapitulatif automatique après l'intervention</p>
+                          </div>
+                          <input type="checkbox" checked={formRDV.suiviPostRDV} onChange={e => setFormRDV({...formRDV, suiviPostRDV: e.target.checked})} className="w-4 h-4 accent-amber-500 cursor-pointer"/>
+                        </div>
+                        {formRDV.suiviPostRDV && (
+                          <div className="pt-2">
+                            <label className="text-slate-400 font-medium">Délai d'envoi</label>
+                            <select value={formRDV.delaiPostRDV} onChange={e => setFormRDV({...formRDV, delaiPostRDV: e.target.value})} className={`w-full h-10 mt-1 px-3 rounded-xl border ${isDarkMode ? 'bg-[#111827] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}>
+                              <option>1 heure après</option>
+                              <option>24 heures après</option>
+                              <option>48 heures après</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                        <Button type="button" variant="outline" onClick={() => setModalRDVOuvert(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                        <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg">Créer le rendez-vous</Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* EN-TÊTE PLANNING */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 shadow-lg shadow-amber-500/20">
+                    <Calendar className="w-5 h-5"/>
+                  </div>
+                  Planning des interventions
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Gérez vos rendez-vous, chantiers et rappels clients.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setModalSyncOuvert(true)} variant="outline" className={`border-slate-700 ${isDarkMode ? 'bg-[#111827] text-slate-200' : 'bg-white text-slate-800'} text-xs h-10 rounded-xl`}>
+                  <Calendar className="w-4 h-4 mr-2 text-amber-400"/> Sync Calendrier
+                </Button>
+                <Button onClick={() => setModalRDVOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2">
+                  <Plus className="w-4 h-4"/> Nouveau rendez-vous
+                </Button>
+              </div>
+            </div>
+
+            {/* BARRE DE FILTRAGE DES STATUTS */}
+            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex items-center justify-between gap-4`}>
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Filter className="w-4 h-4 text-amber-400" /> Filtrer par statut :
+              </div>
+              <div className="w-64">
+                <select value={filtreRDV} onChange={e => setFiltreRDV(e.target.value)} className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none font-semibold text-amber-400 cursor-pointer`}>
+                  <option value="Tous">⚡ Tous les RDV</option>
+                  <option value="Prévu">🔵 Prévu</option>
+                  <option value="En cours">🟡 En cours</option>
+                  <option value="Terminé">🟢 Terminé</option>
+                  <option value="Annulé">⚪ Annulé</option>
+                </select>
+              </div>
+            </div>
+
+            {/* GRILLE PRINCIPALE : CALENDRIER + PROCHAINS RDV */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Calendrier Mensuel Stylisé (2 colonnes) */}
+              <Card className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h3 className="text-sm font-bold text-white">Juillet 2026</h3>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setModalRDVOuvert(true)} className="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold text-xs h-8 px-3 rounded-lg">Aujourd'hui</Button>
+                  </div>
+                </div>
+
+                {/* Jours de la semaine */}
+                <div className="grid grid-cols-7 gap-2 text-center text-[11px] font-bold text-slate-400 uppercase">
+                  <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+                </div>
+
+                {/* Grille des 28-31 jours */}
+                <div className="grid grid-cols-7 gap-2">
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((jour) => (
+                    <div 
+                      key={jour} 
+                      onClick={() => setModalRDVOuvert(true)}
+                      className={`h-24 p-2 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${jour === 7 ? 'border-amber-500 bg-amber-500/10 shadow-md shadow-amber-900/20' : isDarkMode ? 'bg-[#0a0f1d]/60 border-slate-800 hover:border-slate-600' : 'bg-slate-50 border-slate-200 hover:border-slate-400'}`}
+                    >
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className={jour === 7 ? 'text-amber-400' : 'text-slate-300'}>{jour}</span>
+                        {jour === 7 && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>}
+                      </div>
+                      {jour === 7 && (
+                        <div className="text-[10px] bg-amber-500/20 text-amber-300 p-1 rounded font-semibold truncate">
+                          Chantier Élec
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Panneau Latéral : Prochains Rendez-vous */}
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Prochains rendez-vous</h3>
+                  <p className="text-xs text-slate-400">{rendezVous.length} rendez-vous ce mois</p>
+                </div>
+
+                {rendezVous.length === 0 ? (
+                  <div className="text-center py-16 space-y-3 border border-dashed border-slate-800 rounded-2xl">
+                    <Calendar className="w-8 h-8 text-slate-500 mx-auto"/>
+                    <p className="text-xs text-slate-400">Aucun rendez-vous ce mois</p>
+                    <Button onClick={() => setModalRDVOuvert(true)} className="bg-amber-500/20 text-amber-300 font-bold text-xs h-8 px-4 hover:bg-amber-500 hover:text-slate-950 transition-colors">
+                      Ajouter un RDV
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {rendezVous.map(rdv => (
+                      <div key={rdv.id} className="p-3 bg-[#0a0f1d] border border-slate-800 rounded-xl space-y-1 text-xs">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-amber-400">{rdv.titre}</span>
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{rdv.statut}</span>
+                        </div>
+                        <p className="text-slate-400">📅 {rdv.date} de {rdv.heureDebut} à {rdv.heureFin}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+
+            </div>
+          </div>
+        )}
+        
         {/* MODULE COMMANDES INDÉPENDANT (PRÊT POUR LA SUITE) */}
         {vueActuelle === 'commandes' && (
           <div className="space-y-6 animate-in fade-in duration-300">
