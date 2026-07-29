@@ -1864,6 +1864,8 @@ function App() {
                 </div>
               </div>
             )}
+            </div>
+      )}
         
        {/* MODULE DEVIS & CRÉATION DE DEVIS AVEC DESIGN AVANCÉ */}
         {vueActuelle === 'devis' && (
