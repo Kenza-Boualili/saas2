@@ -19,6 +19,10 @@ const MOIS_ANNEE = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "
 function App() {
   const [artisanConnecte, setArtisanConnecte] = useState(null)
   const [vueAuth, setVueAuth] = useState('connexion')
+
+  const [modalFournisseurOuvert, setModalFournisseurOuvert] = useState(false);
+  const [fournisseurs, setFournisseurs] = useState([]);
+  const [formFournisseur, setFormFournisseur] = useState({ nom: '', activite: '', email: '', telephone: '' });
   
   const [email, setEmail] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
