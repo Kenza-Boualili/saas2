@@ -1788,7 +1788,7 @@ function App() {
               ))}
             </div>
 
-            {/* TABLEAU DES ARCHIVES OU ÉTAT VIDE */}
+  {/* TABLEAU DES ARCHIVES OU ÉTAT VIDE */}
             {archives.filter(a => ongletArchives === 'Tous' || a.type === ongletArchives.slice(0, -1)).length === 0 ? (
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-20 rounded-2xl shadow-xl text-center space-y-4`}>
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center justify-center text-slate-400 shadow-inner">
@@ -1800,7 +1800,7 @@ function App() {
                 </div>
               </Card>
             ) : (
-              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border shadow-xl overflow-hidden`}>
+              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border shadow-xl overflow-visible`}>
                 <div className="grid grid-cols-5 p-4 text-xs font-bold text-slate-400 border-b border-slate-800">
                   <div>Élément</div>
                   <div>Type</div>
@@ -1864,9 +1864,6 @@ function App() {
                 </div>
               </div>
             )}
-
-          </div>
-        )}
         
        {/* MODULE DEVIS & CRÉATION DE DEVIS AVEC DESIGN AVANCÉ */}
         {vueActuelle === 'devis' && (
