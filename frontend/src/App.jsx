@@ -819,8 +819,7 @@ function App() {
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold px-3 mb-2">Outils</p>
             <nav className="space-y-1">
-              <button onClick={() => setVueActuelle('modeles')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'modeles' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100'}`}><FileText className="w-4 h-4" /> Modèles</button>
-           
+             
               <button onClick={() => setVueActuelle('emails')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'emails' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100'}`}><Mail className="w-4 h-4" /> Emails</button>
               
               <button onClick={() => setVueActuelle('archives')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'archives' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100'}`}><Archive className="w-4 h-4" /> Archives</button>
