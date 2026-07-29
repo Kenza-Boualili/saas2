@@ -40,6 +40,18 @@ function App() {
     suiviPostRDV: false,
     delaiPostRDV: '24 heures après'
   });
+
+
+  const [modalTacheOuvert, setModalTacheOuvert] = useState(false);
+  const [taches, setTaches] = useState([]);
+  const [ongletTaches, setOngletTaches] = useState('Toutes');
+  const [formTache, setFormTache] = useState({
+    titre: '',
+    echeance: '',
+    client: 'Aucun client',
+    deal: 'Aucun deal',
+    terminee: false
+  });
   
   const [email, setEmail] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
