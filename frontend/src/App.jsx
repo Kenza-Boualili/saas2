@@ -1886,7 +1886,73 @@ function App() {
             </Card>
           </div>
         )}
-        
+
+        {/* MODULE CATALOGUE PRODUITS & PRESTATIONS (DESIGN UNIQUE) */}
+        {vueActuelle === 'catalogue' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white shadow-lg shadow-purple-500/30">
+                    <Package className="w-5 h-5"/>
+                  </div>
+                  Catalogue & Prestations
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Bibliothèque intelligente de vos articles, fournitures et prestations par corps de métier.</p>
+              </div>
+              <Button onClick={() => alert("Ouverture du créateur de produit catalogue")} className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-purple-500/30 flex items-center gap-2">
+                <Plus className="w-4 h-4"/> Ajouter au catalogue
+              </Button>
+            </div>
+
+            {/* Barre de recherche et filtres de métiers originaux */}
+            <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-purple-400" />
+                <Input placeholder="Rechercher une prestation, un matériel..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-purple-500`} />
+              </div>
+
+              <div className="w-full md:w-60">
+                <select className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer focus:border-purple-500 font-semibold text-purple-400`}>
+                  <option value="Tous">⚡ Tous les métiers (1 394)</option>
+                  <option value="Electricien">⚡ Électricien (268)</option>
+                  <option value="Plombier">🔧 Plombier (203)</option>
+                  <option value="Maçon">🧱 Maçon (155)</option>
+                  <option value="Peintre">🎨 Peintre (132)</option>
+                  <option value="Menuisier">🪵 Menuisier (88)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Grille de cartes de prestations innovantes */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { titre: "Installation Tableau Électrique Triphasé", cat: "Électricité", prix: "450.00 €", type: "Forfait", couleur: "border-cyan-500/30 text-cyan-400 bg-cyan-500/10" },
+                { titre: "Recherche & Réparation Fuite d'Eau", cat: "Plomberie", prix: "120.00 €", type: "Heure", couleur: "border-blue-500/30 text-blue-400 bg-blue-500/10" },
+                { titre: "Pose Cloison Placo & Isolation", cat: "Maçonnerie", prix: "65.00 €", type: "m²", couleur: "border-amber-500/30 text-amber-400 bg-amber-500/10" },
+                { titre: "Application Peinture Murale Satinée", cat: "Peinture", prix: "28.00 €", type: "m²", couleur: "border-purple-500/30 text-purple-400 bg-purple-500/10" },
+                { titre: "Remplacement Chauffe-eau 200L", cat: "Plomberie", prix: "890.00 €", type: "Unité", couleur: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" },
+                { titre: "Pose Parquet Flottant & Plinthes", cat: "Menuiserie", prix: "35.00 €", type: "m²", couleur: "border-rose-500/30 text-rose-400 bg-rose-500/10" }
+              ].map((item, idx) => (
+                <Card key={idx} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-5 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 transition-all hover:border-purple-500/50 hover:scale-[1.01]`}>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${item.couleur}`}>{item.cat}</span>
+                      <span className="text-xs font-black text-white">{item.prix} <span className="text-[10px] text-slate-400 font-normal">/ {item.type}</span></span>
+                    </div>
+                    <h4 className="font-bold text-sm leading-snug">{item.titre}</h4>
+                  </div>
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500">Référence interne #CAT-{100 + idx}</span>
+                    <Button onClick={() => alert(`Prestation "${item.titre}" sélectionnée`)} size="sm" className="bg-purple-500/20 hover:bg-purple-500 text-purple-300 hover:text-slate-950 font-bold text-xs h-8 px-3 transition-colors">
+                      + Utiliser
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 {/* MODULE FACTURATION & CRÉATION DE FACTURE HAUT EN COULEURS */}
         {vueActuelle === 'factures' && (
           <div className="space-y-6 animate-in fade-in duration-300">
