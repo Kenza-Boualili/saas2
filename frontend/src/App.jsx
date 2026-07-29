@@ -1119,6 +1119,226 @@ function App() {
           </div>
         )}
 
+        {/* MODULE EMAILS & MODÈLES AUTOMATIQUES (DESIGN UNIQUE) */}
+        {vueActuelle === 'emails' && (
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
+
+            {/* MODALE CONFIGURATION TEMPLATE */}
+            {modalTemplateConfig && templateEnCours && (
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <Card className={`w-full max-w-xl ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-2xl rounded-2xl`}>
+                  <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-800">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2"><Mail className="w-5 h-5 text-fuchsia-400"/> {templateEnCours.titre}</CardTitle>
+                    <Button variant="ghost" onClick={() => setModalTemplateConfig(false)} className="text-slate-400 hover:text-white rounded-full h-8 w-8 p-0"><X className="w-4 h-4"/></Button>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4 text-xs">
+                    <div className="flex items-center justify-between p-3 bg-[#0a0f1d] rounded-xl border border-slate-800">
+                      <div>
+                        <p className="font-bold text-white">Template actif</p>
+                        <p className="text-[10px] text-slate-400">Activer ou désactiver l'envoi automatique</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={templateEnCours.actif} 
+                        onChange={e => setTemplateEnCours({...templateEnCours, actif: e.target.checked})} 
+                        className="w-4 h-4 accent-fuchsia-500 cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-medium text-slate-400">Objet de l'email</label>
+                      <Input 
+                        value={templateEnCours.sujet} 
+                        onChange={e => setTemplateEnCours({...templateEnCours, sujet: e.target.value})} 
+                        className={`mt-1 h-10 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} 
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-medium text-slate-400">Contenu du message</label>
+                        <span className="text-[10px] text-fuchsia-400 font-bold">Variables dynamiques supportées</span>
+                      </div>
+                      <textarea 
+                        value={templateEnCours.contenu} 
+                        onChange={e => setTemplateEnCours({...templateEnCours, contenu: e.target.value})} 
+                        className={`w-full p-3 h-36 rounded-xl border outline-none resize-none font-mono ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}
+                      ></textarea>
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-3 border-t border-slate-800">
+                      <Button type="button" variant="outline" onClick={() => setModalTemplateConfig(false)} className="bg-transparent border-slate-700 text-slate-300 h-10 text-xs">Annuler</Button>
+                      <Button onClick={() => {
+                        setTemplatesEmails(templatesEmails.map(t => t.id === templateEnCours.id ? templateEnCours : t));
+                        setModalTemplateConfig(false);
+                      }} className="bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-bold h-10 px-5 text-xs shadow-lg">Enregistrer</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* EN-TÊTE EMAILS */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-fuchsia-600 to-indigo-500 text-white shadow-lg shadow-fuchsia-500/20">
+                    <Mail className="w-5 h-5"/>
+                  </div>
+                  Gestion des emails & communications
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Envoyez vos devis/factures et personnalisez vos modèles de messages automatiques.</p>
+              </div>
+            </div>
+
+            {/* ONGLETS INTERNES DE NAVIGATION (Envoyés | Composer | Templates) */}
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+              <button onClick={() => setVueEmail('envoyes')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${vueEmail === 'envoyes' ? 'bg-fuchsia-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                📨 Envoyés ({emailsEnvoyes.length})
+              </button>
+              <button onClick={() => setVueEmail('composer')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${vueEmail === 'composer' ? 'bg-fuchsia-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                ✍️ Composer
+              </button>
+              <button onClick={() => setVueEmail('templates')} className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${vueEmail === 'templates' ? 'bg-fuchsia-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                ⚙️ Templates automatiques ({templatesEmails.length})
+              </button>
+            </div>
+
+            {/* CONTENU 1 : EMAILS ENVOYÉS */}
+            {vueEmail === 'envoyes' && (
+              <div className="space-y-6">
+                <div className={`${isDarkMode ? 'bg-[#111827]/80 border-slate-800' : 'bg-white border-slate-200'} backdrop-blur-md border p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-4`}>
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-3.5 top-3 w-4 h-4 text-fuchsia-400" />
+                    <Input placeholder="Rechercher par sujet ou client..." className={`h-10 pl-10 pr-4 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} rounded-xl text-xs w-full focus:border-fuchsia-500`} />
+                  </div>
+                  <div className="w-full md:w-56">
+                    <select value={filtreTypeEmail} onChange={e => setFiltreTypeEmail(e.target.value)} className={`h-10 px-4 w-full rounded-xl text-xs ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none font-semibold text-fuchsia-400 cursor-pointer`}>
+                      <option value="Tous">Tous les types</option>
+                      <option value="Devis">Devis</option>
+                      <option value="Factures">Factures</option>
+                      <option value="Relances">Relances</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className={`${isDarkMode ? 'bg-[#111827] border-fuchsia-500/20 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border-l-4 border-l-fuchsia-500`}>
+                    <p className="text-[11px] text-slate-400 font-medium">Total envoyés</p>
+                    <h3 className="text-xl font-black mt-1 text-fuchsia-400">{emailsEnvoyes.length}</h3>
+                  </Card>
+                  <Card className={`${isDarkMode ? 'bg-[#111827] border-purple-500/20 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border-l-4 border-l-purple-500`}>
+                    <p className="text-[11px] text-slate-400 font-medium">Devis</p>
+                    <h3 className="text-xl font-black mt-1 text-purple-400">0</h3>
+                  </Card>
+                  <Card className={`${isDarkMode ? 'bg-[#111827] border-indigo-500/20 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border-l-4 border-l-indigo-500`}>
+                    <p className="text-[11px] text-slate-400 font-medium">Factures</p>
+                    <h3 className="text-xl font-black mt-1 text-indigo-400">0</h3>
+                  </Card>
+                  <Card className={`${isDarkMode ? 'bg-[#111827] border-pink-500/20 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border-l-4 border-l-pink-500`}>
+                    <p className="text-[11px] text-slate-400 font-medium">Relances</p>
+                    <h3 className="text-xl font-black mt-1 text-pink-400">0</h3>
+                  </Card>
+                </div>
+
+                {emailsEnvoyes.length === 0 ? (
+                  <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-400 shadow-inner">
+                      <Mail className="w-8 h-8"/>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base font-bold text-white">Aucun email envoyé</h3>
+                      <p className="text-xs text-slate-400 max-w-sm mx-auto">Vous n'avez pas encore envoyé d'email depuis l'application.</p>
+                    </div>
+                    <Button onClick={() => setVueEmail('composer')} className="bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-bold text-xs h-10 px-6 rounded-xl shadow-lg">
+                      Composer un email
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {emailsEnvoyes.map(em => (
+                      <div key={em.id} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border flex items-center justify-between text-xs`}>
+                        <div>
+                          <p className="font-bold text-fuchsia-400">{em.sujet}</p>
+                          <p className="text-slate-400">Destinataire : {em.destinataire}</p>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-fuchsia-500/20 text-fuchsia-300">{em.type}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CONTENU 2 : COMPOSER UN EMAIL */}
+            {vueEmail === 'composer' && (
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2"><Send className="w-4 h-4 text-fuchsia-400"/> Nouveau message</h3>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!formEmail.destinataire || !formEmail.sujet) return;
+                  setEmailsEnvoyes([...emailsEnvoyes, { ...formEmail, id: Date.now() }]);
+                  setFormEmail({ destinataire: '', sujet: '', message: '', type: 'Devis' });
+                  setVueEmail('envoyes');
+                }} className="space-y-4 text-xs">
+                  <div>
+                    <label className="font-medium text-slate-400">Destinataire (Email) *</label>
+                    <Input value={formEmail.destinataire} onChange={e => setFormEmail({...formEmail, destinataire: e.target.value})} placeholder="client@exemple.com" className={`mt-1 h-10 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-medium text-slate-400">Type de document</label>
+                      <select value={formEmail.type} onChange={e => setFormEmail({...formEmail, type: e.target.value})} className={`w-full h-10 mt-1 px-3 rounded-xl border ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}>
+                        <option value="Devis">Devis</option>
+                        <option value="Facture">Facture</option>
+                        <option value="Relance">Relance</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-medium text-slate-400">Sujet *</label>
+                    <Input value={formEmail.sujet} onChange={e => setFormEmail({...formEmail, sujet: e.target.value})} placeholder="Votre devis n°..." className={`mt-1 h-10 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required />
+                  </div>
+                  <div>
+                    <label className="font-medium text-slate-400">Message *</label>
+                    <textarea value={formEmail.message} onChange={e => setFormEmail({...formEmail, message: e.target.value})} placeholder="Rédigez votre message ici..." className={`w-full p-3 h-32 rounded-xl border outline-none resize-none ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`} required></textarea>
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <Button type="submit" className="bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-bold h-10 px-6 shadow-lg">Envoyer l'email</Button>
+                  </div>
+                </form>
+              </Card>
+            )}
+
+            {/* CONTENU 3 : TEMPLATES AUTOMATIQUES */}
+            {vueEmail === 'templates' && (
+              <div className="space-y-4">
+                <p className="text-xs text-slate-400">Personnalisez les emails envoyés automatiquement lors des différentes actions (devis, factures, relances...).</p>
+                <div className="space-y-3">
+                  {templatesEmails.map(tmpl => (
+                    <div key={tmpl.id} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-4 rounded-2xl shadow-xl border flex items-center justify-between text-xs`}>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-fuchsia-400">{tmpl.titre}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${tmpl.actif ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                            {tmpl.actif ? 'Actif' : 'Inactif'}
+                          </span>
+                        </div>
+                        <p className="text-slate-400">{tmpl.desc}</p>
+                      </div>
+                      <Button onClick={() => { setTemplateEnCours(tmpl); setModalTemplateConfig(true); }} className="bg-fuchsia-500/20 hover:bg-fuchsia-500 text-fuchsia-300 hover:text-slate-950 font-bold text-xs h-8 px-4 transition-colors">
+                        Configurer
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+        
         {/* NOUVEAU MODULE CRM PIPELINE AVEC DRAWER COULISSANT */}
         {vueActuelle === 'crm' && (
           <div className="space-y-6 animate-in fade-in duration-300 relative">
