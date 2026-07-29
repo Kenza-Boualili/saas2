@@ -775,10 +775,11 @@ function App() {
             </nav>
           </div>
 
-          <div>
+         <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold px-3 mb-2">Organisation</p>
             <nav className="space-y-1">
               <button onClick={() => setVueActuelle('catalogue')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'catalogue' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100'}`}><Package className="w-4 h-4" /> Catalogue</button>
+              <button onClick={() => setVueActuelle('planning')} className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${vueActuelle === 'planning' ? 'bg-emerald-500 text-slate-950 font-bold' : isDarkMode ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-100'}`}><Calendar className="w-4 h-4" /> Planning</button>
             </nav>
           </div>
 
