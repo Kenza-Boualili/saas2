@@ -1745,6 +1745,122 @@ function App() {
           </div>
         )}
 
+
+  {/* MODULE ARCHIVES & CORBEILLE (DESIGN UNIQUE) */}
+        {vueActuelle === 'archives' && (
+          <div className="space-y-6 animate-in fade-in duration-300 relative">
+
+            {/* EN-TÊTE ARCHIVES */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-slate-700 to-slate-900 text-amber-400 shadow-lg shadow-slate-900/50 border border-slate-700">
+                    <Archive className="w-5 h-5"/>
+                  </div>
+                  Archives
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">Gérez vos éléments archivés et restaurez-les si nécessaire.</p>
+              </div>
+            </div>
+
+            {/* ONGLETS DE FILTRAGE DES ARCHIVES */}
+            <div className="grid grid-cols-4 gap-2 border-b border-slate-800 pb-2">
+              {[
+                { id: 'Tous', label: `Tous (${archives.length})` },
+                { id: 'Devis', label: `Devis (${archives.filter(a => a.type === 'Devis').length})` },
+                { id: 'Factures', label: `Factures (${archives.filter(a => a.type === 'Facture').length})` },
+                { id: 'Clients', label: `Clients (${archives.filter(a => a.type === 'Client').length})` }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setOngletArchives(tab.id)}
+                  className={`py-2 text-xs font-bold rounded-xl transition-all text-center ${ongletArchives === tab.id ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* TABLEAU DES ARCHIVES OU ÉTAT VIDE */}
+            {archives.filter(a => ongletArchives === 'Tous' || a.type === ongletArchives.slice(0, -1)).length === 0 ? (
+              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-20 rounded-2xl shadow-xl text-center space-y-4`}>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center justify-center text-slate-400 shadow-inner">
+                  <Archive className="w-8 h-8"/>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-white">Aucun {ongletArchives === 'Tous' ? 'élément' : ongletArchives.toLowerCase().slice(0, -1)} archivé</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">Les éléments que vous supprimez ou archivez apparaîtront ici.</p>
+                </div>
+              </Card>
+            ) : (
+              <div className={`${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'} rounded-2xl border shadow-xl overflow-hidden`}>
+                <div className="grid grid-cols-5 p-4 text-xs font-bold text-slate-400 border-b border-slate-800">
+                  <div>Élément</div>
+                  <div>Type</div>
+                  <div>Date d'archivage</div>
+                  <div>Montant</div>
+                  <div className="text-right">Actions</div>
+                </div>
+
+                <div className="divide-y divide-slate-800/60">
+                  {archives
+                    .filter(a => ongletArchives === 'Tous' || a.type === ongletArchives.slice(0, -1))
+                    .map(item => (
+                      <div key={item.id} className="grid grid-cols-5 p-4 items-center text-xs hover:bg-slate-800/20 transition-colors relative">
+                        <div>
+                          <p className="font-bold text-white">{item.nom}</p>
+                          <p className="text-[10px] text-slate-400">{item.email}</p>
+                        </div>
+                        <div>
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-flex items-center gap-1">
+                            👤 {item.type}
+                          </span>
+                        </div>
+                        <div className="text-slate-300">{item.date}</div>
+                        <div className="text-slate-400">{item.montant}</div>
+                        <div className="text-right relative">
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => setMenuActionId(menuActionId === item.id ? null : item.id)}
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-white rounded-full"
+                          >
+                            <MoreVertical className="w-4 h-4"/>
+                          </Button>
+
+                          {/* MENU DÉROULANT ACTIONS */}
+                          {menuActionId === item.id && (
+                            <div className="absolute right-0 mt-2 w-48 bg-[#0a0f1d] border border-slate-800 rounded-xl shadow-2xl z-50 py-1 text-left">
+                              <button 
+                                onClick={() => {
+                                  setArchives(archives.filter(a => a.id !== item.id));
+                                  setMenuActionId(null);
+                                  alert("Élément restauré avec succès !");
+                                }}
+                                className="w-full px-4 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2 font-medium"
+                              >
+                                <Archive className="w-3.5 h-3.5 text-amber-400"/> Restaurer
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setArchives(archives.filter(a => a.id !== item.id));
+                                  setMenuActionId(null);
+                                }}
+                                className="w-full px-4 py-2 text-xs text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 font-medium border-t border-slate-800/60"
+                              >
+                                <Trash2 className="w-3.5 h-3.5"/> Supprimer définitivement
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+        
        {/* MODULE DEVIS & CRÉATION DE DEVIS AVEC DESIGN AVANCÉ */}
         {vueActuelle === 'devis' && (
           <div className="space-y-6 animate-in fade-in duration-300">
