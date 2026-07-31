@@ -3025,172 +3025,305 @@ function App() {
         )}
 
 {vueActuelle === 'reglages' && (
-  <div className="space-y-8 animate-in fade-in duration-300 max-w-5xl mx-auto pb-16">
+  <div className="space-y-6 animate-in fade-in duration-300 max-w-6xl mx-auto pb-16">
     
-    {/* EN-TÊTE DESIGN UNIQUE */}
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
+    {/* EN-TÊTE DE LA PAGE */}
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
       <div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span className="text-[10px] font-extrabold tracking-widest uppercase text-emerald-400">Espace Administration</span>
-        </div>
-        <h1 className="text-3xl font-black tracking-tight text-white mt-1">Paramètres de l'entreprise</h1>
-        <p className="text-xs text-slate-400 mt-0.5">Personnalisez votre identité professionnelle, vos tarifs et vos règles de facturation.</p>
+        <h1 className="text-2xl font-black tracking-tight text-white">Paramètres</h1>
+        <p className="text-xs text-slate-400 mt-1">Gérez vos informations et préférences professionnelles</p>
       </div>
-      <Button onClick={sauvegarderProfil} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg shadow-emerald-900/30 transition-transform active:scale-95">
+      <Button onClick={sauvegarderProfil} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-10 px-6 rounded-xl shadow-lg shadow-emerald-900/30">
         <Save className="w-4 h-4 mr-2"/> Enregistrer les modifications
       </Button>
     </div>
 
-    {/* GRILLE DES PARAMÈTRES (MODERN CARD LAYOUT) */}
-    <div className="grid grid-cols-1 gap-6">
-
-      {/* SECTION 1 : IDENTITÉ PROFESSIONNELLE */}
-      <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800/80 text-white' : 'bg-white border-slate-200'} p-8 rounded-3xl shadow-2xl relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Building2 className="w-5 h-5"/>
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-white">Identité & Coordonnées</h3>
-            <p className="text-xs text-slate-400">Ces informations certifient vos documents officiels (devis et factures).</p>
-          </div>
+    {/* BANNIÈRE D'AVERTISSEMENT PROFIL */}
+    <div className="bg-[#141b2d] border border-emerald-500/30 p-5 rounded-2xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="space-y-2 relative z-10">
+        <div className="flex items-center gap-2.5 text-emerald-400 font-bold text-sm">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span>Complétez votre profil pour une meilleure expérience</span>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-          <div>
-            <label className="text-slate-400 font-bold block mb-1.5">Nom de l'entreprise *</label>
-            <Input 
-              value={profil.nom_entreprise} 
-              onChange={e => setProfil({...profil, nom_entreprise: e.target.value})} 
-              placeholder="ex: Rénovation Habitat Pro"
-              className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-12 rounded-xl text-xs`} 
-              required 
-            />
-          </div>
-          <div>
-            <label className="text-slate-400 font-bold block mb-1.5">Votre Corps de Métier</label>
-            <Input 
-              value={profil.metier} 
-              onChange={e => setProfil({...profil, metier: e.target.value})} 
-              placeholder="ex: Électricien / Plombier"
-              className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-12 rounded-xl text-xs`} 
-            />
-          </div>
-          <div>
-            <label className="text-slate-400 font-bold block mb-1.5">Numéro de Téléphone</label>
-            <Input 
-              value={profil.telephone} 
-              onChange={e => setProfil({...profil, telephone: e.target.value})} 
-              placeholder="06 12 34 56 78"
-              className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-12 rounded-xl text-xs`} 
-            />
-          </div>
-          <div>
-            <label className="text-slate-400 font-bold block mb-1.5">Adresse Professionnelle</label>
-            <Input 
-              value={profil.adresse} 
-              onChange={e => setProfil({...profil, adresse: e.target.value})} 
-              placeholder="12 rue de la République, 75001 Paris"
-              className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-12 rounded-xl text-xs`} 
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* SECTION 2 : GRILLE TARIFAIRE (HORAIRE & DÉPLACEMENT) */}
-      <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800/80 text-white' : 'bg-white border-slate-200'} p-8 rounded-3xl shadow-2xl relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
-            <Euro className="w-5 h-5"/>
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-white">Barème & Tarifs de Prestation</h3>
-            <p className="text-xs text-slate-400">Définissez vos taux horaires et frais pour automatiser vos calculs de devis.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-          <div className="bg-[#0a0f1d] border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-slate-300 font-bold">Tarif Horaire de Main d'œuvre</label>
-              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold">Standard</span>
-            </div>
-            <div className="relative">
-              <Input 
-                type="number" 
-                value={profil.tarif_horaire} 
-                onChange={e => setProfil({...profil, tarif_horaire: Number(e.target.value)})} 
-                className={`${isDarkMode ? 'bg-[#111827] border-slate-700 text-white focus:border-emerald-500' : 'bg-white border-slate-300'} h-12 pr-10 rounded-xl text-sm font-bold`} 
-              />
-              <span className="absolute right-3.5 top-3.5 text-slate-400 font-bold text-xs">€ / h</span>
-            </div>
-          </div>
-
-          <div className="bg-[#0a0f1d] border border-slate-800 p-5 rounded-2xl space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-slate-300 font-bold">Forfait Déplacement</label>
-              <span className="text-[10px] bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded-full font-bold">Déplacement</span>
-            </div>
-            <div className="relative">
-              <Input 
-                type="number" 
-                value={profil.tarif_deplacement} 
-                onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} 
-                className={`${isDarkMode ? 'bg-[#111827] border-slate-700 text-white focus:border-emerald-500' : 'bg-white border-slate-300'} h-12 pr-10 rounded-xl text-sm font-bold`} 
-              />
-              <span className="absolute right-3.5 top-3.5 text-slate-400 font-bold text-xs">€</span>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* SECTION 3 : INTELLIGENCE ARTIFICIELLE & AUTOMATISATIONS */}
-      <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800/80 text-white' : 'bg-white border-slate-200'} p-8 rounded-3xl shadow-2xl relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-            <Bot className="w-5 h-5"/>
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-white">Assistant IA & Consignes</h3>
-            <p className="text-xs text-slate-400">Paramétrez le comportement de votre assistant virtuel et ses consignes d'accueil.</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 text-xs">
-          <div>
-            <label className="text-slate-400 font-bold block mb-1.5">Consignes personnalisées pour l'IA</label>
-            <textarea 
-              value={profil.ai_consignes} 
-              onChange={e => setProfil({...profil, ai_consignes: e.target.value})} 
-              rows="3"
-              className={`w-full p-4 rounded-xl border outline-none resize-none ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'}`}
-              placeholder="Ex: Demander d'abord le problème, puis le nom, le téléphone et l'adresse..."
-            ></textarea>
-          </div>
-        </div>
-      </Card>
-
+        <p className="text-xs text-slate-400 pl-7">
+          Les champs suivants sont requis pour personnaliser vos devis et factures :
+        </p>
+        <ul className="text-xs text-slate-300 pl-11 list-disc space-y-0.5">
+          <li>Nom de l'entreprise</li>
+          <li>Profession</li>
+          <li>SIRET</li>
+          <li>Téléphone</li>
+          <li>Adresse</li>
+        </ul>
+      </div>
+      <div className="flex items-center gap-3 relative z-10">
+        <Button variant="outline" className="bg-[#0a0f1d] border-emerald-500/40 text-emerald-400 hover:bg-slate-800 text-xs h-9">
+          Besoin d'aide ?
+        </Button>
+        <button className="text-xs text-slate-400 hover:text-white font-semibold transition-colors">
+          Plus tard
+        </button>
+      </div>
     </div>
 
-    {/* MESSAGE DE SAUVEGARDE FLOTTANT / STATIQUE */}
-    {messageSauvegarde && (
-      <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-2xl text-xs font-bold text-center animate-in fade-in">
-        {messageSauvegarde}
-      </div>
-    )}
+    {/* STRUCTURE PRINCIPALE : MENU LATÉRAL DE NAVIGATION & CONTENU */}
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      
+      {/* NAVIGATION DES SOUS-PARAMÈTRES (STYLE UNIQUE REVISITÉ) */}
+      <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-3 rounded-2xl shadow-xl space-y-1.5`}>
+        {[
+          { id: 'profil', label: 'Profil', icon: User },
+          { id: 'abonnement', label: 'Abonnement', icon: Wallet },
+          { id: 'facturation', label: 'Facturation', icon: Receipt },
+          { id: 'documents', label: 'Documents', icon: FileText },
+          { id: 'notifications', label: 'Notifications', icon: Bell },
+          { id: 'comptabilite', label: 'Comptabilité', icon: BarChart3 },
+          { id: 'parrainage', label: 'Parrainage', icon: Target },
+          { id: 'guides', label: 'Guides', icon: Wrench },
+          { id: 'confidentialite', label: 'Confidentialité', icon: ShieldAlert },
+        ].map(tab => {
+          const IconComponent = tab.icon;
+          const actif = ongletParametres === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setOngletParametres(tab.id)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+                actif 
+                  ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-900/30' 
+                  : isDarkMode ? 'text-slate-300 hover:bg-slate-800/60 hover:text-white' : 'text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <IconComponent className="w-4 h-4"/>
+                <span>{tab.label}</span>
+              </div>
+              <span className={`text-xs ${actif ? 'text-slate-950 font-black' : 'text-slate-500'}`}>›</span>
+            </button>
+          );
+        })}
+      </Card>
 
-    {/* BOUTON D'ENREGISTREMENT FINAL EN BAS */}
-    <div className="flex justify-end pt-4">
-      <Button onClick={sauvegarderProfil} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-12 px-8 rounded-xl shadow-xl shadow-emerald-900/30">
-        <Save className="w-4 h-4 mr-2"/> Enregistrer toutes les modifications
-      </Button>
+      {/* ZONE D'AFFICHAGE DU SOUS-ONGLET SÉLECTIONNÉ */}
+      <div className="lg:col-span-3 space-y-6">
+        
+        {/* SOUS-ONGLET : PROFIL */}
+        {ongletParametres === 'profil' && (
+          <div className="space-y-6">
+            
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-5`}>
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Building2 className="w-5 h-5"/>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Informations de l'entreprise</h3>
+                  <p className="text-xs text-slate-400">Ces informations apparaîtront sur vos devis et factures</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="text-slate-400 font-medium">Nom complet</label>
+                  <Input value={profil.nom_complet || "Jean Dupont"} onChange={e => setProfil({...profil, nom_complet: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Entreprise *</label>
+                  <Input value={profil.nom_entreprise} onChange={e => setProfil({...profil, nom_entreprise: e.target.value})} placeholder="Électricité Pro" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} required />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">SIRET *</label>
+                  <Input value={profil.siret || ""} onChange={e => setProfil({...profil, siret: e.target.value})} placeholder="12345678901234" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Téléphone *</label>
+                  <Input value={profil.telephone} onChange={e => setProfil({...profil, telephone: e.target.value})} placeholder="06 12 34 56 78" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-slate-400 font-medium">Adresse *</label>
+                  <Input value={profil.adresse} onChange={e => setProfil({...profil, adresse: e.target.value})} placeholder="123 rue de la République" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Code postal</label>
+                  <Input value={profil.code_postal || "75001"} onChange={e => setProfil({...profil, code_postal: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Ville</label>
+                  <Input value={profil.ville || "Paris"} onChange={e => setProfil({...profil, ville: e.target.value})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Wrench className="w-5 h-5"/>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Votre profession</h3>
+                  <p className="text-xs text-slate-400">Sélectionnez votre métier pour personnaliser vos templates</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <label className="text-slate-400 font-medium">Métier / Profession *</label>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                  <Input value={profil.metier} onChange={e => setProfil({...profil, metier: e.target.value})} placeholder="Ex: Électricien, Plombier..." className={`pl-10 h-11 ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'}`} />
+                </div>
+                <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1">
+                  💡 Commence à taper pour rechercher parmi 150+ métiers
+                </p>
+              </div>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Settings className="w-5 h-5"/>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Identité visuelle</h3>
+                  <p className="text-xs text-slate-400">Personnalisez vos documents et emails</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-300">Couleurs, logo et apparence de vos devis, factures et emails.</p>
+              <Button type="button" onClick={() => alert("Personnalisation visuelle ouverte")} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl">
+                Personnaliser
+              </Button>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Mail className="w-5 h-5"/>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Templates d'emails</h3>
+                  <p className="text-xs text-slate-400">Personnalisez le contenu de vos emails</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-300">Modifiez le texte et les variables de vos emails.</p>
+              <Button type="button" onClick={() => setVueActuelle('emails')} variant="outline" className="bg-[#0a0f1d] border-slate-700 text-slate-200 text-xs h-10 px-5 rounded-xl hover:bg-slate-800">
+                Gérer les templates
+              </Button>
+            </Card>
+
+            {messageSauvegarde && <p className="text-emerald-400 text-xs font-semibold">{messageSauvegarde}</p>}
+            <Button onClick={sauvegarderProfil} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg">
+              Enregistrer
+            </Button>
+          </div>
+        )}
+
+        {/* SOUS-ONGLET : FACTURATION */}
+        {ongletParametres === 'facturation' && (
+          <div className="space-y-6">
+            
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div>
+                <h3 className="text-sm font-bold text-white">Taux de TVA par défaut</h3>
+                <p className="text-xs text-slate-400">Ce taux sera appliqué automatiquement à vos nouveaux documents</p>
+              </div>
+              <div className="space-y-2 text-xs pt-2">
+                <label className="text-slate-400 font-medium">Taux de TVA</label>
+                <select className={`w-full md:w-80 h-11 px-4 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer font-medium`}>
+                  <option>0% (Exonéré)</option>
+                  <option>2.1% (Médicaments)</option>
+                  <option>5.5% (Réduit)</option>
+                  <option>10% (Intermédiaire)</option>
+                  <option selected>20% (Normal)</option>
+                </select>
+              </div>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div>
+                <h3 className="text-sm font-bold text-white">Conditions de paiement par défaut</h3>
+                <p className="text-xs text-slate-400">Délai de paiement appliqué automatiquement sur vos nouvelles factures</p>
+              </div>
+              <div className="space-y-2 text-xs pt-2">
+                <label className="text-slate-400 font-medium">Conditions de paiement</label>
+                <select className={`w-full md:w-80 h-11 px-4 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer font-medium`}>
+                  <option>Comptant (à réception)</option>
+                  <option>15 jours</option>
+                  <option selected>30 jours</option>
+                  <option>45 jours</option>
+                  <option>45 jours fin de mois</option>
+                  <option>60 jours</option>
+                </select>
+                <p className="text-[10px] text-slate-500 mt-1">La date d'échéance sera calculée automatiquement à partir de cette condition</p>
+              </div>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-5`}>
+              <div>
+                <h3 className="text-sm font-bold text-white">Marge sur matériaux</h3>
+                <p className="text-xs text-slate-400">Marge par défaut sur les matériaux et fournitures</p>
+              </div>
+              <div className="space-y-3 text-xs">
+                <label className="text-slate-400 font-medium">Marge par défaut (%)</label>
+                <div className="flex items-center gap-2 max-w-xs">
+                  <Input defaultValue="40" className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-11 text-sm`} />
+                  <span className="font-bold">%</span>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {['20%', '30%', '40%', '50%', '60%', '80%', '100%'].map((marge, i) => (
+                    <button key={i} type="button" className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${marge === '40%' ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'bg-[#0a0f1d] text-slate-300 border-slate-700 hover:border-slate-500'}`}>
+                      {marge}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="bg-[#0a0f1d] border border-slate-800 p-4 rounded-xl space-y-2 mt-4">
+                  <p className="font-bold text-white">Exemple</p>
+                  <div className="flex justify-between text-slate-400"><span>Prix d'achat :</span><span className="text-white">100.00 €</span></div>
+                  <div className="flex justify-between text-emerald-400"><span>Marge (40%) :</span><span>+40.00 €</span></div>
+                  <div className="flex justify-between font-bold text-white pt-2 border-t border-slate-800"><span>Prix de vente :</span><span>140.00 €</span></div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div>
+                <h3 className="text-sm font-bold text-white">Tarifs prestations</h3>
+                <p className="text-xs text-slate-400">Main d'œuvre et frais de déplacement</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-2">
+                <div>
+                  <label className="text-slate-400 font-medium">Tarif horaire (€/h)</label>
+                  <Input type="number" value={profil.tarif_horaire} onChange={e => setProfil({...profil, tarif_horaire: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-medium">Barème km (€/km)</label>
+                  <Input type="number" step="0.01" value={profil.tarif_deplacement} onChange={e => setProfil({...profil, tarif_deplacement: Number(e.target.value)})} className={`${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} h-11 mt-1`} />
+                  <p className="text-[10px] text-slate-500 mt-1">Barème fiscal 2026 : 0,65 €/km</p>
+                </div>
+              </div>
+            </Card>
+
+            <Button onClick={sauvegarderProfil} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg">
+              Enregistrer
+            </Button>
+          </div>
+        )}
+
+        {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
+        {['abonnement', 'documents', 'notifications', 'comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
+          <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Settings className="w-8 h-8"/>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white capitalize">Section {ongletParametres}</h3>
+              <p className="text-xs text-slate-400 mt-1">Espace de gestion et de configuration des {ongletParametres}.</p>
+            </div>
+          </Card>
+        )}
+
+      </div>
+
     </div>
 
   </div>
