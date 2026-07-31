@@ -3597,8 +3597,57 @@ function App() {
           </div>
         )}
 
+        {/* SOUS-ONGLET : NOTIFICATIONS */}
+        {ongletParametres === 'notifications' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            
+            {/* EN-TÊTE DE SECTION */}
+            <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                <Bell className="w-6 h-6"/>
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">Rappels de rendez-vous</h3>
+                <p className="text-xs text-slate-400">Emails de rappel automatiques pour vos clients</p>
+              </div>
+            </div>
+
+            {/* CARTE DE CONFIGURATION DES RAPPELS */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-6`}>
+              
+              <div className="space-y-2 text-xs">
+                <label className="text-slate-400 font-medium">Envoyer le rappel</label>
+                <select className={`w-full md:w-80 h-11 px-4 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer font-semibold text-emerald-400`}>
+                  <option>24 heures avant</option>
+                  <option>48 heures avant</option>
+                  <option>3 jours avant</option>
+                </select>
+              </div>
+
+              {/* ENCADRÉ EXPLICATIF (STYLE UNIQUE ET HARMONISÉ) */}
+              <div className="bg-[#0a201c] border border-emerald-500/30 p-5 rounded-2xl space-y-3">
+                <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider">Comment ça fonctionne ?</h4>
+                <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                  <li>Email envoyé automatiquement avant le RDV selon le délai choisi</li>
+                  <li>Contient la date, l'heure et le lieu exact de l'intervention</li>
+                  <li>Vos coordonnées de contact incluses automatiquement</li>
+                  <li>Désactivable au cas par cas directement sur chaque RDV</li>
+                </ul>
+              </div>
+
+            </Card>
+
+            <div>
+              <Button onClick={() => alert("Préférences de notifications enregistrées !")} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg">
+                Enregistrer
+              </Button>
+            </div>
+
+          </div>
+        )}
+        
         {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
-        {['notifications', 'comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
+        {['comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
           <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Settings className="w-8 h-8"/>
