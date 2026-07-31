@@ -3353,6 +3353,157 @@ function App() {
 
           </div>
         )}
+
+        {/* SOUS-ONGLET : DOCUMENTS (PERSONNALISATION VISUELLE) */}
+        {ongletParametres === 'documents' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            
+            {/* EN-TÊTE DE SECTION */}
+            <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                <FileText className="w-6 h-6"/>
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">Personnalisation des documents</h3>
+                <p className="text-xs text-slate-400">Personnalisez l'apparence visuelle de vos devis et factures</p>
+              </div>
+            </div>
+
+            {/* THÈMES PRÉDÉFINIS */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Thèmes prédéfinis</h4>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { nom: 'Bleu Pro', primary: 'bg-blue-600', secondary: 'bg-slate-500', accent: 'bg-indigo-600', actif: true },
+                  { nom: 'Vert Nature', primary: 'bg-emerald-600', secondary: 'bg-teal-600', accent: 'bg-emerald-400', actif: false },
+                  { nom: 'Orange Énergie', primary: 'bg-orange-600', secondary: 'bg-slate-500', accent: 'bg-amber-500', actif: false },
+                  { nom: 'Rouge Passion', primary: 'bg-rose-600', secondary: 'bg-slate-500', accent: 'bg-pink-600', actif: false },
+                  { nom: 'Violet Élégant', primary: 'bg-purple-600', secondary: 'bg-indigo-600', accent: 'bg-violet-500', actif: false },
+                  { nom: 'Gris Classique', primary: 'bg-slate-700', secondary: 'bg-slate-500', accent: 'bg-slate-900', actif: false },
+                ].map((theme, i) => (
+                  <div 
+                    key={i}
+                    onClick={() => alert(`Thème "${theme.nom}" appliqué !`)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between gap-4 ${
+                      theme.actif 
+                        ? 'border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/40' 
+                        : 'border-slate-800 bg-[#0a0f1d] hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3.5 h-3.5 rounded-full ${theme.primary}`}></div>
+                      <div className={`w-3.5 h-3.5 rounded-full ${theme.secondary}`}></div>
+                      <div className={`w-3.5 h-3.5 rounded-full ${theme.accent}`}></div>
+                    </div>
+                    <span className="text-xs font-bold text-white">{theme.nom}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* COULEURS PERSONNALISÉES */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-5`}>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Couleurs personnalisées</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                
+                <div className="space-y-2">
+                  <label className="text-slate-400 font-medium">Couleur principale</label>
+                  <div className="flex items-center gap-3 bg-[#0a0f1d] border border-slate-700 p-2 rounded-xl">
+                    <input type="color" defaultValue="#10b981" className="w-8 h-8 rounded-lg bg-transparent cursor-pointer border-0"/>
+                    <span className="font-mono text-xs text-white">#10b981</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500">Header, titres, en-têtes</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-slate-400 font-medium">Couleur secondaire</label>
+                  <div className="flex items-center gap-3 bg-[#0a0f1d] border border-slate-700 p-2 rounded-xl">
+                    <input type="color" defaultValue="#64748b" className="w-8 h-8 rounded-lg bg-transparent cursor-pointer border-0"/>
+                    <span className="font-mono text-xs text-white">#64748b</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500">Textes, bordures, lignes</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-slate-400 font-medium">Couleur accent</label>
+                  <div className="flex items-center gap-3 bg-[#0a0f1d] border border-slate-700 p-2 rounded-xl">
+                    <input type="color" defaultValue="#059669" className="w-8 h-8 rounded-lg bg-transparent cursor-pointer border-0"/>
+                    <span className="font-mono text-xs text-white">#059669</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500">Boutons, liens, totaux</p>
+                </div>
+
+              </div>
+            </Card>
+
+            {/* OPTIONS AVANCÉES & LOGO */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-6`}>
+              
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h4 className="text-sm font-bold text-white">Afficher le logo</h4>
+                  <p className="text-xs text-slate-400">Affiche votre logo d'entreprise sur les devis et factures</p>
+                </div>
+                <input type="checkbox" defaultChecked className="w-5 h-5 accent-emerald-500 cursor-pointer rounded"/>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Options avancées</h4>
+                
+                <div className="space-y-2">
+                  <label className="text-slate-400 font-medium">Style de l'en-tête</label>
+                  <select className={`w-full h-11 px-4 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer`}>
+                    <option>Pleine largeur (par défaut)</option>
+                    <option>Compact avec logo centré</option>
+                    <option>Minimaliste épuré</option>
+                  </select>
+                  <p className="text-[10px] text-slate-500">Style visuel de l'en-tête du document</p>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <label className="text-slate-400 font-medium">Texte de pied de page personnalisé</label>
+                  <textarea 
+                    placeholder="Ex: Merci de votre confiance ! - TVA non applicable, art. 293B du CGI" 
+                    className={`w-full p-3 h-20 rounded-xl border outline-none resize-none ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}
+                  ></textarea>
+                  <p className="text-[10px] text-slate-500">Texte supplémentaire affiché en bas de vos documents</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* APERÇU EN DIRECT DU DOCUMENT */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Aperçu en direct</h4>
+              
+              <div className="bg-white text-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-300 max-w-2xl mx-auto">
+                <div className="bg-emerald-600 text-white p-5 flex justify-between items-center">
+                  <span className="font-extrabold text-sm tracking-wide">MON ENTREPRISE</span>
+                  <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-lg">DEVIS N°001</span>
+                </div>
+                <div className="p-6 space-y-6">
+                  <div className="space-y-2">
+                    <div className="w-3/4 h-3 bg-slate-200 rounded"></div>
+                    <div className="w-1/2 h-3 bg-slate-200 rounded"></div>
+                  </div>
+                  <div className="flex justify-end pt-4 border-t border-slate-100">
+                    <div className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-black">
+                      Total : 1 250,00 €
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <div>
+              <Button onClick={() => alert("Paramètres de documents enregistrés !")} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg">
+                Enregistrer
+              </Button>
+            </div>
+
+          </div>
+        )}
         
         {/* SOUS-ONGLET : FACTURATION */}
         {ongletParametres === 'facturation' && (
