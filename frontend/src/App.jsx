@@ -3645,9 +3645,67 @@ function App() {
 
           </div>
         )}
+        {/* SOUS-ONGLET : COMPTABILITÉ (EXPORT FEC) */}
+        {ongletParametres === 'comptabilite' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            
+            {/* EN-TÊTE DE SECTION */}
+            <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                <BarChart3 className="w-6 h-6"/>
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">Exports et Conformité Comptable</h3>
+                <p className="text-xs text-slate-400">Générez vos fichiers d'écritures pour votre cabinet d'expertise</p>
+              </div>
+            </div>
+
+            {/* CARTE PRINCIPALE EXPORT FEC */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-6`}>
+              
+              {/* ENCADRÉ D'INFORMATION EXPLICATIF */}
+              <div className="bg-[#0f1e29] border border-blue-500/30 p-5 rounded-2xl space-y-2">
+                <h4 className="text-xs font-black text-blue-400 uppercase tracking-wider">Qu'est-ce que le Fichier des Écritures Comptables (FEC) ?</h4>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Le FEC est le document réglementaire obligatoire exigé par l'administration fiscale française. Il répertorie chronologiquement l'ensemble de vos transactions commerciales (recettes, factures réglées et notes de crédit) prêt à être transmis à votre comptable.
+                </p>
+              </div>
+
+              {/* SÉLECTION DE L'ANNÉE FISCALE */}
+              <div className="space-y-2 text-xs">
+                <label className="text-slate-400 font-medium">Sélectionner l'exercice fiscal</label>
+                <select className={`w-full md:w-80 h-11 px-4 rounded-xl ${isDarkMode ? 'bg-[#0a0f1d] border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-300'} border outline-none cursor-pointer font-semibold text-emerald-400`}>
+                  <option>Exercice 2026</option>
+                  <option>Exercice 2025</option>
+                  <option>Exercice 2024</option>
+                </select>
+              </div>
+
+              {/* BOUTON DE TÉLÉCHARGEMENT */}
+              <div>
+                <Button onClick={() => alert("Téléchargement du FEC en cours...")} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs h-11 px-6 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center gap-2">
+                  <Download className="w-4 h-4"/> Télécharger le FEC certifié
+                </Button>
+              </div>
+
+              {/* DÉTAILS DU CONTENU DE L'EXPORT */}
+              <div className="bg-[#1c140c] border border-amber-500/30 p-5 rounded-2xl space-y-3">
+                <h4 className="text-xs font-black text-amber-400 uppercase tracking-wider">Structure technique incluse dans l'archive</h4>
+                <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                  <li>Journal des encaissements et des ventes (code journal unifié)</li>
+                  <li>Suivi exhaustif des factures soldées et règlements partiels</li>
+                  <li>Imputation automatique des avoirs et remises accordées</li>
+                  <li>Plan comptable standard : 411 (Clients), 706 (Prestations), 4457x (TVA collectée)</li>
+                </ul>
+              </div>
+
+            </Card>
+
+          </div>
+        )}
         
         {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
-        {['comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
+        {['parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
           <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Settings className="w-8 h-8"/>
