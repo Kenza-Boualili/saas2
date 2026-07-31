@@ -3447,7 +3447,7 @@ function App() {
         )}
 
         {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
-        {['abonnement', 'documents', 'notifications', 'comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
+        {['documents', 'notifications', 'comptabilite', 'parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
           <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Settings className="w-8 h-8"/>
