@@ -3217,6 +3217,143 @@ function App() {
           </div>
         )}
 
+        {/* SOUS-ONGLET : ABONNEMENT */}
+        {ongletParametres === 'abonnement' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            
+            {/* CARTE DE STATUT ACTUEL */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-6 relative overflow-hidden`}>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+              
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                <div className="flex items-center gap-3.5">
+                  <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    <Wallet className="w-6 h-6"/>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-white">Votre abonnement actuel</h3>
+                    <p className="text-xs text-slate-400">Gérez votre plan et votre facturation en toute simplicité</p>
+                  </div>
+                </div>
+                <span className="px-3.5 py-1 rounded-full text-xs font-black bg-slate-800 text-slate-300 border border-slate-700 w-fit">
+                  Plan Gratuit
+                </span>
+              </div>
+
+              {/* BARRES D'UTILISATION */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Consommation du mois</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                  
+                  <div className="space-y-1.5 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-slate-300">Devis générés</span>
+                      <span className="text-emerald-400">0 / 10</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-[0%] h-full bg-emerald-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-slate-300">Factures émises</span>
+                      <span className="text-emerald-400">0 / 10</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-[0%] h-full bg-emerald-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-slate-300">Répertoire Clients</span>
+                      <span className="text-emerald-400">1 / 5</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-[20%] h-full bg-emerald-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 bg-[#0a0f1d] p-4 rounded-xl border border-slate-800">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-slate-300">Catalogue Produits</span>
+                      <span className="text-emerald-400">2 / 50</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-[4%] h-full bg-emerald-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </Card>
+
+            {/* SECTION UNIQUE : LE PLAN PRO EXCLUSIF */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-black tracking-tight text-white">Passez à la vitesse supérieure</h3>
+                <p className="text-xs text-slate-400">Débloquez l'intégralité de la puissance de KraftPilot pour développer votre activité.</p>
+              </div>
+
+              <div className="max-w-md mx-auto">
+                <Card className="bg-gradient-to-b from-[#111827] to-[#0d1322] border-2 border-emerald-500/60 p-8 rounded-3xl shadow-2xl relative overflow-hidden space-y-6">
+                  
+                  {/* Badge Recommandé */}
+                  <div className="absolute top-4 right-4 bg-emerald-500 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                    Le Choix des Artisans
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">Pack Pro Illimité</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">49 €</span>
+                      <span className="text-xs text-slate-400 font-semibold">/ mois</span>
+                    </div>
+                    <p className="text-xs text-emerald-400 font-bold pt-1">✨ 10 jours d'essai gratuit • Sans aucun engagement</p>
+                  </div>
+
+                  <div className="space-y-3 pt-2 text-xs text-slate-300 border-t border-slate-800/80">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span><strong>Devis et factures</strong> en quantité illimitée</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span><strong>Répertoire clients</strong> illimité</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span><strong>Signature électronique</strong> intégrée</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span><strong>Assistant IA illimité</strong> & consignes sur-mesure</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span>Gestion des stocks, fournisseurs et commandes</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                      <span>Sans publicité & support prioritaire 7j/7</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Button onClick={() => alert("Redirection vers le paiement sécurisé (10 jours offerts)")} className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs h-12 rounded-xl shadow-xl shadow-emerald-900/40 transition-transform active:scale-95">
+                      Démarrer mes 10 jours d'essai gratuit
+                    </Button>
+                    <p className="text-[10px] text-slate-500 text-center mt-2.5">Annulable en un clic à tout moment depuis votre espace.</p>
+                  </div>
+
+                </Card>
+              </div>
+            </div>
+
+          </div>
+        )}
+        
         {/* SOUS-ONGLET : FACTURATION */}
         {ongletParametres === 'facturation' && (
           <div className="space-y-6">
