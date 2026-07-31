@@ -3701,20 +3701,70 @@ function App() {
 
           </div>
         )}
-        
-        {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
-        {['confidentialite'].includes(ongletParametres) && (
-          <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Settings className="w-8 h-8"/>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white capitalize">Section {ongletParametres}</h3>
-              <p className="text-xs text-slate-400 mt-1">Espace de gestion et de configuration des {ongletParametres}.</p>
-            </div>
-          </Card>
-        )}
 
+        {/* SOUS-ONGLET : CONFIDENTIALITÉ & RGPD */}
+        {ongletParametres === 'confidentialite' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            
+            {/* EN-TÊTE DE SECTION */}
+            <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+                <ShieldAlert className="w-6 h-6"/>
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">Protection des données et RGPD</h3>
+                <p className="text-xs text-slate-400">Exercez vos droits et consultez nos engagements de confidentialité</p>
+              </div>
+            </div>
+
+            {/* CARTE : DOCUMENTS LÉGAUX */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Cadre juridique et légal</h4>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" onClick={() => alert("Ouverture de la Politique de Confidentialité")} className="bg-[#0a0f1d] border-slate-700 text-slate-200 hover:bg-slate-800 text-xs h-10 px-4 rounded-xl">
+                  📄 Politique de Confidentialité ↗
+                </Button>
+                <Button variant="outline" onClick={() => alert("Ouverture des CGU")} className="bg-[#0a0f1d] border-slate-700 text-slate-200 hover:bg-slate-800 text-xs h-10 px-4 rounded-xl">
+                  📄 Conditions Générales (CGU) ↗
+                </Button>
+                <Button variant="outline" onClick={() => alert("Ouverture des Mentions Légales")} className="bg-[#0a0f1d] border-slate-700 text-slate-200 hover:bg-slate-800 text-xs h-10 px-4 rounded-xl">
+                  📄 Mentions Légales ↗
+                </Button>
+              </div>
+            </Card>
+
+            {/* CARTE : EXPORTATION DES DONNÉES */}
+            <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-6 rounded-2xl shadow-xl space-y-4`}>
+              <div>
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Portabilité de vos données</h4>
+                <p className="text-xs text-slate-400 mt-1">Téléchargez une copie intégrale de l'ensemble de vos données enregistrées au format JSON.</p>
+              </div>
+              <div>
+                <Button onClick={() => alert("Génération de votre archive de données en cours...")} className="bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-bold text-xs h-10 px-5 rounded-xl transition-colors border border-emerald-500/30">
+                  <Download className="w-4 h-4 mr-2"/> Exporter mes données personnelles
+                </Button>
+              </div>
+            </Card>
+
+            {/* ZONE DE DANGER : SUPPRESSION DU COMPTE */}
+            <Card className="bg-rose-950/20 border border-rose-500/30 p-6 rounded-2xl shadow-xl space-y-4">
+              <div>
+                <h4 className="text-xs font-black text-rose-400 uppercase tracking-wider">Zone de danger</h4>
+                <p className="text-xs text-slate-300 mt-1">
+                  La suppression de votre espace professionnel est définitive et irréversible. Conformément à la législation en vigueur, vos factures émises seront anonymisées et conservées pendant le délai légal obligatoire de 10 ans.
+                </p>
+              </div>
+              <div>
+                <Button onClick={() => { if(confirm("Êtes-vous absolument sûr de vouloir supprimer votre compte ?")) alert("Procédure de suppression initialisée."); }} className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-lg shadow-rose-950/50">
+                  <Trash2 className="w-4 h-4 mr-2"/> Supprimer mon compte
+                </Button>
+              </div>
+            </Card>
+
+          </div>
+        )}
+        
+       
       </div>
 
     </div>
