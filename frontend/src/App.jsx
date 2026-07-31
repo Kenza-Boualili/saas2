@@ -86,6 +86,7 @@ function App() {
   const [erreurAuth, setErreurAuth] = useState('')
 
   const [vueActuelle, setVueActuelle] = useState('dashboard') 
+  const [ongletParametres, setOngletParametres] = useState('profil');
   const [prospects, setProspects] = useState([])
   const [chargement, setChargement] = useState(false)
   const [prospectSelectionne, setProspectSelectionne] = useState(null)
