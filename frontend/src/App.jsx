@@ -3079,8 +3079,6 @@ function App() {
           { id: 'documents', label: 'Documents', icon: FileText },
           { id: 'notifications', label: 'Notifications', icon: Bell },
           { id: 'comptabilite', label: 'Comptabilité', icon: BarChart3 },
-          { id: 'parrainage', label: 'Parrainage', icon: Target },
-          { id: 'guides', label: 'Guides', icon: Wrench },
           { id: 'confidentialite', label: 'Confidentialité', icon: ShieldAlert },
         ].map(tab => {
           const IconComponent = tab.icon;
@@ -3705,7 +3703,7 @@ function App() {
         )}
         
         {/* AUTRES SOUS-ONGLETS GÉNÉRIQUES */}
-        {['parrainage', 'guides', 'confidentialite'].includes(ongletParametres) && (
+        {['confidentialite'].includes(ongletParametres) && (
           <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} p-16 rounded-2xl shadow-xl text-center space-y-4`}>
             <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Settings className="w-8 h-8"/>
