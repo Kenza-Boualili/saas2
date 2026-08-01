@@ -1142,23 +1142,40 @@ function App() {
               </Card>
             </div>
 
-            {/* GRAPHIQUES DU TABLEAU DE BORD */}
+           {/* GRAPHIQUES DU TABLEAU DE BORD */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              {/* GRAPHIQUE : ÉVOLUTION DU CA */}
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl space-y-4`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold">Évolution du CA</h3>
                   <span className="text-xs text-amber-400 font-extrabold">Total {totalCA}€</span>
                 </div>
                 <div className="h-48 flex items-end justify-between gap-2 pt-6 px-2 relative border-b border-slate-800">
+                  {/* Ligne jaune de base */}
+                  <div className="absolute left-2 right-2 bottom-6 h-[2px] bg-amber-500/50"></div>
+                  
                   {MOIS_ANNEE.map((mois, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
-                      <div className="w-full bg-amber-500/20 group-hover:bg-amber-500/40 rounded-t-lg transition-all" style={{ height: '0%' }}></div>
-                      <span className="text-[10px] text-slate-400">{mois}</span>
+                    <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative cursor-pointer">
+                      {/* Point sur la ligne au survol */}
+                      <div className="absolute bottom-6 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center z-20">
+                        <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50 -mb-1.5"></div>
+                        <div className="w-[1px] h-32 bg-slate-400/50"></div>
+                      </div>
+
+                      {/* Tooltip au survol */}
+                      <div className="absolute bottom-16 opacity-0 group-hover:opacity-100 transition-all duration-150 pointer-events-none z-30 bg-[#1e2538] border border-slate-700/80 p-3 rounded-xl shadow-2xl min-w-[100px] text-xs space-y-1">
+                        <p className="font-bold text-slate-200">{mois}</p>
+                        <p className="font-extrabold text-amber-400">CA : 0€</p>
+                      </div>
+
+                      <span className="text-[10px] text-slate-400 relative z-10">{mois}</span>
                     </div>
                   ))}
                 </div>
               </Card>
 
+              {/* GRAPHIQUE : ACTIVITÉ MENSUELLE */}
               <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl space-y-4`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold">Activité mensuelle</h3>
@@ -1169,12 +1186,23 @@ function App() {
                 </div>
                 <div className="h-48 flex items-end justify-between gap-2 pt-6 px-2 relative border-b border-slate-800">
                   {MOIS_ANNEE.map((mois, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
-                      <span className="text-[10px] text-slate-400">{mois}</span>
+                    <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative cursor-pointer">
+                      {/* Barre de survol verticale */}
+                      <div className="absolute inset-y-0 w-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg z-10"></div>
+
+                      {/* Tooltip au survol */}
+                      <div className="absolute bottom-16 opacity-0 group-hover:opacity-100 transition-all duration-150 pointer-events-none z-30 bg-[#1e2538] border border-slate-700/80 p-3 rounded-xl shadow-2xl min-w-[110px] text-xs space-y-1">
+                        <p className="font-bold text-slate-200">{mois}</p>
+                        <p className="font-bold text-blue-400">Devis : 0</p>
+                        <p className="font-bold text-emerald-400">Factures : 0</p>
+                      </div>
+
+                      <span className="text-[10px] text-slate-400 relative z-10">{mois}</span>
                     </div>
                   ))}
                 </div>
               </Card>
+
             </div>
 
             {/* PIPELINE CRM ET ACTIONS RAPIDES */}
