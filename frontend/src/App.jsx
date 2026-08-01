@@ -3,14 +3,35 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  LayoutDashboard, MessageSquare, AlertCircle, Wrench, Phone, MapPin, Send, Filter, LogOut, Lock, Mail, 
-  Building2, Calendar, Clock, Download, Archive, FileText, Settings, Save, Euro, Map, Users, Search, Eye, 
-  X, BellRing, BarChart3, TrendingUp, PieChart, Bot, Plus, Wallet, FileSpreadsheet, Receipt, Truck, 
-  ShoppingCart, Package, CalendarCheck, ShieldAlert, Target, Bell, Moon, Sun, User, SettingsIcon, 
-  ArrowUpRight, ArrowDownRight, MessageCircle, RefreshCw, CheckCircle2, MoreVertical, Edit3, Trash2, 
-  UserX, Upload, UserPlus, RefreshCcw, MoreHorizontal, CheckSquare 
-} from "lucide-react"
-
+  LayoutDashboard, 
+  Wallet, 
+  Truck, 
+  ShoppingCart, 
+  Package, 
+  Calendar, 
+  CheckSquare, 
+  Mail, 
+  Archive, 
+  Settings, 
+  User, 
+  Receipt, 
+  FileText, 
+  Bell, 
+  BarChart3, 
+  Target, 
+  Wrench, 
+  ShieldAlert, 
+  Search, 
+  RefreshCw, 
+  Folder, 
+  HardDrive, 
+  Camera, 
+  Trash2, 
+  Save, 
+  AlertCircle, 
+  LogOut, 
+  Download 
+} from 'lucide-react';
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
 const STATUTS_TOUS = [
