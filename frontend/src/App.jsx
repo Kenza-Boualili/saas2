@@ -1025,10 +1025,7 @@ function App() {
               )}
             </div>
 
-            <Button onClick={() => { setVueActuelle('factures'); window.modeCreationFacture = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-  <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
-  <span>Nouvelle facture</span>
-</Button>
+           
           </div>
         </header>
 
