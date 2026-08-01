@@ -2,7 +2,17 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {  LayoutDashboard, Wallet, Truck, ShoppingCart, Package, Calendar, CheckSquare, Mail, Archive, Settings, 
+import { 
+  LayoutDashboard, 
+  Wallet, 
+  Truck, 
+  ShoppingCart, 
+  Package, 
+  Calendar, 
+  CheckSquare, 
+  Mail, 
+  Archive, 
+  Settings, 
   User, 
   Receipt, 
   FileText, 
@@ -22,6 +32,7 @@ import {  LayoutDashboard, Wallet, Truck, ShoppingCart, Package, Calendar, Check
   LogOut, 
   Download 
 } from 'lucide-react';
+
 const API_URL = "https://artisan-ai-zirt.onrender.com";
 
 const STATUTS_TOUS = [
@@ -33,7 +44,6 @@ const STATUTS_TOUS = [
 ]
 
 const MOIS_ANNEE = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
-
 function App() {
   const [artisanConnecte, setArtisanConnecte] = useState(null)
   const [vueAuth, setVueAuth] = useState('connexion')
