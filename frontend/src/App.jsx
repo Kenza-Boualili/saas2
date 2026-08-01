@@ -733,7 +733,7 @@ function App() {
               }} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Edit3 className="w-3.5 h-3.5 mr-1.5"/> Modifier</Button>
               
               <Button onClick={() => { setVueActuelle('crm'); }} variant="outline" className="h-9 bg-[#111827] border-slate-700 text-slate-200 text-xs"><Target className="w-3.5 h-3.5 mr-1.5 text-amber-400"/> Ajouter au CRM</Button>
-              <Button onClick={() => setModalAjoutOuvert(true)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl"><FileText className="w-4 h-4 mr-1.5"/> Nouveau devis</Button>
+              <Button onClick={() => { setVueActuelle('devis'); window.modeCreationDevis = true; }} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl"><FileText className="w-4 h-4 mr-1.5"/> Nouveau devis</Button>
             </div>
           </div>
 
