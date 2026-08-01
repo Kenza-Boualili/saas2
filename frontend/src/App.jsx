@@ -1189,6 +1189,47 @@ function App() {
                     <span>Photos chantier</span>
                   </Button>
 
+                  {/* GRAPHIQUES DU TABLEAU DE BORD */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* GRAPHIQUE : ÉVOLUTION DU CA */}
+          <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl space-y-4`}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold">Évolution du CA</h3>
+              <span className="text-xs text-amber-400 font-extrabold">Total {totalCA}€</span>
+            </div>
+            <div className="h-48 flex items-end justify-between gap-2 pt-6 px-2 relative border-b border-slate-800">
+              {MOIS_ANNEE.map((mois, index) => {
+                const caMois = 0; // Remplace par ta logique de calcul par mois si tu l'as
+                return (
+                  <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
+                    <div className="w-full bg-amber-500/20 group-hover:bg-amber-500/40 rounded-t-lg transition-all" style={{ height: '0%' }}></div>
+                    <span className="text-[10px] text-slate-400">{mois}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* GRAPHIQUE : ACTIVITÉ MENSUELLE */}
+          <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl space-y-4`}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold">Activité mensuelle</h3>
+              <div className="flex items-center gap-4 text-[11px]">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Factures</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Devis</span>
+              </div>
+            </div>
+            <div className="h-48 flex items-end justify-between gap-2 pt-6 px-2 relative border-b border-slate-800">
+              {MOIS_ANNEE.map((mois, index) => (
+                <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
+                  <span className="text-[10px] text-slate-400">{mois}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+        </div>
                 </div>
               </div>
             </div>
