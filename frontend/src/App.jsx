@@ -1141,55 +1141,7 @@ function App() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl flex flex-col justify-between transition-all hover:border-emerald-500/40`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="bg-emerald-500/10 p-2 rounded-xl text-emerald-500"><Target className="w-5 h-5"/></div>
-                    <h3 className="text-sm font-bold">Pipeline CRM</h3>
-                  </div>
-                  <Button onClick={() => setVueActuelle('crm')} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-8">Voir CRM →</Button>
-                </div>
-                <div>
-                  <h4 className="text-2xl font-extrabold text-emerald-500">{caEnAttente}€</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Total pipeline actif</p>
-                </div>
-                <div className={`grid grid-cols-3 gap-2 mt-4 pt-4 border-t ${isDarkMode ? 'border-slate-800 bg-[#0a0f1d]' : 'border-slate-100 bg-slate-50'} text-center rounded-xl p-2`}>
-                  <div><span className="block text-xs font-bold text-blue-500">{prospectsActifs.length} leads</span></div>
-                  <div><span className="block text-xs font-bold text-emerald-500">0 devis</span></div>
-                  <div><span className="block text-xs font-bold text-emerald-500">0 gagnés</span></div>
-                </div>
-              </Card>
-
-              <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} border p-6 rounded-2xl shadow-xl flex flex-col justify-between`}>
-                <h3 className="text-sm font-bold mb-4">Actions rapides</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  
-                  {/* 1. Nouveau devis */}
-                  <Button onClick={() => { setVueActuelle('devis'); window.modeCreationDevis = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-                    <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><FileText className="w-6 h-6"/></div>
-                    <span>Nouveau devis</span>
-                  </Button>
-
-                  {/* 2. Nouvelle facture */}
-                  <Button onClick={() => { setVueActuelle('factures'); window.modeCreationFacture = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-                    <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
-                    <span>Nouvelle facture</span>
-                  </Button>
-
-                  {/* 3. Ajouter client */}
-                  <Button onClick={() => { setVueActuelle('clients'); setModalNouveauClientOuvert(true); }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
-                    <span>Ajouter client</span>
-                  </Button>
-
-                  {/* 4. Photos chantier */}
-                  <Button onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-                    <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
-                    <span>Photos chantier</span>
-                  </Button>
-
-                  {/* GRAPHIQUES DU TABLEAU DE BORD */}
+           {/* GRAPHIQUES DU TABLEAU DE BORD (Ligne dédiée) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* GRAPHIQUE : ÉVOLUTION DU CA */}
@@ -1199,15 +1151,12 @@ function App() {
               <span className="text-xs text-amber-400 font-extrabold">Total {totalCA}€</span>
             </div>
             <div className="h-48 flex items-end justify-between gap-2 pt-6 px-2 relative border-b border-slate-800">
-              {MOIS_ANNEE.map((mois, index) => {
-                const caMois = 0; // Remplace par ta logique de calcul par mois si tu l'as
-                return (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
-                    <div className="w-full bg-amber-500/20 group-hover:bg-amber-500/40 rounded-t-lg transition-all" style={{ height: '0%' }}></div>
-                    <span className="text-[10px] text-slate-400">{mois}</span>
-                  </div>
-                );
-              })}
+              {MOIS_ANNEE.map((mois, index) => (
+                <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
+                  <div className="w-full bg-amber-500/20 group-hover:bg-amber-500/40 rounded-t-lg transition-all" style={{ height: '0%' }}></div>
+                  <span className="text-[10px] text-slate-400">{mois}</span>
+                </div>
+              ))}
             </div>
           </Card>
 
@@ -1230,12 +1179,57 @@ function App() {
           </Card>
 
         </div>
-                </div>
+
+        {/* PIPELINE CRM ET ACTIONS RAPIDES (En dessous des graphiques) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <Card className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} p-6 rounded-2xl shadow-xl flex flex-col justify-between transition-all hover:border-emerald-500/40`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="bg-emerald-500/10 p-2 rounded-xl text-emerald-500"><Target className="w-5 h-5"/></div>
+                <h3 className="text-sm font-bold">Pipeline CRM</h3>
               </div>
+              <Button onClick={() => setVueActuelle('crm')} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs h-8">Voir CRM →</Button>
+            </div>
+            <div>
+              <h4 className="text-2xl font-extrabold text-emerald-500">{caEnAttente}€</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">Total pipeline actif</p>
+            </div>
+            <div className={`grid grid-cols-3 gap-2 mt-4 pt-4 border-t ${isDarkMode ? 'border-slate-800 bg-[#0a0f1d]' : 'border-slate-100 bg-slate-50'} text-center rounded-xl p-2`}>
+              <div><span className="block text-xs font-bold text-blue-500">{prospectsActifs.length} leads</span></div>
+              <div><span className="block text-xs font-bold text-emerald-500">0 devis</span></div>
+              <div><span className="block text-xs font-bold text-emerald-500">0 gagnés</span></div>
+            </div>
+          </Card>
+
+          <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} border p-6 rounded-2xl shadow-xl flex flex-col justify-between`}>
+            <h3 className="text-sm font-bold mb-4">Actions rapides</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              
+              <Button onClick={() => { setVueActuelle('devis'); window.modeCreationDevis = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><FileText className="w-6 h-6"/></div>
+                <span>Nouveau devis</span>
+              </Button>
+
+              <Button onClick={() => { setVueActuelle('factures'); window.modeCreationFacture = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
+                <span>Nouvelle facture</span>
+              </Button>
+
+              <Button onClick={() => { setVueActuelle('clients'); setModalNouveauClientOuvert(true); }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
+                <span>Ajouter client</span>
+              </Button>
+
+              <Button onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
+                <span>Photos chantier</span>
+              </Button>
+
             </div>
           </div>
-        )}
 
+        </div>
         {/* MODULE EMAILS & MODÈLES AUTOMATIQUES (DESIGN UNIQUE) */}
         {vueActuelle === 'emails' && (
           <div className="space-y-6 animate-in fade-in duration-300 relative">
