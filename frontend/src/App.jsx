@@ -30,7 +30,27 @@ import {
   Save, 
   AlertCircle, 
   LogOut, 
-  Download 
+  Download,
+  Building2,
+  Lock,
+  X,
+  Edit3,
+  MapPin,
+  Users,
+  Plus,
+  Send,
+  Sun,
+  Moon,
+  Settings as SettingsIcon,
+  LogOut as SignOut,
+  Euro,
+  Clock,
+  TrendingUp,
+  Upload,
+  MoreVertical,
+  Eye,
+  UserX,
+  Filter
 } from 'lucide-react';
 
 const API_URL = "https://artisan-ai-zirt.onrender.com";
