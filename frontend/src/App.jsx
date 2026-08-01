@@ -1164,26 +1164,35 @@ function App() {
                 </div>
               </Card>
 
-              <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} border p-6 rounded-2xl shadow-xl flex flex-col justify-between`}>
+              <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200'} border p-6 rounded-2xl shadow-xl flex flex-col justify-between`}>
                 <h3 className="text-sm font-bold mb-4">Actions rapides</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <Button onClick={() => { setVueActuelle('devis'); window.modeCreationDevis = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-  <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><FileText className="w-6 h-6"/></div>
-  <span>Nouveau devis</span>
-</Button>
-                  <Button onClick={() => setModalAjoutOuvert(true)} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
+                  
+                  {/* 1. Nouveau devis */}
+                  <Button onClick={() => { setVueActuelle('devis'); window.modeCreationDevis = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                    <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><FileText className="w-6 h-6"/></div>
+                    <span>Nouveau devis</span>
+                  </Button>
+
+                  {/* 2. Nouvelle facture */}
+                  <Button onClick={() => { setVueActuelle('factures'); window.modeCreationFacture = true; }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
                     <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 group-hover:bg-emerald-500/20 transition-colors"><Receipt className="w-6 h-6"/></div>
                     <span>Nouvelle facture</span>
                   </Button>
+
+                  {/* 3. Ajouter client */}
                   <Button onClick={() => { setVueActuelle('clients'); setModalNouveauClientOuvert(true); }} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
-  <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
-  <span>Ajouter client</span>
-</Button>
-                  <Button onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
-  <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
-  <span>Photos chantier</span>
-</Button>
-                 </div>
+                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
+                    <span>Ajouter client</span>
+                  </Button>
+
+                  {/* 4. Photos chantier */}
+                  <Button onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group w-full`}>
+                    <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
+                    <span>Photos chantier</span>
+                  </Button>
+
+                </div>
               </div>
             </div>
           </div>
