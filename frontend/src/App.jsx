@@ -1132,8 +1132,7 @@ function App() {
                 </div>
               </Card>
 
-              <Card onClick={() => setVueActuelle('clients')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-purple-500/50 hover:scale-[1.02] cursor-pointer`}>
-                <div className="flex justify-between items-start">
+             <Card onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#111827] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'} shadow-xl rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-purple-500/50 hover:scale-[1.02] cursor-pointer`}>   <div className="flex justify-between items-start">
                   <div>
                     <p className="text-xs text-slate-400 font-medium">Photos chantier</p>
                     <h3 className="text-2xl font-extrabold mt-1">0</h3>
@@ -1179,11 +1178,11 @@ function App() {
                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500/20 transition-colors"><Users className="w-6 h-6"/></div>
                     <span>Ajouter client</span>
                   </Button>
-                  <Button onClick={() => setVueActuelle('clients')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
-                    <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
-                    <span>Photos chantier</span>
-                  </Button>
-                </div>
+                  <Button onClick={() => setVueActuelle('photos')} className={`${isDarkMode ? 'bg-[#0a0f1d] hover:bg-slate-800/80 border-slate-800 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'} border h-32 text-xs font-semibold flex flex-col items-center justify-center gap-3 rounded-2xl transition-all hover:scale-[1.02] shadow-md group`}>
+  <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:bg-purple-500/20 transition-colors"><Package className="w-6 h-6"/></div>
+  <span>Photos chantier</span>
+</Button>
+                 </div>
               </div>
             </div>
           </div>
